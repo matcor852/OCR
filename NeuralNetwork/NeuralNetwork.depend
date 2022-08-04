@@ -1,10 +1,11 @@
 # depslib dependency file v1.0
-1659448335 source:d:\code\c\ocr\neuralnetwork\main.c
+1659559930 source:d:\code\c\ocr\neuralnetwork\main.c
 	<stdio.h>
 	<stdlib.h>
 	<time.h>
 	"Activations.h"
 	"Layer.h"
+	"Tools.h"
 
 1659286597 source:d:\code\c\ocr\neuralnetwork\neuron.c
 	"Neuron.h"
@@ -21,17 +22,38 @@
 	<stdbool.h>
 	<time.h>
 
-1659448316 source:d:\code\c\ocr\neuralnetwork\layer.c
+1659559243 source:d:\code\c\ocr\neuralnetwork\layer.c
 	"Layer.h"
 
-1659448316 d:\code\c\ocr\neuralnetwork\layer.h
+1659559233 d:\code\c\ocr\neuralnetwork\layer.h
 	<stdio.h>
 	<stdlib.h>
 	<time.h>
+	<stdbool.h>
+	"Tools.h"
 
-1659366821 source:d:\code\c\ocr\neuralnetwork\activations.c
+1659549072 source:d:\code\c\ocr\neuralnetwork\activations.c
 	"Activations.h"
 
-1659390421 d:\code\c\ocr\neuralnetwork\activations.h
+1659617776 d:\code\c\ocr\neuralnetwork\activations.h
 	<math.h>
+	<Layer.h>
+
+1659559233 d:\code\c\ocr\neuralnetwork\\layer.h
+	<stdio.h>
+	<stdlib.h>
+	<time.h>
+	<stdbool.h>
+	"Tools.h"
+
+1659547800 d:\code\c\ocr\neuralnetwork\\tools.h
+	<stdio.h>
+	<stdlib.h>
+
+1659547800 d:\code\c\ocr\neuralnetwork\tools.h
+	<stdio.h>
+	<stdlib.h>
+
+1659547800 source:d:\code\c\ocr\neuralnetwork\tools.c
+	"Tools.h"
 
