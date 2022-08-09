@@ -43,6 +43,10 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="Layer.h" />
+		<Unit filename="Network.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="Network.h" />
 		<Unit filename="Tools.c">
 			<Option compilerVar="CC" />
 		</Unit>

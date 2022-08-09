@@ -6,56 +6,52 @@
 #include "Layer.h"
 #include "Tools.h"
 
+#include "Network.h"
+
+
+
+
 
 
 int main()
 {
 	srand((unsigned int) time(NULL));
 
-	Layer l1, l2, l3;
-	Layer_Init(&l1, NULL, &l2, 2, NULL, NULL);
-	Layer_Init(&l2, &l1, &l3, 2, NULL, NULL);
-	Layer_Init(&l3, &l2, NULL, 1, NULL, NULL);
-	Layer *temp = &l2;
-
-	float input[] = {0,1};
-	Layer_SetInput(&l1, input, 2);
-	l2.activation = &sigmoid;
-	l3.activation = &softmax;
 
 /*
-	printf("\nweights l1 :");
-	matr_display(l1.weights, l1.conns, l1.Neurons);
+	//OPEN SAVED NN
 
-	printf("\nweights l2 :");
-	matr_display(l2.weights, l2.conns, l2.Neurons);
-	printf("\nbias l2 :");
-	matr_display(l2.bias, l2.Neurons, 1);
-
-	printf("\nweights l3 :");
-	matr_display(l3.weights, l3.conns, l3.Neurons);
-	printf("\nbias l3 :");
-	matr_display(l3.bias, l3.Neurons, 1);
+	Network net;
+	Network_Load(&net, "NeuralNetData_3layers_XOR.bin", Train);
+	Network_Purge(&net);
 */
-	ui layer = 2;
-	while (temp != NULL) {
-		Layer_Activate(temp);
-		/*
-		printf("Layer %d bias after activation :", layer);
-		matr_display(temp->bias, temp->Neurons, 1);
-		*/
-		printf("Layer %d weights after activation :", layer);
-		matr_display(temp->weights, temp->conns, 1);
 
-		temp = temp->nLayer;
-		layer += 1;
-	}
+/*
+	//SAVE NN
+
+	Network net;
+	Network_Init(&net, 3, Train);
+
+	Layer l1, l2, l3;
+	Layer_Init(&l1, NULL, &l2, 2, NULL, 0, false);
+	Layer_Init(&l2, &l1, &l3, 2, NULL, 0, false);
+	Layer_Init(&l3, &l2, NULL, 1, NULL, 0, false);
+
+	l1.activation = &none;
+	l1.act_name = "none";
+	l2.activation = &leakyrelu;
+	l2.act_name = "leakyrelu";
+	l3.activation = &sigmoid;
+	l3.act_name = "sigmoid";
+
+	Network_AddLayer(&net, &l1);
+	Network_AddLayer(&net, &l2);
+	Network_AddLayer(&net, &l3);
 
 
-	Layer_Dispose(&l1);
-	Layer_Dispose(&l2);
-	Layer_Dispose(&l3);
-
+	Network_Save(&net);
+	Network_Purge(&net);
+*/
 
     return 0;
 }

@@ -10,3 +10,33 @@ void matr_display(float *arr, cui s, cui cols) {
 	}
 	printf("]\n\n");
 }
+
+float *fvec_alloc(cui n, bool zInit) {
+	float *tmp = (float*) (zInit) ?
+		calloc(n, sizeof(float)) : malloc(sizeof(float) * n);
+	if (tmp == NULL) {
+		printf("Error: Out of memory ...\n");
+		exit(1);
+	}
+	return tmp;
+}
+
+char *cvec_alloc(cui n) {
+	char *tmp = (char*) malloc(sizeof(char) * n);
+	if (tmp == NULL) {
+		printf("Error: Out of memory ...\n");
+		exit(1);
+	}
+	return tmp;
+}
+
+float *fvec_rInit(cui n, float minWeight, float maxWeight) {
+	float *tmp = fvec_alloc(n, false);
+	for (ui i=0; i<n; i++) {
+		tmp[i] = (float)((double)(rand())/(double)(RAND_MAX)
+						* (maxWeight - minWeight) + minWeight);
+	}
+	return tmp;
+}
+
+

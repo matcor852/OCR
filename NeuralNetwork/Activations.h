@@ -5,7 +5,6 @@
 #include <Layer.h>
 
 
-
 float fsigmoid(float x);
 float frelu(float x);
 float fleakyRelu(float x);
@@ -29,11 +28,24 @@ void step_(Layer *layer);
 void relu(Layer *layer);
 void relu_(Layer *layer);
 
-void leakyRelu(Layer *layer);
-void leakyRelu_(Layer *layer);
+void leakyrelu(Layer *layer);
+void leakyrelu_(Layer *layer);
 
-void None(Layer *layer);
+void none(Layer *layer);
 
+void get_activation(Layer *layer, char *name);
 
+const static struct {
+  const char *name;
+  void (*func)(Layer *layer);
+} function_map [] = {
+  { "none", none },
+  { "sigmoid", sigmoid },
+  { "softmax", softmax },
+  { "argmax", argmax },
+  { "step", step },
+  { "relu", relu },
+  { "leakyrelu", leakyrelu }
+};
 
 #endif // ACTIVATIONS_H

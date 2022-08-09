@@ -1,10 +1,7 @@
 #ifndef LAYER_H
 #define LAYER_H
 
-#include <stdio.h>
-#include <stdlib.h>
 #include <time.h>
-#include <stdbool.h>
 
 #include "Tools.h"
 
@@ -13,25 +10,28 @@
 
 
 typedef struct Layer Layer;
+typedef struct LayerSave LayerSave;
 
 struct Layer
 {
-	ui Neurons;
-	ui conns;
-	float *weights;
-	float *bias;
-	float *input;
-	float *output;
-	Layer *pLayer;
-	Layer *nLayer;
+	ui Neurons, conns;
+	float bias;
+	float *weights, *input, *output;
+	Layer *pLayer, *nLayer;
 	void (*activation)(Layer *layer);
+	char *act_name;
+	bool loaded;
 };
 
-void Layer_Init(Layer *layer, Layer *pLayer, Layer *nLayer,
-				cui neurons, float *weights, float *bias);
+struct LayerSave
+{
+	ui Neurons, conns, fSize;
+	float bias;
+};
+
+void Layer_Init(Layer *layer, Layer *pLayer, Layer *nLayer, cui neurons,
+				float *weights, float bias, bool loaded);
 void Layer_Dispose(Layer *layer);
-float *fvec_alloc(cui n, bool zInit);
-float *fvec_rInit(cui n);
 
 void Layer_SetInput(Layer *layer, float *input, cui inputSize);
 void Layer_Activate(Layer *layer);

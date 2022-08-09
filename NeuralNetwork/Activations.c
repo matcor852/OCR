@@ -11,13 +11,21 @@ void simpleMatchInOut(Layer *layer, float (*activation)(float x)) {
 	}
 }
 
-void relu(Layer *layer) {simpleMatchInOut(layer, &frelu);}
-void leakyRelu(Layer *layer) {simpleMatchInOut(layer, &fleakyRelu);}
-void None(Layer *layer) {simpleMatchInOut(layer, &fnone);}
-void sigmoid(Layer *layer) {simpleMatchInOut(layer, &fsigmoid);}
+void relu(Layer *layer) {
+	simpleMatchInOut(layer, &frelu);
+}
+void leakyrelu(Layer *layer) {
+	simpleMatchInOut(layer, &fleakyRelu);
+}
+void none(Layer *layer) {
+	simpleMatchInOut(layer, &fnone);
+}
+void sigmoid(Layer *layer) {
+	simpleMatchInOut(layer, &fsigmoid);
+}
 
 void softmax(Layer *layer) {
-	float expd[layer->Neurons];
+	float *expd = fvec_alloc(layer->Neurons, false);
 	float s = 0;
 	for (ui i=0; i<layer->Neurons; i++) {
 		expd[i] = expf(layer->input[i]);
@@ -26,6 +34,7 @@ void softmax(Layer *layer) {
 	for (ui i=0; i<layer->Neurons; i++) {
 		layer->output[i] = expd[i]/s;
 	}
+	free(expd);
 }
 
 void argmax(Layer *layer) {
@@ -36,4 +45,16 @@ void step(Layer *layer) {
 
 }
 
+void get_activation(Layer *layer, char *name) {
+	for (ui i = 0; i < (sizeof(function_map) / sizeof(function_map[0])); i++) {
+		printf("ext %u\n", i);
+		if (!strcmp(function_map[i].name, name)) {
+			printf("int %u\n", i);
+			layer->activation = function_map[i].func;
+			return;
+		}
+	}
+	printf("not found");
+	layer->activation = NULL;
+}
 

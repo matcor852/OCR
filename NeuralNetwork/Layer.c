@@ -1,19 +1,23 @@
 #include "Layer.h"
 
-void Layer_Init(Layer *layer, Layer *pLayer, Layer *nLayer,
-				cui neurons, float *weights, float *bias) {
-	layer->Neurons = neurons;
+void Layer_Init(Layer *layer, Layer *pLayer, Layer *nLayer, cui neurons,
+				float *weights, float bias, bool loaded) {
 	if(pLayer != NULL) {
 		layer->weights = (weights == NULL) ?
-			fvec_rInit(pLayer->Neurons * neurons) : weights;
+			fvec_rInit(pLayer->Neurons*neurons,MIN_WEIGHT,MAX_WEIGHT) : weights;
 		layer->conns = pLayer->Neurons * neurons;
-		layer->bias = (bias == NULL) ?
-			fvec_alloc(neurons, true) : bias;
 		layer->input = fvec_alloc(neurons, false);
+		layer->output = fvec_alloc(neurons, false);
+		layer->bias = bias;
 	}
-	layer->output = fvec_alloc(neurons, false);
+	else {
+		layer->conns = 0;
+		layer->bias = 0;
+	}
 	layer->pLayer = pLayer;
 	layer->nLayer = nLayer;
+	layer->Neurons = neurons;
+	layer->loaded = loaded;
 }
 
 void Layer_Dispose(Layer *layer) {
@@ -21,42 +25,21 @@ void Layer_Dispose(Layer *layer) {
 		free(layer->input);
 		free(layer->output);
 		free(layer->weights);
-		free(layer->bias);
+		if(layer->loaded) free(layer->act_name);
 	}
-}
-
-float *fvec_alloc(cui n, bool zInit) {
-	float *tmp = (float*) (zInit) ?
-		calloc(n, sizeof(float)) : malloc(sizeof(float) * n);
-	if (tmp == NULL) {
-		printf("Error: Out of memory ...\n");
-		exit(1);
-	}
-	return tmp;
-}
-
-float *fvec_rInit(cui n) {
-	float *tmp = fvec_alloc(n, false);
-	for (ui i=0; i<n; i++) {
-		tmp[i] = (float)((double)(rand())/(double)(RAND_MAX)
-						* (MAX_WEIGHT - MIN_WEIGHT) + MIN_WEIGHT);
-	}
-	return tmp;
 }
 
 void Layer_SetInput(Layer *layer, float *input, cui inputSize) {
 	if (inputSize != layer->Neurons) {
-		printf("Error: Input data size has different size than neurons number");
+		printf("Error: Input data size has different size than neurons");
 		exit(2);
 	}
 	layer->output = input;
 }
 
 void Layer_Activate(Layer *layer) {
-
 	for(ui i=0; i<layer->Neurons; i++)
-		layer->input[i] = layer->bias[i];
-
+		layer->input[i] = layer->bias;
 	ui w = 0;
 	for(ui i=0; i<layer->pLayer->Neurons; i++) {
 		for(ui j=0; j<layer->Neurons; j++) {
@@ -64,20 +47,6 @@ void Layer_Activate(Layer *layer) {
 			w += 1;
 		}
 	}
-
 	layer->activation(layer);
-
 }
-
-
-
-
-
-
-
-
-
-
-
-
 
