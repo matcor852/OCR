@@ -33,7 +33,7 @@ void leakyrelu_(Layer *layer);
 
 void none(Layer *layer);
 
-void get_activation(Layer *layer, char *name);
+void (*get_activation(const char *name))(Layer *layer);
 
 const static struct {
   const char *name;

@@ -41,12 +41,7 @@ void Network_Load(Network *net, char path[], cui mode) {
 			fread(name, sizeof(char), saved.fSize, fptr);
 			name[saved.fSize] = '\0';
 			layer.act_name = name;
-
-
-			//	SYNC act_name & activation
-
-
-
+			layer.activation = get_activation(name);
 			float *weights = fvec_alloc(saved.conns, false);
 			fread(weights, sizeof(float), saved.conns, fptr);
 			Layer_Init(&layer, &pLayer, NULL, saved.Neurons, weights,

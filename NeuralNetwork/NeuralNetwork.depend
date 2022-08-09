@@ -30,10 +30,10 @@
 	<time.h>
 	"Tools.h"
 
-1660000866 source:d:\code\c\ocr\neuralnetwork\activations.c
+1660037345 source:d:\code\c\ocr\neuralnetwork\activations.c
 	"Activations.h"
 
-1660000866 d:\code\c\ocr\neuralnetwork\activations.h
+1660037345 d:\code\c\ocr\neuralnetwork\activations.h
 	<math.h>
 	<Layer.h>
 
@@ -56,7 +56,7 @@
 1659991575 source:d:\code\c\ocr\neuralnetwork\tools.c
 	"Tools.h"
 
-1660004034 source:d:\code\c\ocr\neuralnetwork\network.c
+1660037532 source:d:\code\c\ocr\neuralnetwork\network.c
 	"Network.h"
 	<stdio.h>
 
