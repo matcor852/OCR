@@ -47,9 +47,7 @@ void step(Layer *layer) {
 
 void (*get_activation(const char *name))(Layer *layer) {
 	for (ui i = 0; i < (sizeof(function_map) / sizeof(function_map[0])); i++) {
-		printf("ext %u\n", i);
 		if (!strcmp(function_map[i].name, name)) {
-			printf("int %u\n", i);
 			return function_map[i].func;
 		}
 	}

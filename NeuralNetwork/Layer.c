@@ -2,6 +2,8 @@
 
 void Layer_Init(Layer *layer, Layer *pLayer, Layer *nLayer, cui neurons,
 				float *weights, float bias, bool loaded) {
+	layer->conns = 0;
+	layer->bias = 0;
 	if(pLayer != NULL) {
 		layer->weights = (weights == NULL) ?
 			fvec_rInit(pLayer->Neurons*neurons,MIN_WEIGHT,MAX_WEIGHT) : weights;
@@ -9,10 +11,6 @@ void Layer_Init(Layer *layer, Layer *pLayer, Layer *nLayer, cui neurons,
 		layer->input = fvec_alloc(neurons, false);
 		layer->output = fvec_alloc(neurons, false);
 		layer->bias = bias;
-	}
-	else {
-		layer->conns = 0;
-		layer->bias = 0;
 	}
 	layer->pLayer = pLayer;
 	layer->nLayer = nLayer;
@@ -49,4 +47,52 @@ void Layer_Activate(Layer *layer) {
 	}
 	layer->activation(layer);
 }
+
+void Layer_Display(Layer *layer, const ui ieme) {
+	printf("Layer %u :\n", ieme);
+	printf("\t%u neurons", layer->Neurons);
+	if (layer->pLayer == NULL) {
+		printf("\n\t--[ Input Layer ]--\n\n");
+		return;
+	}
+
+	printf(", %u connections with previous layer\n", layer->conns);
+	if (layer->nLayer == NULL) printf("\t--[ Output Layer ]--\n");
+	printf("\tactivation function : %s\n", layer->act_name);
+	printf("\tprevious layer : %s\n", layer->pLayer->act_name);
+	if (layer->nLayer != NULL)
+		printf("\tnext layer : %s\n", layer->nLayer->act_name);
+	printf("\tbias : %f\n", layer->bias);
+	printf("\tweights :");
+	matr_display(layer->weights, layer->conns, layer->Neurons);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 

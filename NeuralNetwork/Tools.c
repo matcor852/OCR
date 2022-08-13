@@ -2,9 +2,9 @@
 #include "Tools.h"
 
 void matr_display(float *arr, cui s, cui cols) {
-	printf("\n[");
+	printf("\n\t[");
 	for(ui i=0; i<s; i++) {
-		if(i>0 && i%cols == 0) printf("\n ");
+		if(i>0 && i%cols == 0) printf("\n\t ");
 		printf("%f", arr[i]);
 		if (i<s-1) printf(", ");
 	}
