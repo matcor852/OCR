@@ -55,7 +55,7 @@ void Layer_Display(Layer *layer, const ui ieme) {
 	printf("\t%u neurons", layer->Neurons);
 	if (layer->pLayer == NULL) {
 		printf("\n\t--[ Input Layer ]--\n");
-		printf("\tnext layer : %s\n\n", layer->nLayer->act_name);
+		printf("\tnext layer : %s\n\n\n", layer->nLayer->act_name);
 		return;
 	}
 
@@ -69,6 +69,7 @@ void Layer_Display(Layer *layer, const ui ieme) {
 	matr_display(layer->bias, layer->Neurons, 1);
 	printf("\tweights :");
 	matr_display(layer->weights, layer->conns, layer->Neurons);
+	printf("\n\n");
 }
 
 

@@ -24,7 +24,7 @@ int main()
 
 
 	Network net;
-	Network_Load(&net, "NeuralNetData_3layers_XOR.bin", Train, L_RATE);
+	Network_Load(&net, "NeuralNetData_3layers_XOR.bin");
 	Network_Display(&net);
 
 
@@ -39,7 +39,7 @@ int main()
 						(float[1]){0}};
 
 
-	Network_Train(&net, input, output, 2, 1, 4, 1, &MSE);
+	Network_Train(&net, input, output, 2, 1, 4, 1, L_RATE, &MSE);
 	Network_Purge(&net);
 
 

@@ -8,7 +8,7 @@ void matr_display(float *arr, cui s, cui cols) {
 		printf("%f", (double)arr[i]);
 		if (i<s-1) printf(", ");
 	}
-	printf("]\n\n");
+	printf("]\n");
 }
 
 float *fvec_alloc(cui n, bool zInit) {

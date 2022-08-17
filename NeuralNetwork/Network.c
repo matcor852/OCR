@@ -1,12 +1,10 @@
 #include "Network.h"
 #include <stdio.h>
 
-void Network_Init(Network *net, cui nbLayers, cui mode, float l_rate) {
+void Network_Init(Network *net, cui nbLayers) {
 	net->layers = lvec_alloc(nbLayers);
 	net->nbLayers = nbLayers;
 	net->currentLayer = 0;
-	net->mode = mode;
-	net->l_rate = l_rate;
 }
 
 void Network_AddLayer(Network *net, Layer *layer) {
@@ -19,12 +17,12 @@ void Network_AddLayer(Network *net, Layer *layer) {
 	net->currentLayer++;
 }
 
-void Network_Load(Network *net, char path[], cui mode, float l_rate) {
+void Network_Load(Network *net, char path[]) {
 	if (sscanf_s(path, "%*[^_]%*[_]%u", &net->nbLayers) != 1) {
 		printf("Could not read amount of layer in filename; Exiting...\n");
 		exit(1);
 	}
-	Network_Init(net, net->nbLayers, mode, l_rate);
+	Network_Init(net, net->nbLayers);
 	FILE *fptr;
 	int err;
 	char errbuf[64];
@@ -124,7 +122,7 @@ Layer *lvec_alloc(cui n) {
 }
 
 void Network_Train(Network *net, float *input[], float *expected_output[],
-				cui iSize, cui oSize, cui Size, cui epoch,
+				cui iSize, cui oSize, cui Size, cui epoch, float l_rate,
 				float (*cost)(float *predicted, float *expected, cui Size)) {
 	if (net->nbLayers < 2) {
 		printf("Attempting train on incomplete network; Starting purge...\n");
@@ -143,7 +141,7 @@ void Network_Train(Network *net, float *input[], float *expected_output[],
 		for (ui s=0; s<Size; s++) {
 
 			Network_Forward(net, input[s], iSize);
-			Network_BackProp(net, expected_output[s], oSize, cost);
+			Network_BackProp(net, expected_output[s], oSize, l_rate, cost);
 		}
 		printf("Finished epoch %u\n", e+1);
 	}
@@ -155,17 +153,17 @@ void Network_Forward(Network *net, float *input, cui iSize) {
 	for (ui i=1; i<net->currentLayer; i++) Layer_Activate(&net->layers[i]);
 }
 
-void Network_BackProp(Network *net, float *expected_output, cui oSize,
+void Network_BackProp(Network *net, float *expected, cui oSize, float l_rate,
 					float (*cost)(float *predicted, float *expected, cui Size))
 {
 	float error = cost(net->layers[net->nbLayers-1].output,
-						expected_output,oSize);
+						expected,oSize);
 
 
 	for (ui i=0; i<oSize; i++) {
 		printf("\tpredicted : %f\t\texpected : %f\t cost : %f\n",
 				(double)net->layers[net->nbLayers-1].output[i],
-				(double)expected_output[0],
+				(double)expected[0],
 				(double)error);
 	}
 }
