@@ -1,16 +1,16 @@
 #include "Layer.h"
 
 void Layer_Init(Layer *layer, Layer *pLayer, Layer *nLayer, cui neurons,
-				float *weights, float bias, bool loaded, char *act_name) {
+				float *weights, float *bias, bool loaded, char *act_name) {
 	layer->conns = 0;
 	layer->bias = 0;
 	if(pLayer != NULL) {
 		layer->weights = (weights == NULL) ?
 			fvec_rInit(pLayer->Neurons*neurons,MIN_WEIGHT,MAX_WEIGHT) : weights;
+		layer->bias = (bias == NULL) ? fvec_alloc(neurons, true) : bias;
 		layer->conns = pLayer->Neurons * neurons;
 		layer->input = fvec_alloc(neurons, false);
 		layer->output = fvec_alloc(neurons, false);
-		layer->bias = bias;
 	}
 	layer->pLayer = pLayer;
 	layer->nLayer = nLayer;
@@ -25,6 +25,7 @@ void Layer_Dispose(Layer *layer) {
 		free(layer->input);
 		free(layer->output);
 		free(layer->weights);
+		free(layer->bias);
 		if(layer->loaded) free(layer->act_name);
 	}
 }
@@ -38,7 +39,7 @@ void Layer_SetInput(Layer *layer, float *input, cui inputSize) {
 }
 
 void Layer_Activate(Layer *layer) {
-	for(ui i=0; i<layer->Neurons; i++) layer->input[i] = layer->bias;
+	for(ui i=0; i<layer->Neurons; i++) layer->input[i] = layer->bias[i];
 	ui w = 0;
 	for(ui i=0; i<layer->pLayer->Neurons; i++) {
 		for(ui j=0; j<layer->Neurons; j++) {
@@ -64,7 +65,8 @@ void Layer_Display(Layer *layer, const ui ieme) {
 	printf("\tprevious layer : %s\n", layer->pLayer->act_name);
 	if (layer->nLayer != NULL)
 		printf("\tnext layer : %s\n", layer->nLayer->act_name);
-	printf("\tbias : %f\n", (double)layer->bias);
+	printf("\tbias :");
+	matr_display(layer->bias, layer->Neurons, 1);
 	printf("\tweights :");
 	matr_display(layer->weights, layer->conns, layer->Neurons);
 }

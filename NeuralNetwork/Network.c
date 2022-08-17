@@ -41,14 +41,16 @@ void Network_Load(Network *net, char path[], cui mode, float l_rate) {
 			char *name = cvec_alloc(saved.fSize+1);
 			fread(name, sizeof(char), saved.fSize, fptr);
 			name[saved.fSize] = '\0';
+			float *bias = fvec_alloc(saved.Neurons, false);
+			fread(bias, sizeof(float), saved.Neurons, fptr);
 			float *weights = fvec_alloc(saved.conns, false);
 			fread(weights, sizeof(float), saved.conns, fptr);
 			Layer_Init(&layer, lSave, NULL, saved.Neurons, weights,
-						saved.bias, true, name);
+						bias, true, name);
 		}
 		else {
 			Layer_Init(&layer, NULL, NULL, saved.Neurons, NULL,
-						saved.bias, false, "none");
+						NULL, false, "none");
 		}
 		Network_AddLayer(net, &layer);
 		lSave = &layer;
@@ -86,10 +88,12 @@ void Network_Save(Network *net) {
 		ui len = (ui)strlen(net->layers[i].act_name);
 		LayerSave saved = {	net->layers[i].Neurons,
 							net->layers[i].conns,
-							len, net->layers[i].bias };
+							len};
 		fwrite(&saved, sizeof(saved), 1, fptr);
 		if (net->layers[i].pLayer != NULL) {
 			fwrite(net->layers[i].act_name,sizeof(char), len, fptr);
+			fwrite(&net->layers[i].bias[0], sizeof(float),
+					net->layers[i].Neurons, fptr);
 			fwrite(&net->layers[i].weights[0], sizeof(float),
 					net->layers[i].conns, fptr);
 		}

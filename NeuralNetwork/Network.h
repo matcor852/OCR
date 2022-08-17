@@ -10,7 +10,6 @@
 
 
 typedef struct Network Network;
-
 struct Network
 {
 	Layer *layers;

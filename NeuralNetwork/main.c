@@ -50,9 +50,9 @@ int main()
 	Network_Init(&net, 3, Train, L_RATE);
 
 	Layer l1, l2, l3;
-	Layer_Init(&l1, NULL, &l2, 2, NULL, 0, false, "none");
-	Layer_Init(&l2, &l1, &l3, 2, NULL, 0, false, "leakyrelu");
-	Layer_Init(&l3, &l2, NULL, 1, NULL, 0, false, "sigmoid");
+	Layer_Init(&l1, NULL, &l2, 2, NULL, NULL, false, "none");
+	Layer_Init(&l2, &l1, &l3, 2, NULL, NULL, false, "leakyrelu");
+	Layer_Init(&l3, &l2, NULL, 1, NULL, NULL, false, "sigmoid");
 
 	Network_AddLayer(&net, &l1);
 	Network_AddLayer(&net, &l2);
