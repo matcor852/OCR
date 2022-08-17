@@ -39,6 +39,10 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="Activations.h" />
+		<Unit filename="Cost.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="Cost.h" />
 		<Unit filename="Layer.c">
 			<Option compilerVar="CC" />
 		</Unit>

@@ -41,17 +41,14 @@ void Network_Load(Network *net, char path[], cui mode, float l_rate) {
 			char *name = cvec_alloc(saved.fSize+1);
 			fread(name, sizeof(char), saved.fSize, fptr);
 			name[saved.fSize] = '\0';
-			layer.act_name = name;
-			layer.activation = get_activation(name);
 			float *weights = fvec_alloc(saved.conns, false);
 			fread(weights, sizeof(float), saved.conns, fptr);
 			Layer_Init(&layer, lSave, NULL, saved.Neurons, weights,
-						saved.bias, true);
+						saved.bias, true, name);
 		}
 		else {
-			Layer_Init(&layer,NULL,NULL,saved.Neurons,NULL,saved.bias, false);
-			layer.act_name = "none";
-			layer.activation = &none;
+			Layer_Init(&layer, NULL, NULL, saved.Neurons, NULL,
+						saved.bias, false, "none");
 		}
 		Network_AddLayer(net, &layer);
 		lSave = &layer;
@@ -123,7 +120,8 @@ Layer *lvec_alloc(cui n) {
 }
 
 void Network_Train(Network *net, float *input[], float *expected_output[],
-				ui iSize, ui oSize, ui Size, ui epoch) {
+				cui iSize, cui oSize, cui Size, cui epoch,
+				float (*cost)(float *predicted, float *expected, cui Size)) {
 	if (net->nbLayers < 2) {
 		printf("Attempting train on incomplete network; Starting purge...\n");
 		Network_Purge(net);
@@ -139,27 +137,33 @@ void Network_Train(Network *net, float *input[], float *expected_output[],
 
 	for (ui e=0; e<epoch; e++) {
 		for (ui s=0; s<Size; s++) {
-			Layer_SetInput(&net->layers[0], input[s], iSize);
 
-			for (ui i=1; i<net->currentLayer; i++) {
-				Layer_Activate(&net->layers[i]);
-			}
-
-			for (ui i=0; i<oSize; i++) {
-				printf("predicted : %f\t\texpected : %f\n",
-						net->layers[net->nbLayers-1].output[i],
-						expected_output[s][0]);
-			}
-			printf("\n");
+			Network_Forward(net, input[s], iSize);
+			Network_BackProp(net, expected_output[s], oSize, cost);
 		}
 		printf("Finished epoch %u\n", e+1);
 	}
 
-
-
 }
 
+void Network_Forward(Network *net, float *input, cui iSize) {
+	Layer_SetInput(&net->layers[0], input, iSize);
+	for (ui i=1; i<net->currentLayer; i++) Layer_Activate(&net->layers[i]);
+}
+
+void Network_BackProp(Network *net, float *expected_output, cui oSize,
+					float (*cost)(float *predicted, float *expected, cui Size))
+{
+	float error = cost(net->layers[net->nbLayers-1].output,
+						expected_output,oSize);
 
 
+	for (ui i=0; i<oSize; i++) {
+		printf("\tpredicted : %f\t\texpected : %f\t cost : %f\n",
+				(double)net->layers[net->nbLayers-1].output[i],
+				(double)expected_output[0],
+				(double)error);
+	}
+}
 
 

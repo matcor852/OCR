@@ -2,42 +2,21 @@
 #define ACTIVATIONS_H
 
 #include <math.h>
-#include <Layer.h>
+#include "Tools.h"
 
+void sigmoid(float *input, float *output, cui Size);
+void softmax(float *input, float *output, cui Size);
+void argmax(float *input, float *output, cui Size);
+void step(float *input, float *output, cui Size);
+void relu(float *input, float *output, cui Size);
+void leakyrelu(float *input, float *output, cui Size);
+void none(float *input, float *output, cui Size);
 
-float fsigmoid(float x);
-float frelu(float x);
-float fleakyRelu(float x);
-float fnone(float x);
-
-void simpleMatchInOut(Layer *layer, float (*activation)(float x));
-
-
-void sigmoid(Layer *layer);
-void sigmoid_(Layer *layer);
-
-void softmax(Layer *layer);
-void softmax_(Layer *layer);
-
-void argmax(Layer *layer);
-void argmax_(Layer *layer);
-
-void step(Layer *layer);
-void step_(Layer *layer);
-
-void relu(Layer *layer);
-void relu_(Layer *layer);
-
-void leakyrelu(Layer *layer);
-void leakyrelu_(Layer *layer);
-
-void none(Layer *layer);
-
-void (*get_activation(const char *name))(Layer *layer);
+void (*get_activation(const char *name))(float *input, float *output, cui Size);
 
 const static struct {
   const char *name;
-  void (*func)(Layer *layer);
+  void (*func)(float *input, float *output, cui Size);
 } function_map [] = {
   { "none", none },
   { "sigmoid", sigmoid },

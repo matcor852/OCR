@@ -2,8 +2,7 @@
 #define LAYER_H
 
 #include <time.h>
-
-#include "Tools.h"
+#include "Activations.h"
 
 #define MIN_WEIGHT -1
 #define MAX_WEIGHT 1
@@ -18,7 +17,7 @@ struct Layer
 	float bias;
 	float *weights, *input, *output;
 	Layer *pLayer, *nLayer;
-	void (*activation)(Layer *layer);
+	void (*activation)(float *input, float *output, cui Size);
 	char *act_name;
 	bool loaded;
 };
@@ -29,8 +28,9 @@ struct LayerSave
 	float bias;
 };
 
+
 void Layer_Init(Layer *layer, Layer *pLayer, Layer *nLayer, cui neurons,
-				float *weights, float bias, bool loaded);
+				float *weights, float bias, bool loaded, char *act_name);
 void Layer_Dispose(Layer *layer);
 
 void Layer_SetInput(Layer *layer, float *input, cui inputSize);

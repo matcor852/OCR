@@ -1,7 +1,7 @@
 #include "Layer.h"
 
 void Layer_Init(Layer *layer, Layer *pLayer, Layer *nLayer, cui neurons,
-				float *weights, float bias, bool loaded) {
+				float *weights, float bias, bool loaded, char *act_name) {
 	layer->conns = 0;
 	layer->bias = 0;
 	if(pLayer != NULL) {
@@ -16,6 +16,8 @@ void Layer_Init(Layer *layer, Layer *pLayer, Layer *nLayer, cui neurons,
 	layer->nLayer = nLayer;
 	layer->Neurons = neurons;
 	layer->loaded = loaded;
+	layer->act_name = act_name;
+	layer->activation = get_activation(act_name);
 }
 
 void Layer_Dispose(Layer *layer) {
@@ -36,8 +38,7 @@ void Layer_SetInput(Layer *layer, float *input, cui inputSize) {
 }
 
 void Layer_Activate(Layer *layer) {
-	for(ui i=0; i<layer->Neurons; i++)
-		layer->input[i] = layer->bias;
+	for(ui i=0; i<layer->Neurons; i++) layer->input[i] = layer->bias;
 	ui w = 0;
 	for(ui i=0; i<layer->pLayer->Neurons; i++) {
 		for(ui j=0; j<layer->Neurons; j++) {
@@ -45,14 +46,15 @@ void Layer_Activate(Layer *layer) {
 			w += 1;
 		}
 	}
-	layer->activation(layer);
+	layer->activation(layer->input, layer->output, layer->Neurons);
 }
 
 void Layer_Display(Layer *layer, const ui ieme) {
 	printf("Layer %u :\n", ieme);
 	printf("\t%u neurons", layer->Neurons);
 	if (layer->pLayer == NULL) {
-		printf("\n\t--[ Input Layer ]--\n\n");
+		printf("\n\t--[ Input Layer ]--\n");
+		printf("\tnext layer : %s\n\n", layer->nLayer->act_name);
 		return;
 	}
 
@@ -62,37 +64,10 @@ void Layer_Display(Layer *layer, const ui ieme) {
 	printf("\tprevious layer : %s\n", layer->pLayer->act_name);
 	if (layer->nLayer != NULL)
 		printf("\tnext layer : %s\n", layer->nLayer->act_name);
-	printf("\tbias : %f\n", layer->bias);
+	printf("\tbias : %f\n", (double)layer->bias);
 	printf("\tweights :");
 	matr_display(layer->weights, layer->conns, layer->Neurons);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

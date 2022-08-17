@@ -15,6 +15,7 @@ void matr_display(float *arr, cui s, cui cols);
 float *fvec_alloc(cui n, bool zInit);
 char *cvec_alloc(cui n);
 float *fvec_rInit(cui n, float minWeight, float maxWeight);
+float absf(float nb);
 
 
 

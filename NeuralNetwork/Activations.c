@@ -1,51 +1,45 @@
 #include "Activations.h"
 
-float fsigmoid(float x) {return 1/(1+expf(-x));}
-float frelu(float x) {return max(.0f, x);}
-float fleakyRelu(float x) {return max(0.1f * x, x);}
-float fnone(float x) {return x;}
-
-void simpleMatchInOut(Layer *layer, float (*activation)(float x)) {
-	for (ui i=0; i<layer->Neurons; i++) {
-		layer->output[i] = activation(layer->input[i]);
-	}
+void relu(float *input, float *output, cui Size) {
+	for (ui i=0; i<Size; i++)
+		output[i] = max(.0f, input[i]);
 }
 
-void relu(Layer *layer) {
-	simpleMatchInOut(layer, &frelu);
-}
-void leakyrelu(Layer *layer) {
-	simpleMatchInOut(layer, &fleakyRelu);
-}
-void none(Layer *layer) {
-	simpleMatchInOut(layer, &fnone);
-}
-void sigmoid(Layer *layer) {
-	simpleMatchInOut(layer, &fsigmoid);
+void leakyrelu(float *input, float *output, cui Size) {
+	for (ui i=0; i<Size; i++) output[i] = max(.1f * input[i], input[i]);
 }
 
-void softmax(Layer *layer) {
-	float *expd = fvec_alloc(layer->Neurons, false);
-	float s = 0;
-	for (ui i=0; i<layer->Neurons; i++) {
-		expd[i] = expf(layer->input[i]);
+void none(float *input, float *output, cui Size) {
+	for (ui i=0; i<Size; i++) output[i] = input[i];
+}
+
+void sigmoid(float *input, float *output, cui Size) {
+	for (ui i=0; i<Size; i++) output[i] = 1/(1+expf(-input[i]));
+}
+
+void softmax(float *input, float *output, cui Size) {
+	float s = 0, *expd = fvec_alloc(Size, false);
+	for (ui i=0; i<Size; i++) {
+		expd[i] = expf(input[i]);
 		s += expd[i];
 	}
-	for (ui i=0; i<layer->Neurons; i++) {
-		layer->output[i] = expd[i]/s;
-	}
+	for (ui i=0; i<Size; i++) output[i] = expd[i]/s;
 	free(expd);
 }
 
-void argmax(Layer *layer) {
-
+void argmax(float *input, float *output, cui Size) {
+	ui p = 0;
+	for (ui i=0; i<Size; i++) p = (input[i] > input[p]) ? i : p;
+	for (ui i=0; i<Size; i++) output[i] = (i != p) ? .0f : 1.0f;
 }
 
-void step(Layer *layer) {
-
+void step(float *input, float *output, cui Size) {
+	for (ui i=0; i<Size; i++) output[i] = (input[i] < 0) ? .0f : 1.0f;
 }
 
-void (*get_activation(const char *name))(Layer *layer) {
+
+void (*get_activation(const char *name))(float *input, float *output, cui Size)
+{
 	for (ui i = 0; i < (sizeof(function_map) / sizeof(function_map[0])); i++) {
 		if (!strcmp(function_map[i].name, name)) {
 			return function_map[i].func;
@@ -53,4 +47,5 @@ void (*get_activation(const char *name))(Layer *layer) {
 	}
 	return NULL;
 }
+
 
