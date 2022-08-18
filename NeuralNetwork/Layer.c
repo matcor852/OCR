@@ -50,7 +50,7 @@ void Layer_Activate(Layer *layer) {
 	layer->activation(layer->input, layer->output, layer->Neurons);
 }
 
-void Layer_Display(Layer *layer, const ui ieme) {
+void Layer_Display(Layer *layer, const ui ieme, bool display_matr) {
 	printf("Layer %u :\n", ieme);
 	printf("\t%u neurons", layer->Neurons);
 	if (layer->pLayer == NULL) {
@@ -65,10 +65,14 @@ void Layer_Display(Layer *layer, const ui ieme) {
 	printf("\tprevious layer : %s\n", layer->pLayer->act_name);
 	if (layer->nLayer != NULL)
 		printf("\tnext layer : %s\n", layer->nLayer->act_name);
+	if(!display_matr) {
+		printf("\n\n");
+		return;
+	}
 	printf("\tbias :");
 	matr_display(layer->bias, layer->Neurons, 1);
 	printf("\tweights :");
-	matr_display(layer->weights, layer->conns, layer->Neurons);
+	matr_display(layer->weights, layer->conns, 1);
 	printf("\n\n");
 }
 

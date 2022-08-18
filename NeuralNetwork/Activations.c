@@ -1,8 +1,7 @@
 #include "Activations.h"
 
 void relu(float *input, float *output, cui Size) {
-	for (ui i=0; i<Size; i++)
-		output[i] = max(.0f, input[i]);
+	for (ui i=0; i<Size; i++) output[i] = max(.0f, input[i]);
 }
 
 void leakyrelu(float *input, float *output, cui Size) {
@@ -40,11 +39,8 @@ void step(float *input, float *output, cui Size) {
 
 void (*get_activation(const char *name))(float *input, float *output, cui Size)
 {
-	for (ui i = 0; i < (sizeof(function_map) / sizeof(function_map[0])); i++) {
-		if (!strcmp(function_map[i].name, name)) {
-			return function_map[i].func;
-		}
-	}
+	for (ui i = 0; i < (sizeof(function_map) / sizeof(function_map[0])); i++)
+		if (!strcmp(function_map[i].name, name)) return function_map[i].func;
 	return NULL;
 }
 

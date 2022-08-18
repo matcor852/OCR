@@ -34,7 +34,7 @@ void Layer_Dispose(Layer *layer);
 void Layer_SetInput(Layer *layer, float *input, cui inputSize);
 void Layer_Activate(Layer *layer);
 
-void Layer_Display(Layer *layer, const ui ieme);
+void Layer_Display(Layer *layer, const ui ieme, bool display_matr);
 
 
 

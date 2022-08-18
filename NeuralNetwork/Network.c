@@ -106,9 +106,9 @@ void Network_Purge(Network *net) {
 	free(net->layers);
 }
 
-void Network_Display(Network *net) {
+void Network_Display(Network *net, bool display_matr) {
 	for(ui i=0; i<net->nbLayers; i++) {
-		Layer_Display(&net->layers[i], i);
+		Layer_Display(&net->layers[i], i, display_matr);
 	}
 }
 
@@ -123,7 +123,7 @@ Layer *lvec_alloc(cui n) {
 
 void Network_Train(Network *net, float *input[], float *expected_output[],
 				cui iSize, cui oSize, cui Size, cui epoch, float l_rate,
-				float (*cost)(float *predicted, float *expected, cui Size)) {
+				char cost_func[]) {
 	if (net->nbLayers < 2) {
 		printf("Attempting train on incomplete network; Starting purge...\n");
 		Network_Purge(net);
@@ -141,9 +141,9 @@ void Network_Train(Network *net, float *input[], float *expected_output[],
 		for (ui s=0; s<Size; s++) {
 
 			Network_Forward(net, input[s], iSize);
-			Network_BackProp(net, expected_output[s], oSize, l_rate, cost);
+			Network_BackProp(net, expected_output[s], oSize, l_rate, cost_func);
 		}
-		printf("Finished epoch %u\n", e+1);
+		printf("\nFinished epoch %u\n", e+1);
 	}
 
 }
@@ -154,10 +154,46 @@ void Network_Forward(Network *net, float *input, cui iSize) {
 }
 
 void Network_BackProp(Network *net, float *expected, cui oSize, float l_rate,
-					float (*cost)(float *predicted, float *expected, cui Size))
+					char cost_func[])
 {
-	float error = cost(net->layers[net->nbLayers-1].output,
-						expected,oSize);
+	Layer *lastL = &net->layers[net->nbLayers-1];
+	float (*cost_deriv)(float, float) = get_cost_deriv(cost_func);
+	float (*deriv)(float*,cui,cui) = get_deriv(lastL->act_name);
+
+	float error = get_cost(cost_func)(lastL->output, expected, oSize);
+
+	float *CostOut = malloc(sizeof(float)*lastL->Neurons);
+	float *OutIn = malloc(sizeof(float)*lastL->Neurons);
+
+	for (ui i=0; i<lastL->Neurons; i++) {
+		CostOut[i] = cost_deriv(lastL->output[i], expected[i]);
+		OutIn[i] = deriv(lastL->input, lastL->Neurons, i);
+	}
+
+	ui w = 0;
+	bool bias_done = false;
+	for (ui i=0; i<lastL->pLayer->Neurons; i++) {
+		for (ui j=0; j<lastL->Neurons; j++) {
+			lastL->weights[w] = lastL->weights[w] - l_rate * CostOut[j] *
+								OutIn[j] * lastL->pLayer->output[i];
+			w += 1;
+			if (!bias_done) {
+				lastL->bias[j] = lastL->bias[j] - l_rate*CostOut[j]*OutIn[j];
+			}
+		}
+		bias_done = true;
+	}
+
+
+
+
+	for (ui i=net->nbLayers-2; i>0; i--) {
+
+	}
+
+	free(CostOut);
+	free(OutIn);
+
 
 
 	for (ui i=0; i<oSize; i++) {
