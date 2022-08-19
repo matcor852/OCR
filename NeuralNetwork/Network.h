@@ -26,7 +26,7 @@ void Network_Train(Network *net, float *input[], float *expected_output[],
 				cui iSize, cui oSize, cui Size, cui epoch, float l_rate,
 				char cost_func[]);
 void Network_Forward(Network *net, float *input, cui iSize);
-void Network_BackProp(Network *net, float *expected, cui oSize, float l_rate,
+float Network_BackProp(Network *net, float *expected, cui oSize, float l_rate,
 					char cost_func[]);
 
 void Network_Predict(Network *net, float *input, cui Size);

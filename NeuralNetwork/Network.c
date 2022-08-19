@@ -136,16 +136,15 @@ void Network_Train(Network *net, float *input[], float *expected_output[],
 		exit(1);
 	}
 
-
 	for (ui e=0; e<epoch; e++) {
 		for (ui s=0; s<Size; s++) {
-
 			Network_Forward(net, input[s], iSize);
-			Network_BackProp(net, expected_output[s], oSize, l_rate, cost_func);
+			float error = Network_BackProp(net, expected_output[s], oSize,
+											l_rate, cost_func);
+			if (e==0 || e==epoch-1) printf("error : %f\n", (double)error);
 		}
-		printf("\nFinished epoch %u\n", e+1);
+		if (e==0 || e==epoch-1) printf("\nFinished epoch %u\n", e+1);
 	}
-
 }
 
 void Network_Forward(Network *net, float *input, cui iSize) {
@@ -153,55 +152,66 @@ void Network_Forward(Network *net, float *input, cui iSize) {
 	for (ui i=1; i<net->currentLayer; i++) Layer_Activate(&net->layers[i]);
 }
 
-void Network_BackProp(Network *net, float *expected, cui oSize, float l_rate,
+float Network_BackProp(Network *net, float *expected, cui oSize, float l_rate,
 					char cost_func[])
 {
-	Layer *lastL = &net->layers[net->nbLayers-1];
+	Layer *L = &net->layers[net->nbLayers-1];
 	float (*cost_deriv)(float, float) = get_cost_deriv(cost_func);
-	float (*deriv)(float*,cui,cui) = get_deriv(lastL->act_name);
+	float (*deriv)(float*,cui,cui) = get_deriv(L->act_name);
 
-	float error = get_cost(cost_func)(lastL->output, expected, oSize);
+	float error = get_cost(cost_func)(L->output, expected, oSize);
 
-	float *CostOut = malloc(sizeof(float)*lastL->Neurons);
-	float *OutIn = malloc(sizeof(float)*lastL->Neurons);
-
-	for (ui i=0; i<lastL->Neurons; i++) {
-		CostOut[i] = cost_deriv(lastL->output[i], expected[i]);
-		OutIn[i] = deriv(lastL->input, lastL->Neurons, i);
+	float *CostOut = fvec_alloc(L->Neurons, false);
+	float *OutIn = fvec_alloc(L->Neurons, false);
+	for (ui i=0; i<L->Neurons; i++) {
+		CostOut[i] = cost_deriv(L->output[i], expected[i]);
+		OutIn[i] = deriv(L->input, L->Neurons, i);
 	}
 
+	float *Legacy = fvec_alloc(L->pLayer->Neurons, true);
 	ui w = 0;
 	bool bias_done = false;
-	for (ui i=0; i<lastL->pLayer->Neurons; i++) {
-		for (ui j=0; j<lastL->Neurons; j++) {
-			lastL->weights[w] = lastL->weights[w] - l_rate * CostOut[j] *
-								OutIn[j] * lastL->pLayer->output[i];
+	for (ui i=0; i<L->pLayer->Neurons; i++) {
+		for (ui j=0; j<L->Neurons; j++) {
+			float ml = CostOut[j] * OutIn[j];
+			Legacy[i] += ml * L->weights[w];
+			L->weights[w] = L->weights[w] - l_rate * ml * L->pLayer->output[i];
 			w += 1;
-			if (!bias_done) {
-				lastL->bias[j] = lastL->bias[j] - l_rate*CostOut[j]*OutIn[j];
-			}
+			if (!bias_done) L->bias[j] = L->bias[j] - l_rate * ml;
 		}
 		bias_done = true;
 	}
-
-
-
-
-	for (ui i=net->nbLayers-2; i>0; i--) {
-
-	}
-
 	free(CostOut);
 	free(OutIn);
 
 
-
-	for (ui i=0; i<oSize; i++) {
-		printf("\tpredicted : %f\t\texpected : %f\t cost : %f\n",
-				(double)net->layers[net->nbLayers-1].output[i],
-				(double)expected[0],
-				(double)error);
+	float *tempLegacy;
+	for (ui X=net->nbLayers-2; X>0; X--) {
+		L = &net->layers[X];
+		float (*deriv_i)(float*,cui,cui) = get_deriv(L->act_name);
+		tempLegacy = fvec_alloc(L->pLayer->Neurons, true);
+		float *OutIn_i = fvec_alloc(L->Neurons, false);
+		for (ui i=0; i<L->Neurons; i++)
+			OutIn_i[i] = deriv_i(L->input, L->Neurons, i);
+		ui w_i = 0;
+		bool bias_done_i = false;
+		for (ui i=0; i<L->pLayer->Neurons; i++) {
+			for (ui j=0; j<L->Neurons; j++) {
+				float ml = Legacy[j] * OutIn_i[j];
+				tempLegacy[i] += ml * L->weights[w_i];
+				L->weights[w_i] = L->weights[w_i] - l_rate * ml *
+											L->pLayer->output[i];
+				w += 1;
+				if (!bias_done_i) L->bias[j] = L->bias[j] - l_rate * ml;
+			}
+			bias_done_i = true;
+		}
+		free(Legacy);
+		Legacy = tempLegacy;
+		free(OutIn_i);
 	}
+	free(Legacy);
+	return error;
 }
 
 

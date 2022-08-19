@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1660857296 source:d:\code\c\ocr\neuralnetwork\main.c
+1660914691 source:d:\code\c\ocr\neuralnetwork\main.c
 	<stdio.h>
 	<stdlib.h>
 	<time.h>
@@ -58,11 +58,11 @@
 1660770542 source:d:\code\c\ocr\neuralnetwork\tools.c
 	"Tools.h"
 
-1660857070 source:d:\code\c\ocr\neuralnetwork\network.c
+1660914706 source:d:\code\c\ocr\neuralnetwork\network.c
 	"Network.h"
 	<stdio.h>
 
-1660852008 d:\code\c\ocr\neuralnetwork\network.h
+1660914206 d:\code\c\ocr\neuralnetwork\network.h
 	<errno.h>
 	"Layer.h"
 	"Activations.h"

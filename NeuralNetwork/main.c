@@ -26,18 +26,18 @@ int main()
 	Network_Display(&net, true);
 
 
-	float *input[] = {	(float[2]){0,0}};	/*,
+	float *input[] = {	(float[2]){0,0},
 						(float[2]){0,1},
 						(float[2]){1,0},
-						(float[2]){1,1}};*/
+						(float[2]){1,1}};
 
-	float *output[] = {	(float[1]){0}};		/*,
+	float *output[] = {	(float[1]){0},
 						(float[1]){1},
 						(float[1]){1},
-						(float[1]){0}};*/
+						(float[1]){0}};
 
 
-	Network_Train(&net, input, output, 2, 1, 1, 1, L_RATE, "MSE");
+	Network_Train(&net, input, output, 2, 1, 4, 10000, L_RATE, "MSE");
 	Network_Display(&net, true);
 	Network_Purge(&net);
 
