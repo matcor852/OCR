@@ -84,8 +84,7 @@ float step_(float *arr, cui Size, cui ieme) {
 		printf("Warning: step derivative index out of bound.\n");
 		return 0;
 	}
-	printf("WARNING: step derivative not implemented");
-	return 0;
+	return (absf(arr[ieme] - .0f) < FLT_EPSILON) ? (float)ran_number() : .5f;
 }
 
 float relu_(float *arr, cui Size, cui ieme) {
@@ -101,7 +100,7 @@ float leakyrelu_(float *arr, cui Size, cui ieme) {
 		printf("Warning: leakyrelu derivative index out of bound.\n");
 		return 0;
 	}
-	return (arr[ieme] < 0) ? .1f : 1;
+	return (arr[ieme] < 0) ? .01f : 1;
 }
 
 

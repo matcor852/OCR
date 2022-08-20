@@ -3,27 +3,20 @@
 #include <time.h>
 
 #include "Activations.h"
-#include "Cost.h"
 #include "Layer.h"
 #include "Tools.h"
-
 #include "Network.h"
 
-#define L_RATE 0.01f
+#define L_RATE 0.1f
 
 int main()
 {
-	srand((unsigned int) time(NULL));
-
-
-
-
 	//OPEN SAVED NN
 
 
 	Network net;
 	Network_Load(&net, "NeuralNetData_3layers_XOR.bin");
-	Network_Display(&net, true);
+	//Network_Display(&net, true);
 
 
 	float *input[] = {	(float[2]){0,0},
@@ -37,8 +30,9 @@ int main()
 						(float[1]){0}};
 
 
-	Network_Train(&net, input, output, 2, 1, 4, 10000, L_RATE, "MSE");
+	//Network_Train(&net, input, output, 2, 1, 4, 25, L_RATE, "MSE");
 	Network_Display(&net, true);
+	//Network_Save(&net);
 	Network_Purge(&net);
 
 
@@ -50,8 +44,8 @@ int main()
 
 	Layer l1, l2, l3;
 	Layer_Init(&l1, NULL, &l2, 2, NULL, NULL, false, "none");
-	Layer_Init(&l2, &l1, &l3, 2, NULL, NULL, false, "leakyrelu");
-	Layer_Init(&l3, &l2, NULL, 1, NULL, NULL, false, "sigmoid");
+	Layer_Init(&l2, &l1, &l3, 3, NULL, NULL, false, "leakyrelu");
+	Layer_Init(&l3, &l2, NULL, 1, NULL, NULL, false, "step");
 
 	Network_AddLayer(&net, &l1);
 	Network_AddLayer(&net, &l2);

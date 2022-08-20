@@ -30,11 +30,10 @@ char *cvec_alloc(cui n) {
 	return tmp;
 }
 
-float *fvec_rInit(cui n, float minWeight, float maxWeight) {
+float *fvec_rInit(cui n) {
 	float *tmp = fvec_alloc(n, false);
 	for (ui i=0; i<n; i++) {
-		tmp[i] = (float)((double)(rand())/(double)(RAND_MAX)
-						* (double)(maxWeight - minWeight) + (double)minWeight);
+		tmp[i] = (((float)ran_number() > .5f) ? -1 : 1) * (float)ran_number();
 	}
 	return tmp;
 }
@@ -42,4 +41,28 @@ float *fvec_rInit(cui n, float minWeight, float maxWeight) {
 float absf(float nb) {
 	return (nb < 0) ? -nb : nb;
 }
+
+void arr_shuffle(float *arr[], float *paired_arr[], cui Size) {
+	for(ui i=0; i<Size; i++) {
+		int n = (int)((ui)(ran_number() * 100000) % Size);
+		float *temp = arr[i], *temp_paired = paired_arr[i];
+		arr[i] = arr[n];
+		arr[n] = temp;
+		paired_arr[i] = paired_arr[n];
+		paired_arr[n] = temp_paired;
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 

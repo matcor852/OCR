@@ -2,6 +2,7 @@
 #define COST_H
 
 #include <math.h>
+#include <float.h>
 #include "Tools.h"
 
 

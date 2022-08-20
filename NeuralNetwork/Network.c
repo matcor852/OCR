@@ -121,6 +121,11 @@ Layer *lvec_alloc(cui n) {
 	return tmp;
 }
 
+void Network_Predict(Network *net, float *input, cui Size) {
+	Network_Forward(net, input, Size);
+
+}
+
 void Network_Train(Network *net, float *input[], float *expected_output[],
 				cui iSize, cui oSize, cui Size, cui epoch, float l_rate,
 				char cost_func[]) {
@@ -136,15 +141,30 @@ void Network_Train(Network *net, float *input[], float *expected_output[],
 		exit(1);
 	}
 
+	bool track = true;
+	int c = 1;
+	FILE *f = fopen("stats.txt", "w");
+	if (f == NULL) track = false;
+
 	for (ui e=0; e<epoch; e++) {
+		arr_shuffle(input, expected_output, Size);
 		for (ui s=0; s<Size; s++) {
 			Network_Forward(net, input[s], iSize);
 			float error = Network_BackProp(net, expected_output[s], oSize,
 											l_rate, cost_func);
-			if (e==0 || e==epoch-1) printf("error : %f\n", (double)error);
+			if (track) fprintf(f, "%u %f\n", c, (double)error);
+			c++;
+			if (e==0 || e==epoch-1) {
+				printf("error : %f; predicted : %f, expected : %f\n",
+					(double)error,
+					(double)net->layers[net->nbLayers-1].output[0],
+					(double)expected_output[s][0]);
+			}
 		}
-		if (e==0 || e==epoch-1) printf("\nFinished epoch %u\n", e+1);
+		if (e==0 || e==epoch-1) printf("\n\tFinished epoch %u\n\n", e+1);
 	}
+
+	if (track) fclose(f);
 }
 
 void Network_Forward(Network *net, float *input, cui iSize) {
@@ -176,7 +196,7 @@ float Network_BackProp(Network *net, float *expected, cui oSize, float l_rate,
 			float ml = CostOut[j] * OutIn[j];
 			Legacy[i] += ml * L->weights[w];
 			L->weights[w] = L->weights[w] - l_rate * ml * L->pLayer->output[i];
-			w += 1;
+			w++;
 			if (!bias_done) L->bias[j] = L->bias[j] - l_rate * ml;
 		}
 		bias_done = true;
@@ -201,7 +221,7 @@ float Network_BackProp(Network *net, float *expected, cui oSize, float l_rate,
 				tempLegacy[i] += ml * L->weights[w_i];
 				L->weights[w_i] = L->weights[w_i] - l_rate * ml *
 											L->pLayer->output[i];
-				w += 1;
+				w++;
 				if (!bias_done_i) L->bias[j] = L->bias[j] - l_rate * ml;
 			}
 			bias_done_i = true;

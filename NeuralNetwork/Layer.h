@@ -4,10 +4,6 @@
 #include <time.h>
 #include "Activations.h"
 
-#define MIN_WEIGHT -1
-#define MAX_WEIGHT 1
-
-
 typedef struct Layer Layer;
 typedef struct LayerSave LayerSave;
 

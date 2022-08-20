@@ -5,7 +5,7 @@ void relu(float *input, float *output, cui Size) {
 }
 
 void leakyrelu(float *input, float *output, cui Size) {
-	for (ui i=0; i<Size; i++) output[i] = max(.1f * input[i], input[i]);
+	for (ui i=0; i<Size; i++) output[i] = max(.01f * input[i], input[i]);
 }
 
 void none(float *input, float *output, cui Size) {
@@ -33,7 +33,7 @@ void argmax(float *input, float *output, cui Size) {
 }
 
 void step(float *input, float *output, cui Size) {
-	for (ui i=0; i<Size; i++) output[i] = (input[i] < 0) ? .0f : 1.0f;
+	for (ui i=0; i<Size; i++) output[i] = (input[i] < .5f) ? .0f : 1.0f;
 }
 
 
