@@ -73,7 +73,7 @@ void Network_Save(Network *net) {
 	FILE *fptr;
 	int err;
 	char errbuf[64], filename[64], NNName[16];
-	printf("Neural Network Name : ");
+	printf("\nNeural Network Name : ");
 	scanf_s("%s", NNName, sizeof(NNName));
 	snprintf(filename, 64, "NeuralNetData_%ulayers_%s.bin",
 			net->currentLayer, NNName);
@@ -154,14 +154,15 @@ void Network_Train(Network *net, float *input[], float *expected_output[],
 											l_rate, cost_func);
 			if (track) fprintf(f, "%u %f\n", c, (double)error);
 			c++;
-			if (e==0 || e==epoch-1) {
-				printf("error : %f; predicted : %f, expected : %f\n",
-					(double)error,
-					(double)net->layers[net->nbLayers-1].output[0],
-					(double)expected_output[s][0]);
+			printf("\repoch %u/%u, sample %u/%u: error : %f", e+1, epoch, s+1, Size, (double)error);
+			/*
+			for(ui d=0; d<oSize; d++) {
+				printf("predicted : %f \texpected : %f\n",
+					(double)net->layers[net->nbLayers-1].output[d],
+					(double)expected_output[s][d]);
 			}
+			*/
 		}
-		if (e==0 || e==epoch-1) printf("\n\tFinished epoch %u\n\n", e+1);
 	}
 
 	if (track) fclose(f);

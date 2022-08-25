@@ -35,6 +35,12 @@ void Layer_SetInput(Layer *layer, float *input, cui inputSize) {
 		printf("Error: Input data size has different size than neurons");
 		exit(2);
 	}
+	for (ui i=0; i<inputSize; i++) {
+		if (isnan(input[i])) {
+			printf("NaN in input");
+			exit(10);
+		}
+	}
 	layer->output = input;
 }
 

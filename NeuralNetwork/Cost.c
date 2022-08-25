@@ -3,41 +3,50 @@
 
 float CrossEntropy(float *predicted, float *expected, cui Size) {
 	float cost = .0f;
-	for (ui i=0; i<Size; i++)
+	for (ui i=0; i<Size; i++) {
+		if (predicted[i] <= 0 || 1-predicted[i] <= 0)
+			printf("CrossEntropy encountered <= 0");
 		cost += expected[i] * logf(predicted[i]) +
 				(1-expected[i]) * logf(1-predicted[i]);
-	return -1.0f/(float)Size * cost;
+	}
+	return (-1.0f/(float)Size) * cost;
 }
 
 float RMSE(float *predicted, float *expected, cui Size) {
-	float cost = .0f;
-	for (ui i=0; i<Size; i++) cost += powf((predicted[i] - expected[i]), 2);
-	return sqrtf(1.0f/(float)Size * cost);
+	float res = MSE(predicted, expected, Size);
+	if (res < 0) printf("RMSE encountered < 0");
+	return sqrtf(res);
 }
 
 float MAE(float *predicted, float *expected, cui Size) {
 	float cost = .0f;
 	for (ui i=0; i<Size; i++) cost += absf(predicted[i]-expected[i]);
-	return 1.0f/(float)Size * cost;
+	return (1.0f/(float)Size) * cost;
 }
 
 float MSE(float *predicted, float *expected, cui Size) {
 	float cost = .0f;
 	for (ui i=0; i<Size; i++) cost += powf((predicted[i] - expected[i]), 2);
-	return 1.0f/(float)Size * cost;
+	return (1.0f/(float)Size) * cost;
 }
 
 
 
 float CrossEntropy_(float predicted, float expected) {
+	if (absf(predicted - .0f) < FLT_EPSILON || absf(1-predicted - .0f) < FLT_EPSILON)
+		printf("CrossEntropy_ encountered == 0");
 	return -(expected*(1/predicted)+(1-expected)*(1/(1-predicted)));
 }
 
 float RMSE_(float predicted, float expected) {
+	if (powf(predicted-expected, 2) < 0 ||
+		absf(sqrtf(powf(predicted-expected, 2)) - .0f) < FLT_EPSILON)
+			printf("RMSE_ encountered <= 0");
 	return (predicted-expected)/sqrtf(powf(predicted-expected, 2));
 }
 
 float MAE_(float predicted, float expected) {
+	if (absf(absf(predicted-expected) - .0f) < FLT_EPSILON) printf("MAE_ encountered <= 0");
 	return (predicted-expected)/absf(predicted-expected);
 }
 

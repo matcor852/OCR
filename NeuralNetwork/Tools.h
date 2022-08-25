@@ -19,6 +19,4 @@ float *fvec_rInit(cui n);
 float absf(float nb);
 void arr_shuffle(float *arr[], float *paired_arr[], cui Size);
 
-
-
 #endif // TOOLS_H
