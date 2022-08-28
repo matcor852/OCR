@@ -12,10 +12,7 @@
 				<Option type="1" />
 				<Option compiler="clang" />
 				<Compiler>
-					<Add option="-Wextra" />
-					<Add option="-Wall" />
-					<Add option="-std=c99" />
-					<Add directory="./" />
+					<Add option="-g" />
 				</Compiler>
 			</Target>
 			<Target title="Release">
@@ -25,7 +22,6 @@
 				<Option compiler="clang" />
 				<Compiler>
 					<Add option="-O2" />
-					<Add directory="./" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
@@ -64,9 +60,6 @@
 		</Unit>
 		<Extensions>
 			<lib_finder disable_auto="1" />
-			<wxsmith version="1">
-				<gui name="wxWidgets" src="" main="" init_handlers="necessary" language="CPP" />
-			</wxsmith>
 		</Extensions>
 	</Project>
 </CodeBlocks_project_file>

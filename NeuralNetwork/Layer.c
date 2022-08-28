@@ -1,7 +1,7 @@
 #include "Layer.h"
 
 void Layer_Init(Layer *layer, Layer *pLayer, Layer *nLayer, cui neurons,
-				float *weights, float *bias, bool loaded, char *act_name) {
+				long double *weights, long double *bias, bool loaded, char *act_name) {
 	layer->conns = 0;
 	layer->bias = 0;
 	if(pLayer != NULL) {
@@ -30,25 +30,29 @@ void Layer_Dispose(Layer *layer) {
 	}
 }
 
-void Layer_SetInput(Layer *layer, float *input, cui inputSize) {
+void Layer_SetInput(Layer *layer, long double *input, cui inputSize) {
 	if (inputSize != layer->Neurons) {
 		printf("Error: Input data size has different size than neurons");
 		exit(2);
-	}
-	for (ui i=0; i<inputSize; i++) {
-		if (isnan(input[i])) {
-			printf("NaN in input");
-			exit(10);
-		}
 	}
 	layer->output = input;
 }
 
 void Layer_Activate(Layer *layer) {
-	for(ui i=0; i<layer->Neurons; i++) layer->input[i] = layer->bias[i];
+	for(ui i=0; i<layer->Neurons; i++) {
+        if (isnan(layer->bias[i])) {
+            printf("\nNaN in bias\n");
+            exit(2);
+        }
+        layer->input[i] = layer->bias[i];
+	}
 	ui w = 0;
 	for(ui i=0; i<layer->pLayer->Neurons; i++) {
 		for(ui j=0; j<layer->Neurons; j++) {
+            if (isnan(layer->weights[w])) {
+                printf("\nNaN in weight\n");
+                exit(2);
+            }
 			layer->input[j] += layer->pLayer->output[i]*layer->weights[w];
 			w += 1;
 		}

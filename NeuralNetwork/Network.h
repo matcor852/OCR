@@ -2,6 +2,7 @@
 #define NETWORK_H
 
 #include <errno.h>
+#include <time.h>
 #include "Layer.h"
 #include "Activations.h"
 #include "Cost.h"
@@ -22,12 +23,12 @@ void Network_Save(Network *net);
 void Network_Purge(Network *net);
 void Network_Display(Network *net, bool display_matr);
 
-void Network_Predict(Network *net, float *input, cui Size);
-void Network_Train(Network *net, float *input[], float *expected_output[],
-				cui iSize, cui oSize, cui Size, cui epoch, float l_rate,
+void Network_Predict(Network *net, long double *input, cui Size);
+void Network_Train(Network *net, long double *input[], long double *expected_output[],
+				cui iSize, cui oSize, cui Size, cui epoch, long double l_rate,
 				char cost_func[]);
-void Network_Forward(Network *net, float *input, cui iSize);
-float Network_BackProp(Network *net, float *expected, cui oSize, float l_rate,
+void Network_Forward(Network *net, long double *input, cui iSize);
+long double Network_BackProp(Network *net, long double *expected, cui oSize, long double l_rate,
 					char cost_func[]);
 
 Layer *lvec_alloc(cui n);

@@ -2,21 +2,22 @@
 #define ACTIVATIONS_H
 
 #include <math.h>
+#include <float.h>
 #include "Tools.h"
 
-void sigmoid(float *input, float *output, cui Size);
-void softmax(float *input, float *output, cui Size);
-void argmax(float *input, float *output, cui Size);
-void step(float *input, float *output, cui Size);
-void relu(float *input, float *output, cui Size);
-void leakyrelu(float *input, float *output, cui Size);
-void none(float *input, float *output, cui Size);
+void sigmoid(long double *input, long double *output, cui Size);
+void softmax(long double *input, long double *output, cui Size);
+void argmax(long double *input, long double *output, cui Size);
+void step(long double *input, long double *output, cui Size);
+void relu(long double *input, long double *output, cui Size);
+void leakyrelu(long double *input, long double *output, cui Size);
+void none(long double *input, long double *output, cui Size);
 
-void (*get_activation(const char *name))(float *input, float *output, cui Size);
+void (*get_activation(const char *name))(long double *input, long double *output, cui Size);
 
 const static struct {
   const char *name;
-  void (*func)(float *input, float *output, cui Size);
+  void (*func)(long double *input, long double *output, cui Size);
 } function_map [] = {
   { "none", none },
   { "sigmoid", sigmoid },

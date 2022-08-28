@@ -1,85 +1,89 @@
 #include "Cost.h"
 
 
-float CrossEntropy(float *predicted, float *expected, cui Size) {
-	float cost = .0f;
+long double CrossEntropy(long double *predicted, long double *expected, cui Size) {
+	long double cost = .0L;
 	for (ui i=0; i<Size; i++) {
-		if (predicted[i] <= 0 || 1-predicted[i] <= 0)
-			printf("CrossEntropy encountered <= 0");
-		cost += expected[i] * logf(predicted[i]) +
-				(1-expected[i]) * logf(1-predicted[i]);
+
+        if (isnan(expected[i]) || isnan(predicted[i]) ||
+            isnan(logl(predicted[i]+LDBL_EPSILON)))
+        {
+            printf("\n%LF, %LF\n%LF\n",
+                   predicted[i], expected[i],
+                   logl(predicted[i]+LDBL_EPSILON));
+            exit(1);
+        }
+        cost += expected[i] * logl(predicted[i]+LDBL_EPSILON);
 	}
-	return (-1.0f/(float)Size) * cost;
+	return -cost;
 }
 
-float RMSE(float *predicted, float *expected, cui Size) {
-	float res = MSE(predicted, expected, Size);
+long double RMSE(long double *predicted, long double *expected, cui Size) {
+	long double res = MSE(predicted, expected, Size);
 	if (res < 0) printf("RMSE encountered < 0");
-	return sqrtf(res);
+	return sqrtl(res+LDBL_EPSILON);
 }
 
-float MAE(float *predicted, float *expected, cui Size) {
-	float cost = .0f;
-	for (ui i=0; i<Size; i++) cost += absf(predicted[i]-expected[i]);
-	return (1.0f/(float)Size) * cost;
+long double MAE(long double *predicted, long double *expected, cui Size) {
+	long double cost = .0L;
+	for (ui i=0; i<Size; i++) cost += absl(predicted[i]-expected[i]);
+	return (1.0L/(long double)Size) * cost;
 }
 
-float MSE(float *predicted, float *expected, cui Size) {
-	float cost = .0f;
-	for (ui i=0; i<Size; i++) cost += powf((predicted[i] - expected[i]), 2);
-	return (1.0f/(float)Size) * cost;
+long double MSE(long double *predicted, long double *expected, cui Size) {
+	long double cost = .0L;
+	for (ui i=0; i<Size; i++) cost += powl((predicted[i] - expected[i]), 2);
+	return (1.0L/(long double)Size) * cost;
 }
 
 
 
-float CrossEntropy_(float predicted, float expected) {
-	if (absf(predicted - .0f) < FLT_EPSILON || absf(1-predicted - .0f) < FLT_EPSILON)
-		printf("CrossEntropy_ encountered == 0");
-	return -(expected*(1/predicted)+(1-expected)*(1/(1-predicted)));
+long double CrossEntropy_(long double predicted, long double expected) {
+    return -expected/(predicted+LDBL_EPSILON);
 }
 
-float RMSE_(float predicted, float expected) {
-	if (powf(predicted-expected, 2) < 0 ||
-		absf(sqrtf(powf(predicted-expected, 2)) - .0f) < FLT_EPSILON)
-			printf("RMSE_ encountered <= 0");
-	return (predicted-expected)/sqrtf(powf(predicted-expected, 2));
+long double RMSE_(long double predicted, long double expected) {
+	return (predicted-expected)/sqrtl(powl(predicted-expected, 2)+LDBL_EPSILON);
 }
 
-float MAE_(float predicted, float expected) {
-	if (absf(absf(predicted-expected) - .0f) < FLT_EPSILON) printf("MAE_ encountered <= 0");
-	return (predicted-expected)/absf(predicted-expected);
+long double MAE_(long double predicted, long double expected) {
+	return (predicted-expected)/(absl(predicted-expected)+LDBL_EPSILON);
 }
 
-float MSE_(float predicted, float expected) {
+long double MSE_(long double predicted, long double expected) {
 	return 2*(predicted-expected);
 }
 
 
 
-float none_(float *arr, cui Size, cui ieme) {
+long double none_(long double *arr, cui Size, cui ieme) {
 	return 0;
 }
 
-float sigmoid_(float *arr, cui Size, cui ieme) {
+long double sigmoid_(long double *arr, cui Size, cui ieme) {
 	if (ieme >= Size) {
 		printf("Warning: sigmoid derivative index out of bound.\n");
 		return 0;
 	}
-	float sigm = 1/(1+expf(-arr[ieme]));
+	long double sigm = 1/(1+expl(-arr[ieme]));
 	return sigm*(1-sigm);
 }
 
-float softmax_(float *arr, cui Size, cui ieme) {
+long double softmax_(long double *arr, cui Size, cui ieme) {
 	if (ieme >= Size) {
 		printf("Warning: softmax derivative index out of bound.\n");
 		return 0;
 	}
-	float sT = 0, tgt = expf(arr[ieme]);
-	for (ui i=0; i<Size; i++) sT += expf(arr[i]);
-	return tgt*(sT-tgt)/powf(sT, 2);
+	long double sT = 0, tgt = expl(arr[ieme]);
+	for (ui i=0; i<Size; i++) sT += expl(arr[i]);
+	if (isnan(tgt*(sT-tgt)/(powl(sT, 2)+LDBL_EPSILON))) {
+        printf("\nNaN softmax_ : %LF, %LF, %LF, %LF\n", sT, tgt, tgt*(sT-tgt), powl(sT, 2));
+        exit(2);
+	}
+	return tgt*(sT-tgt)/(powl(sT, 2)+LDBL_EPSILON);
 }
 
-float argmax_(float *arr, cui Size, cui ieme) {
+long double argmax_(long double *arr, cui Size, cui ieme) {
 	if (ieme >= Size) {
 		printf("Warning: argmax derivative index out of bound.\n");
 		return 0;
@@ -88,15 +92,15 @@ float argmax_(float *arr, cui Size, cui ieme) {
 	return 0;
 }
 
-float step_(float *arr, cui Size, cui ieme) {
+long double step_(long double *arr, cui Size, cui ieme) {
 	if (ieme >= Size) {
 		printf("Warning: step derivative index out of bound.\n");
 		return 0;
 	}
-	return (absf(arr[ieme] - .0f) < FLT_EPSILON) ? (float)ran_number() : .5f;
+	return (absl(arr[ieme] - .0F) < LDBL_EPSILON) ? (long double)(ran_number()) : .5L;
 }
 
-float relu_(float *arr, cui Size, cui ieme) {
+long double relu_(long double *arr, cui Size, cui ieme) {
 	if (ieme >= Size) {
 		printf("Warning: relu derivative index out of bound.\n");
 		return 0;
@@ -104,28 +108,28 @@ float relu_(float *arr, cui Size, cui ieme) {
 	return (arr[ieme] < 0) ? 0 : 1;
 }
 
-float leakyrelu_(float *arr, cui Size, cui ieme) {
+long double leakyrelu_(long double *arr, cui Size, cui ieme) {
 	if (ieme >= Size) {
 		printf("Warning: leakyrelu derivative index out of bound.\n");
 		return 0;
 	}
-	return (arr[ieme] < 0) ? .01f : 1;
+	return (arr[ieme] < 0) ? .01L : 1.0L;
 }
 
 
-float (*get_deriv(const char *name))(float *arr, cui Size, cui ieme) {
+long double (*get_deriv(const char *name))(long double *arr, cui Size, cui ieme) {
 	for (ui i=0; i < (sizeof(deriv_map)/sizeof(deriv_map[0])); i++)
 		if (!strcmp(deriv_map[i].name,name)) return deriv_map[i].func;
 	return NULL;
 }
 
-float (*get_cost(const char *name))(float *predicted,float *expected,cui Size) {
+long double (*get_cost(const char *name))(long double *predicted,long double *expected,cui Size) {
 	for (ui i=0; i < (sizeof(cost_map)/sizeof(cost_map[0])); i++)
 		if (!strcmp(cost_map[i].name,name)) return cost_map[i].func;
 	return NULL;
 }
 
-float (*get_cost_deriv(const char *name))(float predicted,float expected) {
+long double (*get_cost_deriv(const char *name))(long double predicted,long double expected) {
 	for (ui i=0; i < (sizeof(cost_deriv_map)/sizeof(cost_deriv_map[0])); i++)
 		if (!strcmp(cost_deriv_map[i].name,name)) return cost_deriv_map[i].func;
 	return NULL;

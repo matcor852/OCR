@@ -10,9 +10,9 @@ typedef struct LayerSave LayerSave;
 struct Layer
 {
 	ui Neurons, conns;
-	float *bias, *weights, *input, *output;
+	long double *bias, *weights, *input, *output;
 	Layer *pLayer, *nLayer;
-	void (*activation)(float *input, float *output, cui Size);
+	void (*activation)(long double *input, long double *output, cui Size);
 	char *act_name;
 	bool loaded;
 };
@@ -24,10 +24,10 @@ struct LayerSave
 
 
 void Layer_Init(Layer *layer, Layer *pLayer, Layer *nLayer, cui neurons,
-				float *weights, float *bias, bool loaded, char *act_name);
+				long double *weights, long double *bias, bool loaded, char *act_name);
 void Layer_Dispose(Layer *layer);
 
-void Layer_SetInput(Layer *layer, float *input, cui inputSize);
+void Layer_SetInput(Layer *layer, long double *input, cui inputSize);
 void Layer_Activate(Layer *layer);
 
 void Layer_Display(Layer *layer, const ui ieme, bool display_matr);

@@ -12,11 +12,11 @@
 typedef unsigned int ui;
 typedef const ui cui;
 
-void matr_display(float *arr, cui s, cui cols);
-float *fvec_alloc(cui n, bool zInit);
+void matr_display(long double *arr, cui s, cui cols);
+long double *fvec_alloc(cui n, bool zInit);
 char *cvec_alloc(cui n);
-float *fvec_rInit(cui n);
-float absf(float nb);
-void arr_shuffle(float *arr[], float *paired_arr[], cui Size);
+long double *fvec_rInit(cui n);
+long double absl(long double nb);
+void arr_shuffle(long double *arr[], long double *paired_arr[], cui Size);
 
 #endif // TOOLS_H

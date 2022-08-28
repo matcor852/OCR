@@ -1,5 +1,4 @@
 #include "Network.h"
-#include <stdio.h>
 
 void Network_Init(Network *net, cui nbLayers) {
 	net->layers = lvec_alloc(nbLayers);
@@ -39,10 +38,10 @@ void Network_Load(Network *net, char path[]) {
 			char *name = cvec_alloc(saved.fSize+1);
 			fread(name, sizeof(char), saved.fSize, fptr);
 			name[saved.fSize] = '\0';
-			float *bias = fvec_alloc(saved.Neurons, false);
-			fread(bias, sizeof(float), saved.Neurons, fptr);
-			float *weights = fvec_alloc(saved.conns, false);
-			fread(weights, sizeof(float), saved.conns, fptr);
+			long double *bias = fvec_alloc(saved.Neurons, false);
+			fread(bias, sizeof(long double), saved.Neurons, fptr);
+			long double *weights = fvec_alloc(saved.conns, false);
+			fread(weights, sizeof(long double), saved.conns, fptr);
 			Layer_Init(&layer, lSave, NULL, saved.Neurons, weights,
 						bias, true, name);
 		}
@@ -90,9 +89,9 @@ void Network_Save(Network *net) {
 		fwrite(&saved, sizeof(saved), 1, fptr);
 		if (net->layers[i].pLayer != NULL) {
 			fwrite(net->layers[i].act_name,sizeof(char), len, fptr);
-			fwrite(&net->layers[i].bias[0], sizeof(float),
+			fwrite(&net->layers[i].bias[0], sizeof(long double),
 					net->layers[i].Neurons, fptr);
-			fwrite(&net->layers[i].weights[0], sizeof(float),
+			fwrite(&net->layers[i].weights[0], sizeof(long double),
 					net->layers[i].conns, fptr);
 		}
 	}
@@ -121,13 +120,13 @@ Layer *lvec_alloc(cui n) {
 	return tmp;
 }
 
-void Network_Predict(Network *net, float *input, cui Size) {
+void Network_Predict(Network *net, long double *input, cui Size) {
 	Network_Forward(net, input, Size);
 
 }
 
-void Network_Train(Network *net, float *input[], float *expected_output[],
-				cui iSize, cui oSize, cui Size, cui epoch, float l_rate,
+void Network_Train(Network *net, long double *input[], long double *expected_output[],
+				cui iSize, cui oSize, cui Size, cui epoch, long double l_rate,
 				char cost_func[]) {
 	if (net->nbLayers < 2) {
 		printf("Attempting train on incomplete network; Starting purge...\n");
@@ -146,59 +145,83 @@ void Network_Train(Network *net, float *input[], float *expected_output[],
 	FILE *f = fopen("stats.txt", "w");
 	if (f == NULL) track = false;
 
+	clock_t begin, end;
 	for (ui e=0; e<epoch; e++) {
 		arr_shuffle(input, expected_output, Size);
 		for (ui s=0; s<Size; s++) {
+            begin = clock();
 			Network_Forward(net, input[s], iSize);
-			float error = Network_BackProp(net, expected_output[s], oSize,
+			long double error = Network_BackProp(net, expected_output[s], oSize,
 											l_rate, cost_func);
 			if (track) fprintf(f, "%u %f\n", c, (double)error);
 			c++;
-			printf("\repoch %u/%u, sample %u/%u: error : %f", e+1, epoch, s+1, Size, (double)error);
-			/*
-			for(ui d=0; d<oSize; d++) {
-				printf("predicted : %f \texpected : %f\n",
-					(double)net->layers[net->nbLayers-1].output[d],
-					(double)expected_output[s][d]);
-			}
-			*/
+            end = clock();
+			printf("\repoch %u/%u, sample %u/%u: error = %f [ %.1fit/s ]      ",
+                    e+1, epoch, s+1, Size, (double)error,
+                    (double)(1000.0/(end-begin)));
 		}
 	}
 
 	if (track) fclose(f);
 }
 
-void Network_Forward(Network *net, float *input, cui iSize) {
+void Network_Forward(Network *net, long double *input, cui iSize) {
+    for (ui i=0; i<iSize; i++) {
+        if (isnan(input[i])) {
+            printf("\nNaN in input layer\n");
+            exit(2);
+        }
+    }
 	Layer_SetInput(&net->layers[0], input, iSize);
 	for (ui i=1; i<net->currentLayer; i++) Layer_Activate(&net->layers[i]);
+	for (ui i=0; i<net->layers[net->nbLayers-1].Neurons; i++) {
+        if (isnan(net->layers[net->nbLayers-1].output[i])) {
+            printf("\nNaN in output layer\n");
+            exit(2);
+        }
+	}
 }
 
-float Network_BackProp(Network *net, float *expected, cui oSize, float l_rate,
+long double Network_BackProp(Network *net, long double *expected, cui oSize, long double l_rate,
 					char cost_func[])
 {
 	Layer *L = &net->layers[net->nbLayers-1];
-	float (*cost_deriv)(float, float) = get_cost_deriv(cost_func);
-	float (*deriv)(float*,cui,cui) = get_deriv(L->act_name);
+	long double (*cost_deriv)(long double, long double) = get_cost_deriv(cost_func);
+	long double (*deriv)(long double*,cui,cui) = get_deriv(L->act_name);
 
-	float error = get_cost(cost_func)(L->output, expected, oSize);
+	long double error = get_cost(cost_func)(L->output, expected, oSize);
 
-	float *CostOut = fvec_alloc(L->Neurons, false);
-	float *OutIn = fvec_alloc(L->Neurons, false);
+	long double *CostOut = fvec_alloc(L->Neurons, false);
+	long double *OutIn = fvec_alloc(L->Neurons, false);
 	for (ui i=0; i<L->Neurons; i++) {
 		CostOut[i] = cost_deriv(L->output[i], expected[i]);
 		OutIn[i] = deriv(L->input, L->Neurons, i);
+		if (isnan(OutIn[i])) {
+            printf("\nNaN OutIn : %LF, %u, %u\n", OutIn[i], L->Neurons, i);
+            exit(2);
+		}
 	}
 
-	float *Legacy = fvec_alloc(L->pLayer->Neurons, true);
+	long double *Legacy = fvec_alloc(L->pLayer->Neurons, true);
 	ui w = 0;
 	bool bias_done = false;
 	for (ui i=0; i<L->pLayer->Neurons; i++) {
 		for (ui j=0; j<L->Neurons; j++) {
-			float ml = CostOut[j] * OutIn[j];
+			long double ml = CostOut[j] * OutIn[j];
+			if (isnan(ml)) {
+                printf("\nNaN ml : %LF, %LF\n", CostOut[j], OutIn[j]);
+                exit(2);
+			}
 			Legacy[i] += ml * L->weights[w];
 			L->weights[w] = L->weights[w] - l_rate * ml * L->pLayer->output[i];
 			w++;
-			if (!bias_done) L->bias[j] = L->bias[j] - l_rate * ml;
+			if (!bias_done) {
+                if (isnan(L->bias[j] - l_rate * ml)) {
+                    printf("\nNaN in last bias backprop : %LF, %LF\n", l_rate,ml);
+                    exit(2);
+                }
+                L->bias[j] = L->bias[j] - l_rate * ml;
+			}
 		}
 		bias_done = true;
 	}
@@ -206,19 +229,19 @@ float Network_BackProp(Network *net, float *expected, cui oSize, float l_rate,
 	free(OutIn);
 
 
-	float *tempLegacy;
+	long double *tempLegacy;
 	for (ui X=net->nbLayers-2; X>0; X--) {
 		L = &net->layers[X];
-		float (*deriv_i)(float*,cui,cui) = get_deriv(L->act_name);
+		long double (*deriv_i)(long double*,cui,cui) = get_deriv(L->act_name);
 		tempLegacy = fvec_alloc(L->pLayer->Neurons, true);
-		float *OutIn_i = fvec_alloc(L->Neurons, false);
+		long double *OutIn_i = fvec_alloc(L->Neurons, false);
 		for (ui i=0; i<L->Neurons; i++)
 			OutIn_i[i] = deriv_i(L->input, L->Neurons, i);
 		ui w_i = 0;
 		bool bias_done_i = false;
 		for (ui i=0; i<L->pLayer->Neurons; i++) {
 			for (ui j=0; j<L->Neurons; j++) {
-				float ml = Legacy[j] * OutIn_i[j];
+				long double ml = Legacy[j] * OutIn_i[j];
 				tempLegacy[i] += ml * L->weights[w_i];
 				L->weights[w_i] = L->weights[w_i] - l_rate * ml *
 											L->pLayer->output[i];
