@@ -30,38 +30,21 @@ void Layer_Dispose(Layer *layer) {
 	}
 }
 
-void Layer_SetInput(Layer *layer, long double *input, cui inputSize) {
-	if (inputSize != layer->Neurons) {
-		printf("Error: Input data size has different size than neurons");
-		exit(2);
-	}
-	layer->output = input;
-}
-
 void Layer_Activate(Layer *layer) {
-	for(ui i=0; i<layer->Neurons; i++) {
-        if (isnan(layer->bias[i])) {
-            printf("\nNaN in bias\n");
-            exit(2);
-        }
-        layer->input[i] = layer->bias[i];
-	}
+	for(ui i=0; i<layer->Neurons; i++) layer->input[i] = layer->bias[i];
 	ui w = 0;
 	for(ui i=0; i<layer->pLayer->Neurons; i++) {
 		for(ui j=0; j<layer->Neurons; j++) {
-            if (isnan(layer->weights[w])) {
-                printf("\nNaN in weight\n");
-                exit(2);
-            }
 			layer->input[j] += layer->pLayer->output[i]*layer->weights[w];
 			w += 1;
 		}
 	}
+
 	layer->activation(layer->input, layer->output, layer->Neurons);
 }
 
 void Layer_Display(Layer *layer, const ui ieme, bool display_matr) {
-	printf("Layer %u :\n", ieme);
+	printf("Layer %u (%p) :\n", ieme, layer);
 	printf("\t%u neurons", layer->Neurons);
 	if (layer->pLayer == NULL) {
 		printf("\n\t--[ Input Layer ]--\n");

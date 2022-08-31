@@ -16,6 +16,14 @@ void Network_AddLayer(Network *net, Layer *layer) {
 	net->currentLayer++;
 }
 
+void Network_Wire(Network *net) {
+    for (ui i=1; i<net->nbLayers; i++) {
+		net->layers[i-1].nLayer = &net->layers[i];
+		net->layers[i].pLayer = &net->layers[i-1];
+		if (i+1 < net->nbLayers) net->layers[i].nLayer = &net->layers[i+1];
+	}
+}
+
 void Network_Load(Network *net, char path[]) {
 	if (sscanf_s(path, "%*[^_]%*[_]%u", &net->nbLayers) != 1) {
 		printf("Could not read amount of layer in filename; Exiting...\n");
@@ -59,23 +67,20 @@ void Network_Load(Network *net, char path[]) {
 		Network_Purge(net);
 		exit(1);
 	}
-
-	for (ui i=1; i<net->nbLayers; i++) {
-		net->layers[i-1].nLayer = &net->layers[i];
-		net->layers[i].pLayer = &net->layers[i-1];
-		if (i+1 < net->nbLayers) net->layers[i].nLayer = &net->layers[i+1];
-	}
-
+    Network_Wire(net);
 }
 
-void Network_Save(Network *net) {
+void Network_Save(Network *net, char name[]) {
 	FILE *fptr;
 	int err;
 	char errbuf[64], filename[64], NNName[16];
-	printf("\nNeural Network Name : ");
-	scanf_s("%s", NNName, sizeof(NNName));
+
+	if (name == NULL) {
+        printf("\nNeural Network Name : ");
+        scanf_s("%s", NNName, sizeof(NNName));
+	}
 	snprintf(filename, 64, "NeuralNetData_%ulayers_%s.bin",
-			net->currentLayer, NNName);
+			net->currentLayer, name == NULL ? NNName : name);
 	if ((err = fopen_s(&fptr, filename, "wb")) != 0){
 		strerror_s(errbuf,sizeof(errbuf), err);
 		fprintf(stderr, "Cannot open file '%s': %s\n", filename, errbuf);
@@ -103,6 +108,7 @@ void Network_Purge(Network *net) {
 		Layer_Dispose(&net->layers[i]);
 	}
 	free(net->layers);
+	free(net);
 }
 
 void Network_Display(Network *net, bool display_matr) {
@@ -122,7 +128,14 @@ Layer *lvec_alloc(cui n) {
 
 void Network_Predict(Network *net, long double *input, cui Size) {
 	Network_Forward(net, input, Size);
+}
 
+long double *Network_Validate(Network *net, long double *input, cui Size) {
+    Network_Forward(net, input, Size);
+    argmax(net->layers[net->nbLayers-1].output,
+           net->layers[net->nbLayers-1].output,
+           net->layers[net->nbLayers-1].Neurons);
+    return net->layers[net->nbLayers-1].output;
 }
 
 void Network_Train(Network *net, long double *input[], long double *expected_output[],
@@ -145,6 +158,8 @@ void Network_Train(Network *net, long double *input[], long double *expected_out
 	FILE *f = fopen("stats.txt", "w");
 	if (f == NULL) track = false;
 
+
+
 	clock_t begin, end;
 	for (ui e=0; e<epoch; e++) {
 		arr_shuffle(input, expected_output, Size);
@@ -166,20 +181,12 @@ void Network_Train(Network *net, long double *input[], long double *expected_out
 }
 
 void Network_Forward(Network *net, long double *input, cui iSize) {
-    for (ui i=0; i<iSize; i++) {
-        if (isnan(input[i])) {
-            printf("\nNaN in input layer\n");
-            exit(2);
-        }
+    if (iSize != net->layers[0].Neurons) {
+        printf("Error: Input data size has different size than neurons");
+		exit(2);
     }
-	Layer_SetInput(&net->layers[0], input, iSize);
+    net->layers[0].output = input;
 	for (ui i=1; i<net->currentLayer; i++) Layer_Activate(&net->layers[i]);
-	for (ui i=0; i<net->layers[net->nbLayers-1].Neurons; i++) {
-        if (isnan(net->layers[net->nbLayers-1].output[i])) {
-            printf("\nNaN in output layer\n");
-            exit(2);
-        }
-	}
 }
 
 long double Network_BackProp(Network *net, long double *expected, cui oSize, long double l_rate,
@@ -196,10 +203,6 @@ long double Network_BackProp(Network *net, long double *expected, cui oSize, lon
 	for (ui i=0; i<L->Neurons; i++) {
 		CostOut[i] = cost_deriv(L->output[i], expected[i]);
 		OutIn[i] = deriv(L->input, L->Neurons, i);
-		if (isnan(OutIn[i])) {
-            printf("\nNaN OutIn : %LF, %u, %u\n", OutIn[i], L->Neurons, i);
-            exit(2);
-		}
 	}
 
 	long double *Legacy = fvec_alloc(L->pLayer->Neurons, true);
@@ -208,20 +211,10 @@ long double Network_BackProp(Network *net, long double *expected, cui oSize, lon
 	for (ui i=0; i<L->pLayer->Neurons; i++) {
 		for (ui j=0; j<L->Neurons; j++) {
 			long double ml = CostOut[j] * OutIn[j];
-			if (isnan(ml)) {
-                printf("\nNaN ml : %LF, %LF\n", CostOut[j], OutIn[j]);
-                exit(2);
-			}
 			Legacy[i] += ml * L->weights[w];
 			L->weights[w] = L->weights[w] - l_rate * ml * L->pLayer->output[i];
 			w++;
-			if (!bias_done) {
-                if (isnan(L->bias[j] - l_rate * ml)) {
-                    printf("\nNaN in last bias backprop : %LF, %LF\n", l_rate,ml);
-                    exit(2);
-                }
-                L->bias[j] = L->bias[j] - l_rate * ml;
-			}
+			if (!bias_done)  L->bias[j] = L->bias[j] - l_rate * ml;
 		}
 		bias_done = true;
 	}

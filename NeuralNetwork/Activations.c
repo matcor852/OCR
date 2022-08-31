@@ -13,13 +13,7 @@ void none(long double *input, long double *output, cui Size) {
 }
 
 void sigmoid(long double *input, long double *output, cui Size) {
-	for (ui i=0; i<Size; i++) {
-        if (isnan(input[i]) || isnan(expl(-input[i]))) {
-            printf("\nexpecting NaN from %LF\n", input[i]);
-            exit(1);
-        }
-        output[i] = 1/(1 + expl(-input[i]));
-	}
+	for (ui i=0; i<Size; i++) output[i] = 1/(1 + expl(-input[i]));
 }
 
 void softmax(long double *input, long double *output, cui Size) {
@@ -28,30 +22,30 @@ void softmax(long double *input, long double *output, cui Size) {
 		expd[i] = expl(input[i]);
 		s += expd[i];
 	}
-	for (ui i=0; i<Size; i++) {
-        if (expd[i] <= 0 && s <= 0) {
-            printf("\nexpecting NaN");
-            exit(1);
-        }
-        if (expd[i] != 0 && s <= 0) {
-            printf("\nexpecting inf");
-            exit(1);
-        }
-        output[i] = expd[i]/(s+LDBL_EPSILON);
-	}
+	for (ui i=0; i<Size; i++) output[i] = expd[i]/(s+LDBL_EPSILON);
 	free(expd);
 }
 
 void argmax(long double *input, long double *output, cui Size) {
-	ui p = 0;
-	for (ui i=0; i<Size; i++) p = (input[i] > input[p]) ? i : p;
-	for (ui i=0; i<Size; i++) output[i] = (i != p) ? .0L : 1.0L;
+	ui c = 0, p[Size];
+	p[c] = 0;
+	for (ui i=0; i<Size; i++) {
+        if (input[i] > input[p[c]]) {
+            c = 0;
+            p[c] = i;
+        }
+        else if (absl(input[i] - input[p[c]]) < LDBL_EPSILON) {
+            c++;
+            p[c] = i;
+        }
+	}
+	for (ui i=0; i<Size; i++) output[i] = .0L;
+	for (ui i=0; i<c+1; i++) output[p[i]] = 1.0L;
 }
 
 void step(long double *input, long double *output, cui Size) {
 	for (ui i=0; i<Size; i++) output[i] = (input[i] < .5L) ? .0L : 1.0L;
 }
-
 
 void (*get_activation(const char *name))(long double *input, long double *output, cui Size)
 {
