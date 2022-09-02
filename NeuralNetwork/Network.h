@@ -24,14 +24,14 @@ void Network_Purge(Network *net);
 void Network_Display(Network *net, bool display_matr);
 void Network_Wire(Network *net);
 
-void Network_Predict(Network *net, long double *input, cui Size);
-long double *Network_Validate(Network *net, long double *input, cui Size);
-void Network_Train(Network *net, long double *input[],
-                   long double *expected_output[], cui iSize, cui oSize,
-                   cui Size, cui epoch, long double l_rate, char cost_func[]);
-void Network_Forward(Network *net, long double *input, cui iSize);
-long double Network_BackProp(Network *net, long double *expected, cui oSize, long double l_rate,
-					char cost_func[]);
+void Network_Predict(Network *net, ld *input, cui Size);
+ld *Network_Validate(Network *net, ld *input, cui Size);
+void Network_Train(Network *net, ld *input[],
+                   ld *expected_output[], cui iSize, cui oSize,
+                   cui Size, cui epoch, char cost_func[]);
+static void Network_Forward(Network *net, ld *input, cui iSize);
+static ld Network_BackProp(Network *net, ld *expected,
+                           cui oSize, char cost_func[]);
 
 Layer *lvec_alloc(cui n);
 

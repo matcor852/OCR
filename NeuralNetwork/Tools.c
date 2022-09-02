@@ -1,7 +1,7 @@
 
 #include "Tools.h"
 
-void matr_display(long double *arr, cui s, cui cols) {
+void matr_display(ld *arr, cui s, cui cols) {
 	printf("\n\t[");
 	for(ui i=0; i<s; i++) {
 		if(i>0 && i%cols == 0) printf("\n\t ");
@@ -11,9 +11,8 @@ void matr_display(long double *arr, cui s, cui cols) {
 	printf("]\n");
 }
 
-long double *fvec_alloc(cui n, bool zInit) {
-	long double *tmp = (long double*) (zInit) ?
-		calloc(n, sizeof(long double)) : malloc(sizeof(long double) * n);
+ld *fvec_alloc(cui n, bool zInit) {
+	ld *tmp = (ld*) (zInit) ? calloc(n, sizeof(ld)) : malloc(sizeof(ld) * n);
 	if (tmp == NULL) {
 		printf("Error: Out of memory ...\n");
 		exit(1);
@@ -30,22 +29,24 @@ char *cvec_alloc(cui n) {
 	return tmp;
 }
 
-long double *fvec_rInit(cui n) {
-	long double *tmp = fvec_alloc(n, false);
+ld *fvec_rInit(cui n, cui conns) {
+	ld *tmp = fvec_alloc(n, false);
 	for (ui i=0; i<n; i++) {
-		tmp[i] = (((float)ran_number() > .5f) ? -1 : 1) * (long double)ran_number();
+	    //tmp[i] = ((long)rand()/RAND_MAX)*0.02L-0.01L;
+		tmp[i] = (((float)ran_number() > .5f) ? -1 : 1) *
+                    (ld)ran_number() * sqrtl(1.0L/(ld)conns);
 	}
 	return tmp;
 }
 
-long double absl(long double nb) {
+ld absl(cld nb) {
 	return (nb < 0) ? -nb : nb;
 }
 
-void arr_shuffle(long double *arr[], long double *paired_arr[], cui Size) {
+void arr_shuffle(ld *arr[], ld *paired_arr[], cui Size) {
 	for(ui i=0; i<Size; i++) {
 		int n = (int)((ui)(ran_number() * 100000) % Size);
-		long double *temp = arr[i], *temp_paired = paired_arr[i];
+		ld *temp = arr[i], *temp_paired = paired_arr[i];
 		arr[i] = arr[n];
 		arr[n] = temp;
 		paired_arr[i] = paired_arr[n];

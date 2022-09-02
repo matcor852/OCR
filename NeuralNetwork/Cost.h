@@ -6,31 +6,31 @@
 #include "Tools.h"
 
 
-long double CrossEntropy(long double *predicted, long double *expected, cui Size);
-long double RMSE(long double *predicted, long double *expected, cui Size);
-long double MAE(long double *predicted, long double *expected, cui Size);
-long double MSE(long double *predicted, long double *expected, cui Size);
+ld CrossEntropy(ld *predicted, ld *expected, cui Size);
+ld RMSE(ld *predicted, ld *expected, cui Size);
+ld MAE(ld *predicted, ld *expected, cui Size);
+ld MSE(ld *predicted, ld *expected, cui Size);
 
-long double CrossEntropy_(long double predicted, long double expected);
-long double RMSE_(long double predicted, long double expected);
-long double MAE_(long double predicted, long double expected);
-long double MSE_(long double predicted, long double expected);
+ld CrossEntropy_(cld predicted, cld expected);
+ld RMSE_(cld predicted, cld expected);
+ld MAE_(cld predicted, cld expected);
+ld MSE_(cld predicted, cld expected);
 
-long double none_(long double *arr, cui Size, cui ieme);
-long double sigmoid_(long double *arr, cui Size, cui ieme);
-long double softmax_(long double *arr, cui Size, cui ieme);
-long double argmax_(long double *arr, cui Size, cui ieme);
-long double step_(long double *arr, cui Size, cui ieme);
-long double relu_(long double *arr, cui Size, cui ieme);
-long double leakyrelu_(long double *arr, cui Size, cui ieme);
+ld none_(ld *arr, cui Size, cui ieme);
+ld sigmoid_(ld *arr, cui Size, cui ieme);
+ld softmax_(ld *arr, cui Size, cui ieme);
+ld argmax_(ld *arr, cui Size, cui ieme);
+ld step_(ld *arr, cui Size, cui ieme);
+ld relu_(ld *arr, cui Size, cui ieme);
+ld leakyrelu_(ld *arr, cui Size, cui ieme);
 
-long double (*get_deriv(const char *name))(long double *arr, cui Size, cui ieme);
-long double (*get_cost(const char *name))(long double *predicted,long double *expected,cui Size);
-long double (*get_cost_deriv(const char *name))(long double predicted, long double expected);
+ld (*get_deriv(const char *name))(ld *arr, cui Size, cui ieme);
+ld (*get_cost(const char *name))(ld *predicted, ld *expected,cui Size);
+ld (*get_cost_deriv(const char *name))(ld predicted, ld expected);
 
 const static struct {
   const char *name;
-  long double (*func)(long double *arr, cui Size, cui ieme);
+  ld (*func)(ld *arr, cui Size, cui ieme);
 } deriv_map [] = {
   { "none", none_ },
   { "sigmoid", sigmoid_ },
@@ -43,7 +43,7 @@ const static struct {
 
 const static struct {
   const char *name;
-  long double (*func)(long double *predicted, long double *expected, cui Size);
+  ld (*func)(ld *predicted, ld *expected, cui Size);
 } cost_map [] = {
   { "CrossEntropy", CrossEntropy },
   { "RMSE", RMSE },
@@ -53,7 +53,7 @@ const static struct {
 
 const static struct {
   const char *name;
-  long double (*func)(long double predicted, long double expected);
+  ld (*func)(ld predicted, ld expected);
 } cost_deriv_map [] = {
   { "CrossEntropy", CrossEntropy_ },
   { "RMSE", RMSE_ },

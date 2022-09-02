@@ -1,23 +1,23 @@
 #include "Activations.h"
 
-void relu(long double *input, long double *output, cui Size) {
+void relu(ld *input, ld *output, cui Size) {
 	for (ui i=0; i<Size; i++) output[i] = max(.0, input[i]);
 }
 
-void leakyrelu(long double *input, long double *output, cui Size) {
+void leakyrelu(ld *input, ld *output, cui Size) {
 	for (ui i=0; i<Size; i++) output[i] = max(.01 * input[i], input[i]);
 }
 
-void none(long double *input, long double *output, cui Size) {
+void none(ld *input, ld *output, cui Size) {
 	for (ui i=0; i<Size; i++) output[i] = input[i];
 }
 
-void sigmoid(long double *input, long double *output, cui Size) {
+void sigmoid(ld *input, ld *output, cui Size) {
 	for (ui i=0; i<Size; i++) output[i] = 1/(1 + expl(-input[i]));
 }
 
-void softmax(long double *input, long double *output, cui Size) {
-	long double s = .0, *expd = fvec_alloc(Size, false);
+void softmax(ld *input, ld *output, cui Size) {
+	ld s = .0, *expd = fvec_alloc(Size, false);
 	for (ui i=0; i<Size; i++) {
 		expd[i] = expl(input[i]);
 		s += expd[i];
@@ -26,7 +26,7 @@ void softmax(long double *input, long double *output, cui Size) {
 	free(expd);
 }
 
-void argmax(long double *input, long double *output, cui Size) {
+void argmax(ld *input, ld *output, cui Size) {
 	ui c = 0, p[Size];
 	p[c] = 0;
 	for (ui i=0; i<Size; i++) {
@@ -43,11 +43,11 @@ void argmax(long double *input, long double *output, cui Size) {
 	for (ui i=0; i<c+1; i++) output[p[i]] = 1.0L;
 }
 
-void step(long double *input, long double *output, cui Size) {
+void step(ld *input, ld *output, cui Size) {
 	for (ui i=0; i<Size; i++) output[i] = (input[i] < .5L) ? .0L : 1.0L;
 }
 
-void (*get_activation(const char *name))(long double *input, long double *output, cui Size)
+void (*get_activation(const char *name))(ld *input, ld *output, cui Size)
 {
 	for (ui i = 0; i < (sizeof(function_map) / sizeof(function_map[0])); i++)
 		if (!strcmp(function_map[i].name, name)) return function_map[i].func;

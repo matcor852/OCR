@@ -1,14 +1,14 @@
 #include "Layer.h"
 
 void Layer_Init(Layer *layer, Layer *pLayer, Layer *nLayer, cui neurons,
-				long double *weights, long double *bias, bool loaded, char *act_name) {
+				ld *weights, ld *bias, bool loaded, char *act_name) {
 	layer->conns = 0;
 	layer->bias = 0;
 	if(pLayer != NULL) {
+        layer->conns = pLayer->Neurons * neurons;
 		layer->weights = (weights == NULL) ?
-			fvec_rInit(pLayer->Neurons*neurons) : weights;
+			fvec_rInit(pLayer->Neurons*neurons, layer->conns) : weights;
 		layer->bias = (bias == NULL) ? fvec_alloc(neurons, true) : bias;
-		layer->conns = pLayer->Neurons * neurons;
 		layer->input = fvec_alloc(neurons, false);
 		layer->output = fvec_alloc(neurons, false);
 	}

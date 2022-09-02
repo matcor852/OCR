@@ -8,9 +8,6 @@
 #include "Tools.h"
 #include "Network.h"
 
-
-#define L_RATE 0.001L
-
 static Network* CSave(ui hn) {
 
 	Network *net = (Network*) malloc(sizeof(Network));
@@ -72,17 +69,8 @@ static void Train(Network *net) {
 	}
 	fclose(fptr);
 
-    printf("\niSize = %u, oSize = %u\n", inputSize, outputSize);
-
-	//OPEN SAVED NN
-	//Network net;
-	//Network_Load(&net, "NeuralNetData_3layers_OCR_digits.bin");
-
 	Network_Train(net, input, output, inputSize, outputSize,
-                    toLoop, 20, L_RATE, "CrossEntropy");
-
-	//Network_Save(&net, name);
-	//Network_Purge(&net);
+                    toLoop, 10, "CrossEntropy");
 
 	for(ui i=0; i<toLoop; i++) {
 		free(input[i]);
@@ -142,25 +130,50 @@ static long double Validate(Network *net) {
 		free(output[i]);
 	}
 
-	printf("TP : %u; FP : %u; TN : %u; FN : %u\n",
-            score[0], score[1], score[2], score[3]);
+    float accuracy = (score[0] + score[2])/(float)(score[0]+score[1]+score[2]+score[3]);
+    float precision = score[0]/(float)(score[0]+score[1]);
+    float recall = score[0]/(float)(score[0]+score[3]);
+    float fscore = 2.0f*precision*recall/(precision+recall);
 
-    //float accuracy = (score[0] + score[2])/
+    printf("\nAccuracy : %f, Precision : %f, Recall : %f, Fscore : %f\n",
+           accuracy, precision, recall, fscore);
 
-
-	return .0L;
+	return fscore;
 }
 
 
 
 int main()
 {
-    for ()
-    cui hidden_neurons = 1;
-    Network *net = CSave(hidden_neurons);
-    Train(net);
-    long double score = Validate(net);
-    Network_Purge(net);
+    srand(time(NULL));
+
+    //216 best match ~13.5%     400
+    ui min = 617, max = 617, perf_n = min, failed = 0;
+    float perf_s = .0f;
+
+    bool track = true;
+	FILE *f = fopen("stats_n.txt", "w");
+	if (f == NULL) track = false;
+
+    for (ui hidden_neurons=min; hidden_neurons<=max; hidden_neurons++) {
+        system("cls");
+        Network *net = CSave(hidden_neurons);
+        printf("\n[ %u / %u ] best score %.2f%% for %u neurons (%u failed)\n",
+               hidden_neurons, max, perf_s*100, perf_n, failed);
+        Train(net);
+        long double score = Validate(net);
+        Network_Purge(net);
+        if (isnan(score) || isinf(score)) failed++;
+        else {
+            if (score > perf_s) {
+            perf_n = hidden_neurons;
+            perf_s = score;
+            }
+            if (track) fprintf(f, "%u %f\n", hidden_neurons, (double)score);
+        }
+    }
+
+    if (track) fclose(f);
 
     return 0;
 }
