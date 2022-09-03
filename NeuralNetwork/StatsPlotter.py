@@ -6,7 +6,7 @@ import numpy as np
 x = []
 y = []
 
-with open("D:/Code/C/OCR/NeuralNetwork/stats_n.txt", "r") as f:
+with open("D:/Code/C/OCR/NeuralNetwork/stats.txt", "r") as f:
     for line in f:
         try:
             sp = line.split(' ')
