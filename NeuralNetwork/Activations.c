@@ -13,32 +13,16 @@ void none(ld *input, ld *output, cui Size) {
 }
 
 void sigmoid(ld *input, ld *output, cui Size) {
-	for (ui i=0; i<Size; i++) {
-        if (isnan(1/(1 + expl(-input[i])))) {
-            printf("\nnan in sigmoid : %LF, %LF\n", input[i], expl(-input[i]));
-            exit(2);
-        }
-        output[i] = 1/(1 + expl(-input[i]));
-	}
+	for (ui i=0; i<Size; i++) output[i] = 1/(1 + expl(-input[i]));
 }
 
 void softmax(ld *input, ld *output, cui Size) {
 	ld s = .0, *expd = fvec_alloc(Size, false);
 	for (ui i=0; i<Size; i++) {
-        if (isinf(expl(input[i]))) {
-            printf("\ninf in softmax : %LF, %LF", input[i], expl(input[i]));
-            exit(2);
-        }
 		expd[i] = expl(input[i]);
 		s += expd[i];
 	}
-	for (ui i=0; i<Size; i++) {
-        if (isnan(expd[i]/(s+LDBL_EPSILON))) {
-            printf("\nnan in softmax : %LF, %LF, %LF\n", expd[i], s, expd[i]/(s+LDBL_EPSILON));
-            exit(2);
-        }
-        output[i] = expd[i]/(s+LDBL_EPSILON);
-	}
+	for (ui i=0; i<Size; i++) output[i] = expd[i]/(s+LDBL_EPSILON);
 	free(expd);
 }
 

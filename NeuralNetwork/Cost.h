@@ -11,10 +11,10 @@ ld RMSE(ld *predicted, ld *expected, cui Size);
 ld MAE(ld *predicted, ld *expected, cui Size);
 ld MSE(ld *predicted, ld *expected, cui Size);
 
-ld CrossEntropy_(ld predicted, ld expected);
-ld RMSE_(ld predicted, ld expected);
-ld MAE_(ld predicted, ld expected);
-ld MSE_(ld predicted, ld expected);
+ld CrossEntropy_(cld predicted, cld expected);
+ld RMSE_(cld predicted, cld expected);
+ld MAE_(cld predicted, cld expected);
+ld MSE_(cld predicted, cld expected);
 
 ld none_(ld *arr, cui Size, cui ieme);
 ld sigmoid_(ld *arr, cui Size, cui ieme);
