@@ -17,12 +17,25 @@ void sigmoid(ld *input, ld *output, cui Size) {
 }
 
 void softmax(ld *input, ld *output, cui Size) {
+    ld max = input[0];
+	for (ui i=0; i<Size; i++) if (input[i] > max) max = input[i];
+	for (ui i=0; i<Size; i++) input[i] -= max;
 	ld s = .0, *expd = fvec_alloc(Size, false);
 	for (ui i=0; i<Size; i++) {
+        if (isnan(expl(input[i]))) {
+            puts("nan in softmax");
+            exit(3);
+        }
 		expd[i] = expl(input[i]);
 		s += expd[i];
 	}
-	for (ui i=0; i<Size; i++) output[i] = expd[i]/(s+LDBL_EPSILON);
+	for (ui i=0; i<Size; i++) {
+        if (isnan(expd[i]/(s+EPS))) {
+            puts("nan 2 in softmax");
+            exit(4);
+        }
+        output[i] = expd[i]/(s+EPS);
+	}
 	free(expd);
 }
 

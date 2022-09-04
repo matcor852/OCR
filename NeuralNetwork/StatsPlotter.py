@@ -6,13 +6,14 @@ import numpy as np
 x = []
 y = []
 
-with open("D:/Code/C/OCR/NeuralNetwork/stats_n.txt", "r") as f:
+with open("D:/Code/C/OCR/NeuralNetwork/stats.txt", "r") as f:
     for line in f:
         try:
             sp = line.split(' ')
             x.append(int(sp[0]))
             y.append(float(sp[1].rstrip()))
-        except Exception: pass
+        except Exception:
+            x = x[:-1]
 
 
 xp = np.array(x)

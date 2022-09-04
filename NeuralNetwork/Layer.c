@@ -44,7 +44,7 @@ void Layer_Activate(Layer *layer) {
 }
 
 void Layer_Display(Layer *layer, const ui ieme, bool display_matr) {
-	printf("Layer %u (%p) :\n", ieme, layer);
+	printf("Layer %u (%p) :\n", ieme, (void*)layer);
 	printf("\t%u neurons", layer->Neurons);
 	if (layer->pLayer == NULL) {
 		printf("\n\t--[ Input Layer ]--\n");
