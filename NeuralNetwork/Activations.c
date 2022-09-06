@@ -23,7 +23,7 @@ void softmax(ld *input, ld *output, cui Size) {
 	ld s = .0, *expd = fvec_alloc(Size, false);
 	for (ui i=0; i<Size; i++) {
         if (isnan(expl(input[i]))) {
-            puts("nan in softmax");
+            printf("\nnan in softmax caused by exp(%LF)\n", input[i]);
             exit(3);
         }
 		expd[i] = expl(input[i]);

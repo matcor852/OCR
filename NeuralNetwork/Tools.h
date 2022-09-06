@@ -6,9 +6,9 @@
 #include <stdbool.h>
 #include <string.h>
 #include <math.h>
-#include "RandUniform.h"
+#include "Rand.h"
 
-#define EPS 10E-4L
+#define EPS 10E-2L
 
 
 typedef unsigned int ui;

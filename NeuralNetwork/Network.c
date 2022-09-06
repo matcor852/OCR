@@ -271,7 +271,7 @@ static ld Network_BackProp(Network *net, ld *expected, cui oSize,
 			else L->weights[w] -= l_rate * ml * L->pLayer->output[i];
 			w++;
 			if (!bias_done) {
-                if (adam) {
+                if (adam && false) {
                     Mbt[iL][j] = 0.9L*Mbt[iL][j]+(1-0.9L) * ml;
                     Vbt[iL][j] = 0.999L*Vbt[iL][j]+(1-0.999L) * ml;
                     ld MbC = Mbt[iL][j] / (1-b1t);
@@ -313,7 +313,7 @@ static ld Network_BackProp(Network *net, ld *expected, cui oSize,
 				else L->weights[w_i] -= l_rate * ml * L->pLayer->output[i];
 				w_i++;
 				if (!bias_done_i) {
-                    if (adam) {
+                    if (adam && false) {
                         Mbt[X-1][j] = 0.9L * Mbt[X-1][j] + (1-0.9L) * ml;
                         Vbt[X-1][j] = 0.999L * Vbt[X-1][j] + (1-0.999L) * ml;
                         ld MbC = Mbt[X-1][j] / (1-b1t);
@@ -331,6 +331,7 @@ static ld Network_BackProp(Network *net, ld *expected, cui oSize,
 		free(OutIn_i);
 	}
 	free(Legacy);
+	//IntegrityCheck(net);
 	return error;
 }
 

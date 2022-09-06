@@ -8,7 +8,7 @@
 #include "Tools.h"
 #include "Network.h"
 
-#define L_RATE 0.075L
+#define L_RATE 0.00006L
 
 
 static Network* CSave(ui hn) {
@@ -23,9 +23,9 @@ static Network* CSave(ui hn) {
 	Layer *l1 = (Layer*) malloc(sizeof(Layer));
 	Layer *l2 = (Layer*) malloc(sizeof(Layer));
 	Layer *l3 = (Layer*) malloc(sizeof(Layer));
-	Layer_Init(l1, NULL, l2, 2, NULL, NULL, false, "none");
-	Layer_Init(l2, l1, l3, 2, NULL, NULL, false, "leakyrelu");
-	Layer_Init(l3, l2, NULL, 1, NULL, NULL, false, "sigmoid");
+	Layer_Init(l1, NULL, l2, 784, NULL, NULL, false, "none");
+	Layer_Init(l2, l1, l3, 512, NULL, NULL, false, "sigmoid");
+	Layer_Init(l3, l2, NULL, 10, NULL, NULL, false, "softmax");
 
 	Network_AddLayer(net, l1);
 	Network_AddLayer(net, l2);
@@ -37,9 +37,9 @@ static Network* CSave(ui hn) {
 
 static void Train(Network *net) {
 
-    ui inputSize = 2, outputSize = 1, startI = 48;
-    /*
-	char path[] = "D:/Code/C/OCR/NeuralNetwork/curated/hcd_784_9280_training.bin";
+    ui inputSize = 784, outputSize = 10, startI = 0;
+
+	char path[] = "D:/Code/C/OCR/NeuralNetwork/curated/hcd_784_846_training.bin";
 
 	ui Samples = 0;
 	if (sscanf_s(path, "%*[^_]%*[_]%*[^_]%*[_]%u", &Samples) != 1) {
@@ -72,33 +72,22 @@ static void Train(Network *net) {
 		output[i] = tempOut;
 	}
 	fclose(fptr);
-	*/
-
-	ld *input[] = {	    (ld[2]){0,0},
-						(ld[2]){0,1},
-						(ld[2]){1,0},
-						(ld[2]){1,1}};
-
-	ld *output[] = {	(ld[1]){0},
-						(ld[1]){1},
-						(ld[1]){1},
-						(ld[1]){0}};
 
 	Network_Train(net, input, output, inputSize, outputSize,
-                    4, 50, "MSE", L_RATE, false);
-    /*
+                    toLoop, 1000, "CrossEntropy", L_RATE, false);
+
 	for(ui i=0; i<toLoop; i++) {
 		free(input[i]);
 		free(output[i]);
 	}
-	*/
+
 }
 
 static long double Validate(Network *net) {
 
-    ui inputSize = 2, outputSize = 1, startI = 48;
-    /*
-	char path[] = "D:/Code/C/OCR/NeuralNetwork/curated/hcd_784_1025_validation.bin";
+    ui inputSize = 784, outputSize = 10, startI = 0;
+
+	char path[] = "D:/Code/C/OCR/NeuralNetwork/curated/hcd_784_90_validation.bin";
 	ui Samples = 0;
 	if (sscanf_s(path, "%*[^_]%*[_]%*[^_]%*[_]%u", &Samples) != 1) {
 		printf("Could not read amount of samples in filename; Exiting...\n");
@@ -129,17 +118,7 @@ static long double Validate(Network *net) {
 		output[i] = tempOut;
 	}
 	fclose(fptr);
-	*/
 
-    ld *input[] = {	    (ld[2]){0,0},
-						(ld[2]){0,1},
-						(ld[2]){1,0},
-						(ld[2]){1,1}};
-
-	ld *output[] = {	(ld[1]){0},
-						(ld[1]){1},
-						(ld[1]){1},
-						(ld[1]){0}};
 
 	ui score[4] = {0, 0, 0, 0};    //TP, FP, TN, FN
 	for (ui i=0; i<4; i++) {
@@ -154,12 +133,12 @@ static long double Validate(Network *net) {
         }
 	}
 
-    /*
+
 	for(ui i=0; i<toLoop; i++) {
 		free(input[i]);
 		free(output[i]);
 	}
-	*/
+
 
     float accuracy = (score[0] + score[2])/(float)(score[0]+score[1]+score[2]+score[3]);
     float precision = score[0]/(float)(score[0]+score[1]);
