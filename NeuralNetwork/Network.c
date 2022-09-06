@@ -130,16 +130,17 @@ void Network_Predict(Network *net, ld *input, cui Size) {
 	Network_Forward(net, input, Size);
 }
 
-ld *Network_Validate(Network *net, ld *input, cui Size) {
+ld *Network_Validate(Network *net, ld *input, cui Size, bool os1) {
     Network_Forward(net, input, Size);
-    argmax(net->layers[net->nbLayers-1].output,
+    (os1 ? step : argmax)(net->layers[net->nbLayers-1].output,
            net->layers[net->nbLayers-1].output,
            net->layers[net->nbLayers-1].Neurons);
     return net->layers[net->nbLayers-1].output;
 }
 
 void Network_Train(Network *net, ld *input[], ld *expected_output[], cui iSize,
-                   cui oSize, cui Size, cui epoch, char cost_func[], ld l_rate)
+                   cui oSize, cui Size, cui epoch, char cost_func[], ld l_rate,
+                   bool adam)
 {
 	if (net->nbLayers < 2) {
 		printf("Attempting train on incomplete network; Starting purge...\n");
@@ -153,21 +154,26 @@ void Network_Train(Network *net, ld *input[], ld *expected_output[], cui iSize,
 		exit(1);
 	}
 
+
     //ADAM
-	long double *Mwt[net->nbLayers-1], *Vwt[net->nbLayers-1],
+
+    long double *Mwt[net->nbLayers-1], *Vwt[net->nbLayers-1],
                 *Mbt[net->nbLayers-1], *Vbt[net->nbLayers-1];
-	for (ui i=0; i<net->nbLayers-1; i++) {
-        Mwt[i] = fvec_alloc(net->layers[i+1].conns, true);
-        Vwt[i] = fvec_alloc(net->layers[i+1].conns, true);
-        Mbt[i] = fvec_alloc(net->layers[i+1].Neurons, true);
-        Vbt[i] = fvec_alloc(net->layers[i+1].Neurons, true);
-	}
-	//
+    if (adam) {
+        for (ui i=0; i<net->nbLayers-1; i++) {
+            Mwt[i] = fvec_alloc(net->layers[i+1].conns, true);
+            Vwt[i] = fvec_alloc(net->layers[i+1].conns, true);
+            Mbt[i] = fvec_alloc(net->layers[i+1].Neurons, true);
+            Vbt[i] = fvec_alloc(net->layers[i+1].Neurons, true);
+        }
+    }
+
 
 	bool track = true;
 	int c = 1;
 	FILE *f = fopen("stats.txt", "w");
 	if (f == NULL) track = false;
+
 
 	clock_t begin, end;
 	for (ui e=0; e<epoch; e++) {
@@ -175,8 +181,8 @@ void Network_Train(Network *net, ld *input[], ld *expected_output[], cui iSize,
 		for (ui s=0; s<Size; s++) {
             begin = clock();
 			Network_Forward(net, input[s], iSize);
-			ld error = Network_BackProp(net, expected_output[s], oSize,
-                               cost_func, Mwt, Vwt, Mbt, Vbt, l_rate, e*Size+s+1);
+			ld error = Network_BackProp(net, expected_output[s], oSize, cost_func,
+                               Mwt, Vwt, Mbt, Vbt, l_rate, e*Size+s+1, adam);
 			if (track) fprintf(f, "%u %f\n", c, (double)error);
 			c++;
             end = clock();
@@ -188,12 +194,16 @@ void Network_Train(Network *net, ld *input[], ld *expected_output[], cui iSize,
 
 	if (track) fclose(f);
 
-    for (ui i=0; i<net->nbLayers-1; i++) {
-        free(Mwt[i]);
-        free(Vwt[i]);
-        free(Mbt[i]);
-        free(Vbt[i]);
-	}
+    if (adam) {
+        for (ui i=0; i<net->nbLayers-1; i++) {
+            free(Mwt[i]);
+            free(Vwt[i]);
+            free(Mbt[i]);
+            free(Vbt[i]);
+        }
+    }
+
+	printf("\n");
 }
 
 static void Network_Forward(Network *net, ld *input, cui iSize) {
@@ -209,23 +219,25 @@ static void Network_Forward(Network *net, ld *input, cui iSize) {
             printf("\nout l%u n%u : %LF", i, j, net->layers[i].output[j]);
         */
 	}
+	/*
 	for (ui i=0; i<net->layers[net->nbLayers-1].Neurons; i++) {
         if (isnan(net->layers[net->nbLayers-1].output[i])) {
             puts("nan in output");
             exit(2);
         }
 	}
+	*/
 }
 
 static ld Network_BackProp(Network *net, ld *expected, cui oSize,
                            char cost_func[], ld *Mwt[], ld *Vwt[],
-                           ld *Mbt[], ld *Vbt[], ld l_rate, ui it)
+                           ld *Mbt[], ld *Vbt[], ld l_rate, ui it,
+                           bool adam)
 {
     //IntegrityCheck(net);
 
-    static int fpass = 10;
-
-    ld b1t = powl(0.9L, it), b2t = powl(0.999L, it);
+    ld b1t = adam ? powl(0.9L, it) : 0,
+       b2t = adam ? powl(0.999L, it) : 0;
 
 	Layer *L = &net->layers[net->nbLayers-1];
 	ld (*cost_deriv)(ld, ld) = get_cost_deriv(cost_func);
@@ -245,48 +257,29 @@ static ld Network_BackProp(Network *net, ld *expected, cui oSize,
 	bool bias_done = false;
 	for (ui i=0; i<L->pLayer->Neurons; i++) {
 		for (ui j=0; j<L->Neurons; j++) {
+            cui iL = net->nbLayers-2;
 			ld ml = CostOut[j] * OutIn[j];
-			ld gd = ml * L->pLayer->output[i];
-			//printf("\nml : %LF, gd : %LF", ml, gd);
 			Legacy[i] += ml * L->weights[w];
-
-			Mwt[net->nbLayers-2][w] = 0.9L*Mwt[net->nbLayers-2][w]+(1-0.9L)*gd;
-			Vwt[net->nbLayers-2][w] = 0.999L*Vwt[net->nbLayers-2][w]+(1-0.999L)*
-                                        powl(gd, 2);
-            ld MwC = /*fpass < 10 ? Mwt[net->nbLayers-2][w] : */
-                        Mwt[net->nbLayers-2][w] / (1-b1t);
-            ld VwC = Vwt[net->nbLayers-2][w] / (1-b2t);
-			L->weights[w] -= (l_rate * MwC/(sqrtl(VwC) + EPS));
-            //printf("%LF\n", L->weights[w]);
-            if (isnan(L->weights[w])) {
-                puts("\nnan in t1\n");
-                printf("%LF, %LF, %LF, %LF, %LF, %LF, %LF\n",
-                       l_rate, MwC, VwC, gd, ml, OutIn[j], CostOut[j]);
-
-                exit(3);
-            }
-
+			if (adam) {
+                ld gd = ml * L->pLayer->output[i];
+                Mwt[iL][w] = 0.9L*Mwt[iL][w]+(1-0.9L)*gd;
+                Vwt[iL][w] = 0.999L*Vwt[iL][w]+(1-0.999L)*powl(gd, 2);
+                ld MwC = Mwt[iL][w] / (1-b1t);
+                ld VwC = Vwt[iL][w] / (1-b2t);
+                L->weights[w] -= l_rate*MwC/(sqrtl(VwC) + EPS);
+			}
+			else L->weights[w] -= l_rate * ml * L->pLayer->output[i];
 			w++;
 			if (!bias_done) {
-                Mbt[net->nbLayers-2][j] = 0.9L*Mbt[net->nbLayers-2][j]+
-                                        (1-0.9L) * ml;
-                Vbt[net->nbLayers-2][j] = 0.999L*Vbt[net->nbLayers-2][j]+
-                                        (1-0.999L) * ml;
-                ld MbC = fpass < 10 ? Mbt[net->nbLayers-2][j] :
-                                Mbt[net->nbLayers-2][j] / (1-b1t);
-                ld VbC = Vbt[net->nbLayers-2][j] / (1-b2t);
-                ld nn = sqrtl(VbC);
-                L->bias[j] = L->bias[j] - l_rate/((isnan(nn) ? 0 : nn)+
-                                                  EPS) * MbC;
-                if (isnan(L->bias[j])) {
-                    printf("\nnan in t2\n");
-                    exit(3);
+                if (adam) {
+                    Mbt[iL][j] = 0.9L*Mbt[iL][j]+(1-0.9L) * ml;
+                    Vbt[iL][j] = 0.999L*Vbt[iL][j]+(1-0.999L) * ml;
+                    ld MbC = Mbt[iL][j] / (1-b1t);
+                    ld VbC = Vbt[iL][j] / (1-b2t);
+                    ld nn = sqrtl(VbC);
+                    L->bias[j] -= l_rate/(isnan(nn) ? EPS : nn) * MbC;
                 }
-                /*
-                printf("\nbias : %LF, %LF, %LF, %LF\n", L->bias[j],
-                       - l_rate/((isnan(nn) ? 0 : nn)+EPS),
-                        VbC ,MbC);
-                    */
+                else L->bias[j] -= l_rate * ml;
 			}
 		}
 		bias_done = true;
@@ -308,34 +301,27 @@ static ld Network_BackProp(Network *net, ld *expected, cui oSize,
 		for (ui i=0; i<L->pLayer->Neurons; i++) {
 			for (ui j=0; j<L->Neurons; j++) {
 				ld ml = Legacy[j] * OutIn_i[j];
-				ld gd = ml * L->pLayer->output[i];
 				tempLegacy[i] += ml * L->weights[w_i];
-				Mwt[X-1][w_i] = 0.9L*Mwt[X-1][w_i]+(1-0.9L)*gd;
-                Vwt[X-1][w_i] = 0.999L*Vwt[X-1][w_i]+(1-0.999L)*powl(gd, 2);
-                ld MwC = /*fpass < 10 ? Mwt[X-1][w_i] : */
-                            Mwt[X-1][w_i] / (1-b1t);
-                ld VwC = Vwt[X-1][w_i] / (1-b2t);
-
-				L->weights[w_i] = L->weights[w_i] - l_rate *
-                                    (MwC/(sqrtl(VwC)+EPS));
-                if (isnan(L->weights[w_i])) {
-                    puts("nan in t3\n");
-                    exit(3);
-                }
+				if (adam) {
+                    ld gd = ml * L->pLayer->output[i];
+                    Mwt[X-1][w_i] = 0.9L*Mwt[X-1][w_i]+(1-0.9L)*gd;
+                    Vwt[X-1][w_i] = 0.999L*Vwt[X-1][w_i]+(1-0.999L)*powl(gd, 2);
+                    ld MwC = Mwt[X-1][w_i] / (1-b1t);
+                    ld VwC = Vwt[X-1][w_i] / (1-b2t);
+                    L->weights[w_i] -= l_rate * (MwC/(sqrtl(VwC) + EPS));
+				}
+				else L->weights[w_i] -= l_rate * ml * L->pLayer->output[i];
 				w_i++;
 				if (!bias_done_i) {
-                    Mbt[X-1][j] = 0.9L * Mbt[X-1][j] + (1-0.9L) * ml;
-                    Vbt[X-1][j] = 0.999L * Vbt[X-1][j] + (1-0.999L) * ml;
-                    ld MbC = fpass < 10 ? Mbt[X-1][j] : Mbt[X-1][j] / (1-b1t);
-                    ld VbC = Vbt[X-1][j] / (1-b2t);
-                    ld nn = sqrtl(VbC);
-                    L->bias[j] = L->bias[j] - l_rate/
-                                    ((isnan(nn) ? 0 : nn)+EPS) * MbC;
-                    if (isnan(L->bias[j])) {
-                        printf("\nnan in t4 l%u n%u : %LF, %LF\n", X, j, l_rate/((isnan(nn) ?
-                                                    0 : nn)+EPS), MbC);
-                        exit(3);
+                    if (adam) {
+                        Mbt[X-1][j] = 0.9L * Mbt[X-1][j] + (1-0.9L) * ml;
+                        Vbt[X-1][j] = 0.999L * Vbt[X-1][j] + (1-0.999L) * ml;
+                        ld MbC = Mbt[X-1][j] / (1-b1t);
+                        ld VbC = Vbt[X-1][j] / (1-b2t);
+                        ld nn = sqrtl(VbC);
+                        L->bias[j] -= l_rate/(isnan(nn) ? EPS : nn) * MbC;
                     }
+                    else L->bias[j] -= l_rate * ml;
 				}
 			}
 			bias_done_i = true;
@@ -345,7 +331,6 @@ static ld Network_BackProp(Network *net, ld *expected, cui oSize,
 		free(OutIn_i);
 	}
 	free(Legacy);
-	fpass++;
 	return error;
 }
 

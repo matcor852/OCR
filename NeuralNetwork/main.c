@@ -8,7 +8,8 @@
 #include "Tools.h"
 #include "Network.h"
 
-#define L_RATE .00001L
+#define L_RATE 0.075L
+
 
 static Network* CSave(ui hn) {
 
@@ -22,9 +23,9 @@ static Network* CSave(ui hn) {
 	Layer *l1 = (Layer*) malloc(sizeof(Layer));
 	Layer *l2 = (Layer*) malloc(sizeof(Layer));
 	Layer *l3 = (Layer*) malloc(sizeof(Layer));
-	Layer_Init(l1, NULL, l2, 784, NULL, NULL, false, "none");
-	Layer_Init(l2, l1, l3, hn, NULL, NULL, false, "sigmoid");
-	Layer_Init(l3, l2, NULL, 10, NULL, NULL, false, "softmax");
+	Layer_Init(l1, NULL, l2, 2, NULL, NULL, false, "none");
+	Layer_Init(l2, l1, l3, 2, NULL, NULL, false, "leakyrelu");
+	Layer_Init(l3, l2, NULL, 1, NULL, NULL, false, "sigmoid");
 
 	Network_AddLayer(net, l1);
 	Network_AddLayer(net, l2);
@@ -36,7 +37,8 @@ static Network* CSave(ui hn) {
 
 static void Train(Network *net) {
 
-    ui inputSize = 784, outputSize = 10, startI = 48;
+    ui inputSize = 2, outputSize = 1, startI = 48;
+    /*
 	char path[] = "D:/Code/C/OCR/NeuralNetwork/curated/hcd_784_9280_training.bin";
 
 	ui Samples = 0;
@@ -70,18 +72,32 @@ static void Train(Network *net) {
 		output[i] = tempOut;
 	}
 	fclose(fptr);
+	*/
+
+	ld *input[] = {	    (ld[2]){0,0},
+						(ld[2]){0,1},
+						(ld[2]){1,0},
+						(ld[2]){1,1}};
+
+	ld *output[] = {	(ld[1]){0},
+						(ld[1]){1},
+						(ld[1]){1},
+						(ld[1]){0}};
 
 	Network_Train(net, input, output, inputSize, outputSize,
-                    toLoop, 5, "CrossEntropy", L_RATE);
-
+                    4, 50, "MSE", L_RATE, false);
+    /*
 	for(ui i=0; i<toLoop; i++) {
 		free(input[i]);
 		free(output[i]);
 	}
+	*/
 }
 
 static long double Validate(Network *net) {
-    ui inputSize = 784, outputSize = 10, startI = 48;
+
+    ui inputSize = 2, outputSize = 1, startI = 48;
+    /*
 	char path[] = "D:/Code/C/OCR/NeuralNetwork/curated/hcd_784_1025_validation.bin";
 	ui Samples = 0;
 	if (sscanf_s(path, "%*[^_]%*[_]%*[^_]%*[_]%u", &Samples) != 1) {
@@ -113,10 +129,21 @@ static long double Validate(Network *net) {
 		output[i] = tempOut;
 	}
 	fclose(fptr);
+	*/
+
+    ld *input[] = {	    (ld[2]){0,0},
+						(ld[2]){0,1},
+						(ld[2]){1,0},
+						(ld[2]){1,1}};
+
+	ld *output[] = {	(ld[1]){0},
+						(ld[1]){1},
+						(ld[1]){1},
+						(ld[1]){0}};
 
 	ui score[4] = {0, 0, 0, 0};    //TP, FP, TN, FN
-	for (ui i=0; i<toLoop; i++) {
-        long double *out = Network_Validate(net, input[i], inputSize);
+	for (ui i=0; i<4; i++) {
+        long double *out = Network_Validate(net, input[i], inputSize, outputSize == 1);
         for (ui j=0; j<outputSize; j++) {
             if (out[j] + output[i][j] >= 2) score[0]++;
             else if (out[j] > output[i][j]) score[1]++;
@@ -127,18 +154,20 @@ static long double Validate(Network *net) {
         }
 	}
 
+    /*
 	for(ui i=0; i<toLoop; i++) {
 		free(input[i]);
 		free(output[i]);
 	}
+	*/
 
     float accuracy = (score[0] + score[2])/(float)(score[0]+score[1]+score[2]+score[3]);
     float precision = score[0]/(float)(score[0]+score[1]);
     float recall = score[0]/(float)(score[0]+score[3]);
     float fscore = 2.0f*precision*recall/(precision+recall);
 
-    printf("\nAccuracy : %f, Precision : %f, Recall : %f, Fscore : %f\n",
-           accuracy, precision, recall, fscore);
+    printf("\nAccuracy : %.2f%%, Precision : %.2f%%, Recall : %.2f%%, Fscore : %.2f%%\n",
+           accuracy*100, precision*100, recall*100, fscore*100);
 
 	return fscore;
 }
@@ -166,12 +195,13 @@ int main()
         long double score = Validate(net);
         Network_Purge(net);
 
+        /*
         if (score > perf_s) {
             perf_n = hidden_neurons;
             perf_s = score;
         }
         if (track) fprintf(f, "%u %f\n", hidden_neurons, (double)score);
-
+        */
     }
 
     if (track) fclose(f);

@@ -62,3 +62,66 @@
 1662303026 source:d:\code\c\ocr\neuralnetwork\activations.c
 	"Activations.h"
 
+1662448874 source:d:\code\tp\c\ocr\neuralnetwork\activations.c
+	"Activations.h"
+
+1662448874 d:\code\tp\c\ocr\neuralnetwork\activations.h
+	<math.h>
+	<float.h>
+	"Tools.h"
+
+1662467706 d:\code\tp\c\ocr\neuralnetwork\tools.h
+	<stdio.h>
+	<stdlib.h>
+	<stdbool.h>
+	<string.h>
+	<math.h>
+	"RandUniform.h"
+
+1662448874 d:\code\tp\c\ocr\neuralnetwork\randuniform.h
+	<stdio.h>
+	<stdlib.h>
+	<time.h>
+	<unistd.h>
+	<fcntl.h>
+
+1662448874 source:d:\code\tp\c\ocr\neuralnetwork\cost.c
+	"Cost.h"
+
+1662448874 d:\code\tp\c\ocr\neuralnetwork\cost.h
+	<math.h>
+	<float.h>
+	"Tools.h"
+
+1662453825 source:d:\code\tp\c\ocr\neuralnetwork\layer.c
+	"Layer.h"
+
+1662448874 d:\code\tp\c\ocr\neuralnetwork\layer.h
+	<time.h>
+	"Activations.h"
+
+1662469506 source:d:\code\tp\c\ocr\neuralnetwork\network.c
+	"Network.h"
+
+1662468826 d:\code\tp\c\ocr\neuralnetwork\network.h
+	<errno.h>
+	<time.h>
+	"Layer.h"
+	"Activations.h"
+	"Cost.h"
+
+1662448874 source:d:\code\tp\c\ocr\neuralnetwork\randuniform.c
+	"RandUniform.h"
+
+1662449528 source:d:\code\tp\c\ocr\neuralnetwork\tools.c
+	"Tools.h"
+
+1662473826 source:d:\code\tp\c\ocr\neuralnetwork\main.c
+	<stdio.h>
+	<stdlib.h>
+	<time.h>
+	"Activations.h"
+	"Layer.h"
+	"Tools.h"
+	"Network.h"
+

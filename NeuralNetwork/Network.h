@@ -25,14 +25,16 @@ void Network_Display(Network *net, bool display_matr);
 void Network_Wire(Network *net);
 
 void Network_Predict(Network *net, ld *input, cui Size);
-ld *Network_Validate(Network *net, ld *input, cui Size);
+ld *Network_Validate(Network *net, ld *input, cui Size, bool os1);
 void Network_Train(Network *net, ld *input[],
                    ld *expected_output[], cui iSize, cui oSize,
-                   cui Size, cui epoch, char cost_func[], ld l_rate);
+                   cui Size, cui epoch, char cost_func[], ld l_rate,
+                   bool adam);
 static void Network_Forward(Network *net, ld *input, cui iSize);
 static ld Network_BackProp(Network *net, ld *expected, cui oSize,
                            char cost_func[], ld *Mwt[], ld *Vwt[],
-                           ld *Mbt[], ld *Vbt[], ld l_rate, ui it);
+                           ld *Mbt[], ld *Vbt[], ld l_rate, ui it,
+                           bool adam);
 
 static void IntegrityCheck(Network *net);
 Layer *lvec_alloc(cui n);

@@ -34,7 +34,7 @@ ld *fvec_rInit(cui n, cui conns) {
 	for (ui i=0; i<n; i++) {
 	    //tmp[i] = ((long)rand()/RAND_MAX)*0.02L-0.01L;
 		tmp[i] = (((float)ran_number() > .5f) ? -1 : 1) *
-                    (ld)ran_number() * sqrtl(1.0L/(ld)conns);
+                    (ld)ran_number()/* * sqrtl(1.0L/(ld)conns)*/;
 	}
 	return tmp;
 }

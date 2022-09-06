@@ -8,7 +8,7 @@
 #include <math.h>
 #include "RandUniform.h"
 
-#define EPS 10E-5L
+#define EPS 10E-4L
 
 
 typedef unsigned int ui;

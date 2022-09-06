@@ -33,13 +33,13 @@ void Layer_Dispose(Layer *layer) {
 void Layer_Activate(Layer *layer) {
 	for(ui i=0; i<layer->Neurons; i++) layer->input[i] = layer->bias[i];
 	ui w = 0;
+
 	for(ui i=0; i<layer->pLayer->Neurons; i++) {
 		for(ui j=0; j<layer->Neurons; j++) {
 			layer->input[j] += layer->pLayer->output[i]*layer->weights[w];
-			w += 1;
+			w++;
 		}
 	}
-
 	layer->activation(layer->input, layer->output, layer->Neurons);
 }
 
