@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+#include <windows.h>
 
 
 #include "Activations.h"
@@ -8,7 +9,7 @@
 #include "Tools.h"
 #include "Network.h"
 
-#define L_RATE 0.00006L
+#define L_RATE 0.01L
 
 
 static Network* CSave(ui hn) {
@@ -24,14 +25,13 @@ static Network* CSave(ui hn) {
 	Layer *l2 = (Layer*) malloc(sizeof(Layer));
 	Layer *l3 = (Layer*) malloc(sizeof(Layer));
 	Layer_Init(l1, NULL, l2, 784, NULL, NULL, false, "none");
-	Layer_Init(l2, l1, l3, 512, NULL, NULL, false, "sigmoid");
+	Layer_Init(l2, l1, l3, 617, NULL, NULL, false, "sigmoid");
 	Layer_Init(l3, l2, NULL, 10, NULL, NULL, false, "softmax");
 
 	Network_AddLayer(net, l1);
 	Network_AddLayer(net, l2);
 	Network_AddLayer(net, l3);
 	Network_Wire(net);
-
     return net;
 }
 
@@ -39,7 +39,7 @@ static void Train(Network *net) {
 
     ui inputSize = 784, outputSize = 10, startI = 0;
 
-	char path[] = "D:/Code/C/OCR/NeuralNetwork/curated/hcd_784_846_training.bin";
+	char path[] = "D:/Code/TP/C/OCR/NeuralNetwork/curated/hcd_784_846_training.bin";
 
 	ui Samples = 0;
 	if (sscanf_s(path, "%*[^_]%*[_]%*[^_]%*[_]%u", &Samples) != 1) {
@@ -56,7 +56,7 @@ static void Train(Network *net) {
 		exit(1);
 	}
 
-	ui toLoop = Samples;
+	ui toLoop = 400;
 	long double *input[toLoop], *output[toLoop], *tempIn, *tempOut;
 	float *temp;
 
@@ -73,8 +73,8 @@ static void Train(Network *net) {
 	}
 	fclose(fptr);
 
-	Network_Train(net, input, output, inputSize, outputSize,
-                    toLoop, 1000, "CrossEntropy", L_RATE, false);
+	Network_Train(net, input, output, inputSize, outputSize, toLoop,
+               10, "CrossEntropy", L_RATE, false);
 
 	for(ui i=0; i<toLoop; i++) {
 		free(input[i]);
@@ -87,7 +87,7 @@ static long double Validate(Network *net) {
 
     ui inputSize = 784, outputSize = 10, startI = 0;
 
-	char path[] = "D:/Code/C/OCR/NeuralNetwork/curated/hcd_784_90_validation.bin";
+	char path[] = "D:/Code/TP/C/OCR/NeuralNetwork/curated/hcd_784_90_validation.bin";
 	ui Samples = 0;
 	if (sscanf_s(path, "%*[^_]%*[_]%*[^_]%*[_]%u", &Samples) != 1) {
 		printf("Could not read amount of samples in filename; Exiting...\n");
@@ -155,7 +155,7 @@ static long double Validate(Network *net) {
 
 int main()
 {
-    srand(time(NULL));
+    srand((ui) time(NULL));
 
     //216 best match ~13.5%     400
     ui min = 617, max = 617, perf_n = min;

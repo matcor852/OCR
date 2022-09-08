@@ -5,11 +5,11 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include <time.h>
 #include <math.h>
 #include "Rand.h"
 
 #define EPS 10E-2L
-
 
 typedef unsigned int ui;
 typedef const ui cui;

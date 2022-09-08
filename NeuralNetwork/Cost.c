@@ -105,7 +105,8 @@ ld step_(ld *arr, cui Size, cui ieme) {
 		printf("Warning: step derivative index out of bound.\n");
 		return 0;
 	}
-	return (absl(arr[ieme] - .0F) < LDBL_EPSILON) ? (ld)(ran_number()) : .5L;
+	return (absl(arr[ieme] - .0L) < LDBL_EPSILON) ?
+                (ld)(r8_normal_01((int)time(NULL))) : .5L;
 }
 
 ld relu_(ld *arr, cui Size, cui ieme) {

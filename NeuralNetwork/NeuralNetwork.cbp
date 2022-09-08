@@ -51,7 +51,6 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="Rand.h" />
-		<Unit filename="RandUniform.h" />
 		<Unit filename="Tools.c">
 			<Option compilerVar="CC" />
 		</Unit>

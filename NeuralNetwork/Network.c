@@ -156,7 +156,6 @@ void Network_Train(Network *net, ld *input[], ld *expected_output[], cui iSize,
 
 
     //ADAM
-
     long double *Mwt[net->nbLayers-1], *Vwt[net->nbLayers-1],
                 *Mbt[net->nbLayers-1], *Vbt[net->nbLayers-1];
     if (adam) {

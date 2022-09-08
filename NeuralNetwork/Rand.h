@@ -32,9 +32,5 @@ double *r8vec_normal_ab_new ( int n, double a, double b, int *seed );
 void r8vec_print ( int n, double a[], char *title );
 double *r8vec_uniform_01_new ( int n, int *seed );
 
-void timestamp(void);
-
-
-
 
 #endif // RAND_H

@@ -2,59 +2,29 @@
 <CodeBlocks_layout_file>
 	<FileVersion major="1" minor="0" />
 	<ActiveTarget name="Debug" />
-	<File name="Tools.c" open="0" top="0" tabpos="9" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+	<File name="Network.c" open="1" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="449" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="Activations.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="837" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="Cost.c" open="1" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="2618" topLine="105" />
-		</Cursor>
-	</File>
-	<File name="Cost.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="467" topLine="6" />
-		</Cursor>
-	</File>
-	<File name="Rand.c" open="1" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="1" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="40850" topLine="1833" />
-		</Cursor>
-	</File>
-	<File name="RandUniform.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="298" topLine="0" />
-		</Cursor>
-	</File>
-	<File name="Network.c" open="1" top="0" tabpos="3" split="0" active="1" splitpos="0" zoom_1="-1" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="9986" topLine="295" />
-		</Cursor>
-	</File>
-	<File name="main.c" open="1" top="1" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="1632" topLine="38" />
-		</Cursor>
-	</File>
-	<File name="Rand.h" open="1" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="1548" topLine="7" />
-		</Cursor>
-	</File>
-	<File name="Tools.h" open="1" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
-		<Cursor>
-			<Cursor1 position="153" topLine="0" />
+			<Cursor1 position="4294" topLine="129" />
 		</Cursor>
 	</File>
 	<File name="Network.h" open="1" top="0" tabpos="2" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="1218" topLine="1" />
+			<Cursor1 position="911" topLine="12" />
+		</Cursor>
+	</File>
+	<File name="Tools.h" open="0" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="517" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="Activations.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="437" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="Cost.h" open="0" top="0" tabpos="0" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="452" topLine="0" />
 		</Cursor>
 	</File>
 	<File name="Layer.h" open="0" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
@@ -62,14 +32,39 @@
 			<Cursor1 position="570" topLine="0" />
 		</Cursor>
 	</File>
+	<File name="Cost.c" open="0" top="0" tabpos="7" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="2668" topLine="60" />
+		</Cursor>
+	</File>
+	<File name="Tools.c" open="0" top="0" tabpos="4" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="1013" topLine="12" />
+		</Cursor>
+	</File>
 	<File name="Layer.c" open="0" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="1421" topLine="30" />
+			<Cursor1 position="1233" topLine="27" />
+		</Cursor>
+	</File>
+	<File name="Rand.c" open="0" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="1" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="38914" topLine="105" />
 		</Cursor>
 	</File>
 	<File name="Activations.c" open="0" top="0" tabpos="6" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
 		<Cursor>
-			<Cursor1 position="934" topLine="5" />
+			<Cursor1 position="359" topLine="0" />
+		</Cursor>
+	</File>
+	<File name="Rand.h" open="0" top="0" tabpos="5" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="590" topLine="5" />
+		</Cursor>
+	</File>
+	<File name="main.c" open="1" top="1" tabpos="1" split="0" active="1" splitpos="0" zoom_1="0" zoom_2="0">
+		<Cursor>
+			<Cursor1 position="60" topLine="0" />
 		</Cursor>
 	</File>
 </CodeBlocks_layout_file>
