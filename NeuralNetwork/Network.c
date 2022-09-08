@@ -185,9 +185,11 @@ void Network_Train(Network *net, ld *input[], ld *expected_output[], cui iSize,
 			if (track) fprintf(f, "%u %f\n", c, (double)error);
 			c++;
             end = clock();
+
 			printf("\repoch %u/%u, sample %u/%u: error = %f [ %.1fit/s ]      ",
                     e+1, epoch, s+1, Size, (double)error,
                     (double)(1000.0/(end-begin)));
+
 		}
 	}
 
@@ -201,8 +203,6 @@ void Network_Train(Network *net, ld *input[], ld *expected_output[], cui iSize,
             free(Vbt[i]);
         }
     }
-
-	printf("\n");
 }
 
 static void Network_Forward(Network *net, ld *input, cui iSize) {

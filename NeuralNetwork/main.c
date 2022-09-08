@@ -8,7 +8,7 @@
 #include "Tools.h"
 #include "Network.h"
 
-#define MAX_THREADS 30
+#define MAX_THREADS 25
 
 
 static Network* CSave(ui hn) {
@@ -24,7 +24,7 @@ static Network* CSave(ui hn) {
 	Layer *l2 = (Layer*) malloc(sizeof(Layer));
 	Layer *l3 = (Layer*) malloc(sizeof(Layer));
 	Layer_Init(l1, NULL, l2, 784, NULL, NULL, false, "none");
-	Layer_Init(l2, l1, l3, 617, NULL, NULL, false, "sigmoid");
+	Layer_Init(l2, l1, l3, hn, NULL, NULL, false, "sigmoid");
 	Layer_Init(l3, l2, NULL, 10, NULL, NULL, false, "softmax");
 
 	Network_AddLayer(net, l1);
@@ -34,11 +34,13 @@ static Network* CSave(ui hn) {
     return net;
 }
 
-static void Train(Network *net, cui toLoop, cui epoch, cld l_rate) {
+
+
+static void Train(Network *net, ui toLoop, cui epoch, cld l_rate) {
 
     ui inputSize = 784, outputSize = 10, startI = 0;
 
-	char path[] = "D:/Code/TP/C/OCR/NeuralNetwork/curated/hcd_784_846_training.bin";
+	char path[] = "D:/Code/C/OCR/NeuralNetwork/curated/hcd_784_846_training.bin";
 
 	ui Samples = 0;
 	if (sscanf_s(path, "%*[^_]%*[_]%*[^_]%*[_]%u", &Samples) != 1) {
@@ -55,6 +57,7 @@ static void Train(Network *net, cui toLoop, cui epoch, cld l_rate) {
 		exit(1);
 	}
 
+	toLoop = Samples;
 	long double *input[toLoop], *output[toLoop], *tempIn, *tempOut;
 	float *temp;
 
@@ -85,7 +88,7 @@ static long double Validate(Network *net) {
 
     ui inputSize = 784, outputSize = 10, startI = 0;
 
-	char path[] = "D:/Code/TP/C/OCR/NeuralNetwork/curated/hcd_784_90_validation.bin";
+	char path[] = "D:/Code/C/OCR/NeuralNetwork/curated/hcd_784_90_validation.bin";
 	ui Samples = 0;
 	if (sscanf_s(path, "%*[^_]%*[_]%*[^_]%*[_]%u", &Samples) != 1) {
 		printf("Could not read amount of samples in filename; Exiting...\n");
@@ -119,7 +122,7 @@ static long double Validate(Network *net) {
 
 
 	ui score[4] = {0, 0, 0, 0};    //TP, FP, TN, FN
-	for (ui i=0; i<4; i++) {
+	for (ui i=0; i<toLoop; i++) {
         long double *out = Network_Validate(net, input[i], inputSize, outputSize == 1);
         for (ui j=0; j<outputSize; j++) {
             if (out[j] + output[i][j] >= 2) score[0]++;
@@ -130,7 +133,6 @@ static long double Validate(Network *net) {
                         out[j], output[i][j]);
         }
 	}
-
 
 	for(ui i=0; i<toLoop; i++) {
 		free(input[i]);
@@ -143,8 +145,10 @@ static long double Validate(Network *net) {
     float recall = score[0]/(float)(score[0]+score[3]);
     float fscore = 2.0f*precision*recall/(precision+recall);
 
+    /*
     printf("\nAccuracy : %.2f%%, Precision : %.2f%%, Recall : %.2f%%, Fscore : %.2f%%\n",
            accuracy*100, precision*100, recall*100, fscore*100);
+    */
 
 	return fscore;
 }
@@ -152,8 +156,10 @@ static long double Validate(Network *net) {
 typedef struct NNParam NNParam;
 struct NNParam
 {
-    ui hiddenN, toLoop, epoch;
+    ui hiddenN, toLoop, epoch, iSize, oSize;
     ld l_rate, fscore;
+    ld **inputTrain, **outputTrain;
+    ld **inputTest, **outputTest;
 };
 
 static DWORD WINAPI test(LPVOID Param){
@@ -162,32 +168,77 @@ static DWORD WINAPI test(LPVOID Param){
     Train(net, P->toLoop, P->epoch, P->l_rate);
     P->fscore = Validate(net);
     Network_Purge(net);
+    return 0;
 }
 
-int main()
-{
-    srand((ui) time(NULL));
+static void threadedSearch(void) {
     HANDLE handles[MAX_THREADS];
     DWORD threads_id[MAX_THREADS];
     NNParam params[MAX_THREADS];
+    ld l_rate = 0.1L, bperf = .0L, brate = .0L;
+    ui c = 0, pc = 0;
+
+    while (bperf < .8L) {
+        system("cls");
+
+
+    }
 
     for (ui i=0; i<MAX_THREADS; i++) {
-        params[i].hiddenN = rand() % 400;
-        params[i].toLoop = rand() % 120;
-        params[i].epoch = 1 + rand() % 3;
-        params[i].l_rate = powl(10, -(2+rand() % 7));
+        params[i].hiddenN = 617;
+        params[i].toLoop = 100;
+        params[i].epoch = 10;
+        params[i].l_rate = l_rate;
         handles[i] = CreateThread(NULL, 0, test, &params[i], 0, &threads_id[i]);
         if (handles[i] == NULL) {
             ExitProcess(handles[i]);
             printf("\nFailed thread %u\n", (ui)i);
         }
+        l_rate *= 0.98;
     }
-
     WaitForMultipleObjects(MAX_THREADS, handles, TRUE, INFINITE);
     for (ui i=0; i<MAX_THREADS; i++) {
         printf("\nfscore : %LF", params[i].fscore);
         CloseHandle(handles[i]);
     }
+}
+
+int main()
+{
+    srand((ui) time(NULL));
+
+
+    ui c = 0;
+    ld score = .0L, l_rate = .1L, bperf = .0L;
+    while (score < .8L) {
+        c++;
+        system("cls");
+        Network *net = CSave(617);
+        printf("\nAttempt %u (A-1 : %.2LF%%)\n", c, bperf*100);
+        Train(net, 200, 10, l_rate);
+        score = Validate(net);
+        if (isnan(score) || isinf(score)) score = .0L;
+        if (score >= .8L) Network_Save(net, "OCR");
+        Network_Purge(net);
+        if (score > bperf) bperf = score;
+        l_rate *= 0.86;
+    }
+
+
+
+/*
+    Network *net = (Network*) malloc(sizeof(Network));
+    Network_Load(net, "NeuralNetData_3layers_OCR.bin");
+    ld pixels[784] = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
+
+    Network_Predict(net, pixels, 784);
+    Layer *last = &net->layers[net->nbLayers-1];
+    for (ui i=0; i<last->Neurons; i++) {
+        printf("\n%LF\n", last->output[i]);
+    }
+    Network_Purge(net);
+*/
+
 
 /**
     //216 best match ~13.5%     400

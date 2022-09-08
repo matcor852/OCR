@@ -34,7 +34,7 @@ void softmax(ld *input, ld *output, cui Size) {
             puts("nan 2 in softmax");
             exit(4);
         }
-        output[i] = expd[i]/(s+EPS);
+        output[i] = expd[i]/(s+10E-8);
 	}
 	free(expd);
 }

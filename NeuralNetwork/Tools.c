@@ -31,7 +31,7 @@ char *cvec_alloc(cui n) {
 
 ld *fvec_rInit(cui n, cui conns) {
     int seed = (int) time(NULL);
-	ld *tmp = r8vec_normal_01_new(n, &seed);
+	ld *tmp = r8vec_uniform_01_new(n, &seed);
 	ld min = tmp[0], max = tmp[0];
 	for (ui i=1; i<n; i++) {
         if (tmp[i] < min) min = tmp[i];
