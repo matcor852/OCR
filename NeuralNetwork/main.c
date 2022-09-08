@@ -3,13 +3,12 @@
 #include <time.h>
 #include <windows.h>
 
-
 #include "Activations.h"
 #include "Layer.h"
 #include "Tools.h"
 #include "Network.h"
 
-#define L_RATE 0.01L
+#define MAX_THREADS 30
 
 
 static Network* CSave(ui hn) {
@@ -35,7 +34,7 @@ static Network* CSave(ui hn) {
     return net;
 }
 
-static void Train(Network *net) {
+static void Train(Network *net, cui toLoop, cui epoch, cld l_rate) {
 
     ui inputSize = 784, outputSize = 10, startI = 0;
 
@@ -56,7 +55,6 @@ static void Train(Network *net) {
 		exit(1);
 	}
 
-	ui toLoop = 400;
 	long double *input[toLoop], *output[toLoop], *tempIn, *tempOut;
 	float *temp;
 
@@ -65,7 +63,7 @@ static void Train(Network *net) {
 		tempOut = fvec_alloc(outputSize, true);
 		temp = fvec_alloc(1, false);
 		fread(temp, sizeof(float), 1, fptr);
-		tempOut[(int)(temp[0]-startI)] = 1.0L;
+		tempOut[(int)((ui)temp[0]-startI)] = 1.0L;
 		free(temp);
 		fread(tempIn, sizeof(float), inputSize, fptr);
 		input[i] = tempIn;
@@ -74,7 +72,7 @@ static void Train(Network *net) {
 	fclose(fptr);
 
 	Network_Train(net, input, output, inputSize, outputSize, toLoop,
-               10, "CrossEntropy", L_RATE, false);
+               epoch, "CrossEntropy", l_rate, false);
 
 	for(ui i=0; i<toLoop; i++) {
 		free(input[i]);
@@ -151,12 +149,47 @@ static long double Validate(Network *net) {
 	return fscore;
 }
 
+typedef struct NNParam NNParam;
+struct NNParam
+{
+    ui hiddenN, toLoop, epoch;
+    ld l_rate, fscore;
+};
 
+static DWORD WINAPI test(LPVOID Param){
+    NNParam *P = (NNParam*)Param;
+    Network *net = CSave(P->hiddenN);
+    Train(net, P->toLoop, P->epoch, P->l_rate);
+    P->fscore = Validate(net);
+    Network_Purge(net);
+}
 
 int main()
 {
     srand((ui) time(NULL));
+    HANDLE handles[MAX_THREADS];
+    DWORD threads_id[MAX_THREADS];
+    NNParam params[MAX_THREADS];
 
+    for (ui i=0; i<MAX_THREADS; i++) {
+        params[i].hiddenN = rand() % 400;
+        params[i].toLoop = rand() % 120;
+        params[i].epoch = 1 + rand() % 3;
+        params[i].l_rate = powl(10, -(2+rand() % 7));
+        handles[i] = CreateThread(NULL, 0, test, &params[i], 0, &threads_id[i]);
+        if (handles[i] == NULL) {
+            ExitProcess(handles[i]);
+            printf("\nFailed thread %u\n", (ui)i);
+        }
+    }
+
+    WaitForMultipleObjects(MAX_THREADS, handles, TRUE, INFINITE);
+    for (ui i=0; i<MAX_THREADS; i++) {
+        printf("\nfscore : %LF", params[i].fscore);
+        CloseHandle(handles[i]);
+    }
+
+/**
     //216 best match ~13.5%     400
     ui min = 617, max = 617, perf_n = min;
     float perf_s = .0f;
@@ -180,10 +213,10 @@ int main()
             perf_s = score;
         }
         if (track) fprintf(f, "%u %f\n", hidden_neurons, (double)score);
-        */
+
     }
 
     if (track) fclose(f);
-
+**/
     return 0;
 }
