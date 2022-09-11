@@ -4,7 +4,6 @@
 #include <errno.h>
 #include <time.h>
 #include "Layer.h"
-#include "Activations.h"
 #include "Cost.h"
 
 
