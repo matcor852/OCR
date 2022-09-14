@@ -13,7 +13,7 @@ Network* CSave(ui hn) {
 	Layer *l2 = (Layer*) malloc(sizeof(Layer));
 	Layer *l3 = (Layer*) malloc(sizeof(Layer));
 	Layer_Init(l1, NULL, l2, 784, NULL, NULL, false, "none");
-	Layer_Init(l2, l1, l3, hn, NULL, NULL, false, "sigmoid");
+	Layer_Init(l2, l1, l3, hn, NULL, NULL, false, "relu"); //sigmoid/relu
 	Layer_Init(l3, l2, NULL, 10, NULL, NULL, false, "softmax");
 
 	Network_AddLayer(net, l1);
@@ -30,8 +30,8 @@ void LoadData(NNParam* param) {
     param->oSize = 10;
 
     ui startI = 0;
-	char pathTrain[] = "D:/Code/C/OCR/NeuralNetwork/curated/hcd_784_846_training.bin";
-	char pathValidate[] = "D:/Code/C/OCR/NeuralNetwork/curated/hcd_784_90_validation.bin";
+	char pathTrain[] = "D:/Code/TP/C/OCR/NeuralNetwork/curated/hcd_784_669_training.bin";
+	char pathValidate[] = "D:/Code/TP/C/OCR/NeuralNetwork/curated/hcd_784_73_validation.bin";
 
 	ui SamplesTrain = 0, SamplesValidate = 0;
 	if (sscanf_s(pathTrain, "%*[^_]%*[_]%*[^_]%*[_]%u", &SamplesTrain) != 1) {
@@ -103,6 +103,7 @@ static DWORD WINAPI Train(LPVOID Param) {
 	for (ui i=0; i<P->toLoopValidate; i++) {
         ld *out = Network_Validate(net, P->inputTest[i], P->iSize, P->oSize == 1);
         for (ui j=0; j<P->oSize; j++) {
+            printf("\n%u : %.0LF\t%.0LF", j, out[j], P->outputTest[i][j]);
             if (out[j] + P->outputTest[i][j] >= 2) score[0]++;
             else if (out[j] > P->outputTest[i][j]) score[1]++;
             else if (absl(out[j] - P->outputTest[i][j]) < LDBL_EPSILON) score[2]++;
@@ -110,12 +111,18 @@ static DWORD WINAPI Train(LPVOID Param) {
             else printf("Anomaly detected : predicted %LF, expected %LF\n",
                         out[j], P->outputTest[i][j]);
         }
+        //getchar();
 	}
+
+	printf("\nTrue Positive : %u/%u\nFalse Positive : %u/%u\nTrue Negative : %u/%u\nFalse Negative : %u/%u\n",
+            score[0], P->toLoopValidate, score[1], P->toLoopValidate,
+            score[2], P->toLoopValidate, score[3], P->toLoopValidate);
 
     float accuracy = (score[0] + score[2])/(float)(score[0]+score[1]+score[2]+score[3]);
     float precision = score[0]/(float)(score[0]+score[1]);
     float recall = score[0]/(float)(score[0]+score[3]);
     P->fscore = 2.0f*precision*recall/(precision+recall);
+    printf("\nF-Score : %.1LF%%\n", P->fscore*100);
     Network_Purge(net);
     return 0;
 }
@@ -127,11 +134,6 @@ void threadedSearch(cui threads, NNParam *origin, ld ldecay) {
     ld l_rate = origin->l_rate, bperf = .0L, brate = .0L;
     ui bhn = 0, c = 0;
 
-    /*
-    while (bperf < .8L) {
-        system("cls");
-    }
-    */
     while (l_rate > 10E-10) {
         ld temp_rate = l_rate;
         c++;
@@ -154,12 +156,15 @@ void threadedSearch(cui threads, NNParam *origin, ld ldecay) {
             }
             l_rate *= ldecay;
         }
-        system("cls");
-        printf("Attempt %u : learning rate [ %Le - %Le]\n", c, temp_rate,
-               l_rate/ldecay);
+        //system("cls");
+        printf("Attempt %u : learning rate [%Le - %Le] best : %LF%% for %Le\n", c, temp_rate,
+               l_rate/ldecay, bperf*100, brate);
         WaitForMultipleObjects(threads, handles, TRUE, INFINITE);
         for (ui i=0; i<threads; i++) {
-            //printf("\nfscore : %LF%%\n", params[i].fscore*100);
+            if (params[i].fscore > bperf) {
+                bperf = params[i].fscore;
+                brate = params[i].l_rate;
+            }
             CloseHandle(handles[i]);
         }
     }
@@ -179,22 +184,17 @@ void NNParam_Display(NNParam *param) {
 
 
 void Purge_NNParam(NNParam *param) {
-    puts("p0");
     for (ui i=0; i<param->toLoopTrain; i++) {
-        printf("\rp1 : %p (%u), p2 : %p (%u)", (void*)param->inputTrain[i],
-                param->inputTrain[i] == NULL, (void*)param->outputTrain[i],
-                param->outputTrain[i] == NULL);
         free(param->inputTrain[i]);
         free(param->outputTrain[i]);
     }
-    puts("p0.5");
     free(param->inputTrain);
     free(param->outputTrain);
-    puts("p1");
     for (ui i=0; i<param->toLoopValidate; i++) {
         free(param->inputTest[i]);
         free(param->outputTest[i]);
     }
     free(param->inputTest);
     free(param->outputTest);
+    free(param);
 }

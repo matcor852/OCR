@@ -1,4 +1,4 @@
-#include <stdio.h>L
+#include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 
@@ -12,18 +12,16 @@ int main()
     srand((ui) time(NULL));
 
     NNParam *origin = (NNParam*) malloc(sizeof(NNParam));
-    origin->hiddenN = 25;
-    origin->toLoopTrain = 75;
+    origin->hiddenN = 1000;
+    origin->toLoopTrain = 9000;
     origin->toLoopValidate = 90000;
-    origin->epoch = 5;
-    origin->l_rate = .5L;
+    origin->epoch = 15;
+    origin->l_rate = .001L;
     origin->fscore = .0L;
     LoadData(origin);
-    threadedSearch(32, origin, 0.9);
+    threadedSearch(1, origin, 0.0000000001);
 
-    puts("before purge");
-
-    Purge_NNParam(origin);
+    //Purge_NNParam(origin);
 
 
 /*
