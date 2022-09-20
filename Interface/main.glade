@@ -7,9 +7,7 @@
     <property name="resizable">False</property>
     <property name="window-position">center</property>
     <property name="icon-name">edit-find</property>
-    <property name="type-hint">desktop</property>
     <property name="gravity">center</property>
-    <property name="has-resize-grip">True</property>
     <child>
       <object class="GtkFixed" id="fixed1">
         <property name="visible">True</property>
@@ -23,36 +21,34 @@
             <property name="can-focus">True</property>
             <property name="receives-default">True</property>
             <property name="tooltip-text" translatable="yes">Click to upload an image</property>
-            <property name="xalign">0.5</property>
-            <property name="yalign">0.5</property>
             <property name="always-show-image">True</property>
             <signal name="clicked" handler="on_button1_clicked" swapped="no"/>
           </object>
           <packing>
-            <property name="x">376</property>
-            <property name="y">359</property>
+            <property name="x">530</property>
+            <property name="y">350</property>
           </packing>
         </child>
         <child>
           <object class="GtkImage" id="image1">
             <property name="width-request">524</property>
-            <property name="height-request">462</property>
+            <property name="height-request">641</property>
             <property name="visible">True</property>
             <property name="can-focus">False</property>
-            <property name="valign">start</property>
+            <property name="halign">center</property>
+            <property name="valign">center</property>
           </object>
           <packing>
-            <property name="x">188</property>
-            <property name="y">243</property>
+            <property name="x">362</property>
+            <property name="y">117</property>
           </packing>
         </child>
         <child>
-          <object class="GtkLabel">
-            <property name="width-request">100</property>
+          <object class="GtkLabel" id="bas droit">
+            <property name="width-request">110</property>
             <property name="height-request">80</property>
             <property name="visible">True</property>
             <property name="can-focus">False</property>
-            <property name="label" translatable="yes">label</property>
             <attributes>
               <attribute name="size" value="27648"/>
             </attributes>
@@ -60,6 +56,35 @@
           <packing>
             <property name="x">1178</property>
             <property name="y">957</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkEntry" id="entry1">
+            <property name="width-request">400</property>
+            <property name="height-request">34</property>
+            <property name="visible">True</property>
+            <property name="can-focus">True</property>
+            <property name="tooltip-text" translatable="yes">Path of the sudoku to upload</property>
+            <property name="placeholder-text" translatable="yes">Path of the image</property>
+            <signal name="paste-clipboard" handler="on_entry1_paste_clipboard" swapped="no"/>
+            <accelerator key="Return" signal="paste-clipboard"/>
+          </object>
+          <packing>
+            <property name="x">427</property>
+            <property name="y">670</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkLabel" id="label1">
+            <property name="width-request">100</property>
+            <property name="height-request">80</property>
+            <property name="visible">True</property>
+            <property name="can-focus">False</property>
+            <property name="label" translatable="yes">or</property>
+          </object>
+          <packing>
+            <property name="x">578</property>
+            <property name="y">530</property>
           </packing>
         </child>
       </object>

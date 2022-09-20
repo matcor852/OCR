@@ -34,6 +34,8 @@ int main (int argc, char *argv[])
 
 	image1 = GTK_IMAGE(gtk_builder_get_object(builder, "image1"));
 
+	entry1 = GTK_ENTRY(gtk_builder_get_object(builder, "entry1"));
+
 
 
 	gtk_widget_show(GTK_WIDGET (window));
@@ -64,6 +66,24 @@ void on_button1_clicked()
                                       NULL);
 
 	res = gtk_dialog_run (GTK_DIALOG (dialog));
+	if (res == GTK_RESPONSE_ACCEPT)
+  	{
+    		char *filename;
+    		GtkFileChooser *chooser = GTK_FILE_CHOOSER (dialog);
+    		filename = gtk_file_chooser_get_filename (chooser);
+
+		gtk_widget_destroy(button1);
+
+		gtk_image_set_from_file(image1,filename);
+
+  	}
+	gtk_widget_destroy(dialog);
+}
+
+//gtk entry
+void on_entry1_past_clipboard()
+{
+	res = 
 	if (res == GTK_RESPONSE_ACCEPT)
   	{
     		char *filename;
