@@ -4,13 +4,17 @@
 #include "tools.h"
 #include "openImage.h"
 #include "transformImage.h"
+#include "hough.h"
 
 int main(){
 	/*
-	char *filename = "Images/image001.png";
+	char *filename = "Images/image_01.jpeg";
 	st width, height;
 	uchar **pixels = openImage(filename, &width, &height);
+	printImage(100, 80, pixels);
+	freeImage(pixels, height);
 	*/
+	/*
 	uchar **pixels = newPixels(5, 1);
 	pixels[0][0] = 0;
 	pixels[0][1] = 3;
@@ -24,4 +28,9 @@ int main(){
 	freeImage(pixels, height);
 	printImage(width, height, resized);
 	return 0;
+	*/
+	//*
+	test();
+	return 0;
+	//*/
 }
