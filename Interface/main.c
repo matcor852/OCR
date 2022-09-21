@@ -73,6 +73,8 @@ void on_button1_clicked()
     		filename = gtk_file_chooser_get_filename (chooser);
 
 		gtk_widget_destroy(button1);
+                gtk_widget_destroy(entry1);
+
 
 		gtk_image_set_from_file(image1,filename);
 
@@ -83,17 +85,14 @@ void on_button1_clicked()
 //gtk entry
 void on_entry1_past_clipboard()
 {
-	res = 
-	if (res == GTK_RESPONSE_ACCEPT)
+	res = gtk_entry_get_text(); 
+	if (res != 0)
   	{
-    		char *filename;
-    		GtkFileChooser *chooser = GTK_FILE_CHOOSER (dialog);
-    		filename = gtk_file_chooser_get_filename (chooser);
 
 		gtk_widget_destroy(button1);
-
-		gtk_image_set_from_file(image1,filename);
+                gtk_widget_destroy(entry1);
+		gtk_image_set_from_file(image1,res);
 
   	}
-	gtk_widget_destroy(dialog);
+
 }
