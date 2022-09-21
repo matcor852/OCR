@@ -13,7 +13,7 @@
         <property name="visible">True</property>
         <property name="can-focus">False</property>
         <child>
-          <object class="GtkButton" id="button1">
+          <object class="GtkButton" id="upload_button">
             <property name="label" translatable="yes">Upload image</property>
             <property name="width-request">197</property>
             <property name="height-request">132</property>
@@ -22,7 +22,7 @@
             <property name="receives-default">True</property>
             <property name="tooltip-text" translatable="yes">Click to upload an image</property>
             <property name="always-show-image">True</property>
-            <signal name="clicked" handler="on_button1_clicked" swapped="no"/>
+            <signal name="clicked" handler="on_upload_button_clicked" swapped="no"/>
           </object>
           <packing>
             <property name="x">530</property>
@@ -30,7 +30,7 @@
           </packing>
         </child>
         <child>
-          <object class="GtkImage" id="image1">
+          <object class="GtkImage" id="sudoku_image">
             <property name="width-request">524</property>
             <property name="height-request">641</property>
             <property name="visible">True</property>
@@ -59,15 +59,14 @@
           </packing>
         </child>
         <child>
-          <object class="GtkEntry" id="entry1">
+          <object class="GtkEntry" id="upload_entry">
             <property name="width-request">400</property>
             <property name="height-request">34</property>
             <property name="visible">True</property>
             <property name="can-focus">True</property>
             <property name="tooltip-text" translatable="yes">Path of the sudoku to upload</property>
             <property name="placeholder-text" translatable="yes">Path of the image</property>
-            <signal name="paste-clipboard" handler="on_entry1_paste_clipboard" swapped="no"/>
-            <accelerator key="Return" signal="paste-clipboard"/>
+            <signal name="activate" handler="on_upload_entry_activate" swapped="no"/>
           </object>
           <packing>
             <property name="x">427</property>
@@ -75,7 +74,7 @@
           </packing>
         </child>
         <child>
-          <object class="GtkLabel" id="label1">
+          <object class="GtkLabel" id="or_label">
             <property name="width-request">100</property>
             <property name="height-request">80</property>
             <property name="visible">True</property>
@@ -85,6 +84,22 @@
           <packing>
             <property name="x">578</property>
             <property name="y">530</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkButton" id="reload_button">
+            <property name="label" translatable="yes">Back to menu</property>
+            <property name="width-request">124</property>
+            <property name="height-request">34</property>
+            <property name="visible">True</property>
+            <property name="can-focus">True</property>
+            <property name="receives-default">True</property>
+            <property name="tooltip-text" translatable="yes">Back to the menu</property>
+            <signal name="clicked" handler="on_reload_button_clicked" swapped="no"/>
+          </object>
+          <packing>
+            <property name="x">566</property>
+            <property name="y">21</property>
           </packing>
         </child>
       </object>
