@@ -4,8 +4,37 @@
 #include "openImage.h"
 #include "tools.h"
 
-void openImage(const char *filename, st *width, st *height, uchar **pixels){
-	printf("Opening file '%s'\n", filename);
+void get1bpp(st width, st height, int pitch, uchar *pxls, uchar **pixels){
+	for (st y = 0; y < height; y++)
+		for (st x = 0; x < width; x++)
+			pixels[y][x] = pxls[y * pitch + x];
+}
+
+void get2bpp(st width, st height, int pitch, uchar *pxls, uchar **pixels){
+	for (st y = 0; y < height; y++)
+		for (st x = 0; x < width; x++)
+			pixels[y][x] = pxls[y * pitch + 2];
+}
+
+void get3bpp(st width, st height, int pitch, uchar *pxls, uchar **pixels){
+	for (st y = 0; y < height; y++)
+		for (st x = 0; x < width; x++)
+			pixels[y][x] =
+				(uchar)((pxls[y * pitch + x * 3] +
+					 pxls[y * pitch + x * 3 + 1] +
+				 	 pxls[y * pitch + x * 3 + 2]) / 3);
+}
+
+void get4bpp(st width, st height, int pitch, uchar *pxls, uchar **pixels){
+	for (st y = 0; y < height; y++)
+		for (st x = 0; x < width; x++)
+			pixels[y][x] =
+				(uchar)((pxls[y * pitch + x * 4] +
+					 pxls[y * pitch + x * 4 + 1] +
+				 	 pxls[y * pitch + x * 4 + 2]) / 3);
+}
+
+uchar **openImage(const char *filename, st *width, st *height){
 	SDL_Surface* surface  = IMG_Load(filename);
 	*width = surface->w, *height = surface->h;
 	printf("width: %zu, height: %zu\n", *width, *height);
@@ -14,35 +43,23 @@ void openImage(const char *filename, st *width, st *height, uchar **pixels){
 	printf("pitch: %d\n", pitch);
 	printf("bpp: %d\n", bpp);
 	uchar *pxls = surface->pixels;
-	pixels = (uchar **)malloc(sizeof(uchar *) * *height);
-	for (size_t i = 0; i < *height; i++)
-		pixels[i] = (uchar *)malloc(sizeof(uchar) * *width);
-	unsigned short value;
-	for (size_t y = 0; y < *height; y++){
-		for (size_t x = 0; x < *width; x++){
-			value = 0;
-			uchar *pxl = pxls + (y * pitch + x * bpp);
-			switch (bpp){
-				case 1:
-				case 2:
-					value = *pxl;
-					break;
-				case 3:
-				case 4:
-					value += pxl[0];
-					value += pxl[1];
-					value += pxl[2];
-					value /= 3;
-					break;
-				default:
-					break;
-			}
-			pixels[y][x] = value;
-		}
+	uchar **pixels = newPixels(*width, *height);
+	switch (bpp){
+		case 1:
+			get1bpp(*width, *height, pitch, pxls, pixels);
+			break;
+		case 2:
+			get2bpp(*width, *height, pitch, pxls, pixels);
+			break;
+		case 3:
+			get3bpp(*width, *height, pitch, pxls, pixels);
+			break;
+		case 4:
+			get4bpp(*width, *height, pitch, pxls, pixels);
+			break;
+		default:
+			printf("Error[openImage]: invalid bpp (%d)", bpp);
+			exit(0);
 	}
-	for (size_t y = 0; y < *height; y++){
-		for (size_t x = 0; x < *width; x++)
-			printf("%02x ", pixels[y][x]);
-		printf("\n");
-	}
+	return pixels;
 }

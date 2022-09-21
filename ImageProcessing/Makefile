@@ -1,9 +1,10 @@
 .SILENT: all
 .SILENT: run
+.SILENT: clean
 
 all:
-	clang -Wall -Wextra -std=c99 -O3 -MMD *.c -o main -lSDL2 -lSDL2_image
-	rm -rf main.d
+	clang -Wall -Wextra -std=c99 -O3 -MMD *.c -c
+	clang *.o -o main -lSDL2 -lSDL2_image
 
 run:
 	make
@@ -11,4 +12,8 @@ run:
 	echo "========== Running main =========="
 	./main
 	echo "========== End of output =========="
-	rm main
+	rm main *.d
+
+clean:
+	rm -rf *[.do] main test*
+	clear

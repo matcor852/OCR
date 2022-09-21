@@ -1,16 +1,11 @@
 #pragma once
 
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-#define rmask = 0xff000000;
-#define gmask = 0x00ff0000;
-#define bmask = 0x0000ff00;
-#define amask = 0x000000ff;
-#else
-#define rmask = 0x000000ff;
-#define gmask = 0x0000ff00;
-#define bmask = 0x00ff0000;
-#define amask = 0xff000000;
-#endif
+#include <stdlib.h>
 
 typedef unsigned char uchar;
 typedef size_t st;
+
+uchar **newPixels(st width, st height);
+void freeImage(uchar **pixels, st height);
+void printImage(st width, st height, uchar **pixels);
+uchar to_uchar(float n);
