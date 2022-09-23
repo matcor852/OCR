@@ -4,14 +4,32 @@
 #include "openImage.h"
 #define PI 3.141592654
 
-void getY(st x, st *y, st r, float _cos, float _sin, st height){
+void getY(st x, st *_y, st *y_, st r, float _cos, float _sin, st height){
 	float value = (r - x * _cos) / _sin;
-	*y = 0 <= value && value < height ? value : 0;
+	*_y = value - 2;
+	*y_ = value + 2;
+	if (*_y < 0)
+		*_y = 0;
+	else if (*y_ >= height)
+		*y_ = height - 1;
+	if (*y_ < 0)
+		*y_ = 0;
+	else if (*_y >= height)
+		*_y = height - 1;
 }
 
-void getX(st *x, st y, st r, float _cos, float _sin, st width){
+void getX(st *_x, st *x_, st y, st r, float _cos, float _sin, st width){
 	float value = (r - y * _sin) / _cos;
-	*x = 0 <= value && value < width ? value : 0;
+	*_x = value - 2;
+	*x_ = value + 2;
+	if (*_x < 0)
+		*_x = 0;
+	else if (*x_ >= width)
+		*x_ = width - 1;
+	if (*x_ < 0)
+		*x_ = 0;
+	else if (*_x >= width)
+		*_x = width - 1;
 }
 
 void test(void){
@@ -42,41 +60,47 @@ void test(void){
 			nb_pixels = 0;
 			if ((45 <= theta && theta <= 135) || (225 <= theta && theta <= 315)){
 				for (st x = 0; x < width; x++){
-					st y;
-					getY(x, &y, r, _cos, _sin, height);
-					if (fabs(r - x * _cos - y * _sin) < 1){
-						if (x > x_max)
-							x_max = x;
-						if (x < x_min)
-							x_min = x;
-						if (y > y_max)
-							y_max = y;
-						if (y < y_min)
-							y_min = y;
-						total += pixels[y][x];
-						nb_pixels++;
+					st _y;
+					st y_;
+					getY(x, &_y, &y_, r, _cos, _sin, height);
+					for (st y = _y; y <= y_; y++){
+						if (fabs(r - x * _cos - y * _sin) < 1){
+							if (x > x_max)
+								x_max = x;
+							if (x < x_min)
+								x_min = x;
+							if (y > y_max)
+								y_max = y;
+							if (y < y_min)
+								y_min = y;
+							total += pixels[y][x];
+							nb_pixels++;
+						}
 					}
 				}
 			}
 			else {
 				for (st y = 0; y < height; y++){
-					st x;
-					getX(&x, y, r, _cos, _sin, width);
-					if (fabs(r - x * _cos - y * _sin) < 1){
-						if (x > x_max)
-							x_max = x;
-						if (x < x_min)
-							x_min = x;
-						if (y > y_max)
-							y_max = y;
-						if (y < y_min)
-							y_min = y;
-						total += pixels[y][x];
-						nb_pixels++;
+					st _x;
+					st x_;
+					getX(&_x, &x_, y, r, _cos, _sin, width);
+					for(st x = _x; x <= x_; x++){
+						if (fabs(r - x * _cos - y * _sin) < 1){
+							if (x > x_max)
+								x_max = x;
+							if (x < x_min)
+								x_min = x;
+							if (y > y_max)
+								y_max = y;
+							if (y < y_min)
+								y_min = y;
+							total += pixels[y][x];
+							nb_pixels++;
+						}
 					}
 				}
 			}
-			uchar value = (nb_pixels && (x_max - x_min > width / 4 || y_max - y_min > height / 4)) ? total / nb_pixels : 0;
+			int value = (nb_pixels && (x_max - x_min > width / 4 || y_max - y_min > height / 4)) ? total * 256 / nb_pixels : 0;
 			r_theta[r][theta] = value;
 			if (value > best_value){
 				best_r = r;
@@ -87,9 +111,10 @@ void test(void){
 				theta++;
 		}
 	}
-	for (st r = 0; r < r_max; r += 2){
-		for (st theta = 0; theta < 360; theta += 2){
-			printf("%02x", (int)(255 * ((float)r_theta[r][theta] / best_value)));
+	char *chars = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?i+~<>!lI-;:,\"^`_'. ";
+	for (st r = 0; r < r_max; r += 15){
+		for (st theta = 0; theta < 360; theta++){
+			printf("%c", chars[(int)(69 - 69 * ((float)r_theta[r][theta] / best_value))]);
 		}
 		printf("\n");
 	}
@@ -100,4 +125,5 @@ void test(void){
 	int p4y = 0, p4x = (best_r - p4y * sin(best_theta * PI / 180)) / cos(best_theta * PI / 180);
 	printf("p1 = (%d, %d); p2 = (%d, %d)\n", p1x, p1y, p2x, p2y);
 	printf("p3 = (%d, %d); p4 = (%d, %d)\n", p3x, p3y, p4x, p4y);
+	printf("'%c', '%c'\n", chars[0], chars[69]);
 }
