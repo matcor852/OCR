@@ -1,13 +1,13 @@
 # depslib dependency file v1.0
-1662814966 source:d:\code\c\ocr\neuralnetwork\cost.c
+1663191235 source:d:\code\c\ocr\neuralnetwork\cost.c
 	"Cost.h"
 
-1662288163 d:\code\c\ocr\neuralnetwork\cost.h
+1663191235 d:\code\c\ocr\neuralnetwork\cost.h
 	<math.h>
 	<float.h>
 	"Tools.h"
 
-1662653016 d:\code\c\ocr\neuralnetwork\tools.h
+1663950257 d:\code\c\ocr\neuralnetwork\tools.h
 	<stdio.h>
 	<stdlib.h>
 	<stdbool.h>
@@ -30,12 +30,12 @@
 	<time.h>
 	"Activations.h"
 
-1662288151 d:\code\c\ocr\neuralnetwork\activations.h
+1663191235 d:\code\c\ocr\neuralnetwork\activations.h
 	<math.h>
 	<float.h>
 	"Tools.h"
 
-1662926460 source:d:\code\c\ocr\neuralnetwork\main.c
+1663950131 source:d:\code\c\ocr\neuralnetwork\main.c
 	<stdio.h>
 	<stdlib.h>
 	<time.h>
@@ -48,16 +48,16 @@
 	"Layer.h"
 	"Cost.h"
 
-1662901050 source:d:\code\c\ocr\neuralnetwork\network.c
+1663949654 source:d:\code\c\ocr\neuralnetwork\network.c
 	"Network.h"
 
 1660947709 source:d:\code\c\ocr\neuralnetwork\randuniform.c
 	"RandUniform.h"
 
-1662666825 source:d:\code\c\ocr\neuralnetwork\tools.c
+1663190551 source:d:\code\c\ocr\neuralnetwork\tools.c
 	"Tools.h"
 
-1662672267 source:d:\code\c\ocr\neuralnetwork\activations.c
+1663191235 source:d:\code\c\ocr\neuralnetwork\activations.c
 	"Activations.h"
 
 1662714496 source:d:\code\tp\c\ocr\neuralnetwork\activations.c
@@ -139,10 +139,10 @@
 	<time.h>
 	<math.h>
 
-1662926360 source:d:\code\c\ocr\neuralnetwork\iohelper.c
+1663950028 source:d:\code\c\ocr\neuralnetwork\iohelper.c
 	"IOHelper.h"
 
-1662901041 d:\code\c\ocr\neuralnetwork\iohelper.h
+1663524872 d:\code\c\ocr\neuralnetwork\iohelper.h
 	"Tools.h"
 	<stdio.h>
 	<stdlib.h>

@@ -22,6 +22,7 @@ ld softmax_(ld *arr, cui Size, cui ieme);
 ld argmax_(ld *arr, cui Size, cui ieme);
 ld step_(ld *arr, cui Size, cui ieme);
 ld relu_(ld *arr, cui Size, cui ieme);
+ld selu_(ld *arr, cui Size, cui ieme);
 ld leakyrelu_(ld *arr, cui Size, cui ieme);
 
 ld (*get_deriv(const char *name))(ld *arr, cui Size, cui ieme);
@@ -38,6 +39,7 @@ const static struct {
   { "argmax", argmax_ },
   { "step", step_ },
   { "relu", relu_ },
+  { "selu", selu_ },
   { "leakyrelu", leakyrelu_ }
 };
 

@@ -30,8 +30,8 @@ void LoadData(NNParam* param) {
     param->oSize = 10;
 
     ui startI = 0;
-	char pathTrain[] = "D:/Code/TP/C/OCR/NeuralNetwork/curated/hcd_784_669_training.bin";
-	char pathValidate[] = "D:/Code/TP/C/OCR/NeuralNetwork/curated/hcd_784_73_validation.bin";
+	char pathTrain[] = "D:/Code/C/OCR/NeuralNetwork/curated/hcd_784_95_training.bin";
+	char pathValidate[] = "D:/Code/C/OCR/NeuralNetwork/curated/hcd_784_95_validation.bin";
 
 	ui SamplesTrain = 0, SamplesValidate = 0;
 	if (sscanf_s(pathTrain, "%*[^_]%*[_]%*[^_]%*[_]%u", &SamplesTrain) != 1) {
@@ -94,6 +94,50 @@ void LoadData(NNParam* param) {
 	fclose(fptr2);
 }
 
+void PerfSearch(NNParam *origin, cui attempt) {
+    ld bperf = .0L;
+    ui c = 0;
+    Network *net = NULL;
+    while (c < attempt) {
+        c++;
+        system("cls");
+        printf("\nAttempt %u; best : %.2LF%%\n", c, bperf*100);
+        net = Train_Perf(origin);
+        if (origin->fscore > bperf) {
+            bperf = origin->fscore;
+            Network_Save(net, "OCR1");
+        }
+        Network_Purge(net);
+    }
+    system("cls");
+    printf("\nBest F-Score : %.2LF%%\n", bperf*100);
+}
+
+static Network* Train_Perf(NNParam *P) {
+    Network *net = CSave(P->hiddenN);
+    Network_Train(net, P->inputTrain, P->outputTrain, P->iSize, P->oSize,
+                  P->toLoopTrain, P->epoch, "CrossEntropy", P->l_rate, false);
+    ui score[4] = {0, 0, 0, 0};    //TP, FP, TN, FN
+	for (ui i=0; i<P->toLoopValidate; i++) {
+        ld *out = Network_Validate(net, P->inputTest[i], P->iSize, P->oSize == 1);
+        for (ui j=0; j<P->oSize; j++) {
+            //printf("\n%u : %.0LF\t%.0LF", j, out[j], P->outputTest[i][j]);
+            if (out[j] + P->outputTest[i][j] >= 2) score[0]++;
+            else if (out[j] > P->outputTest[i][j]) score[1]++;
+            else if (absl(out[j] - P->outputTest[i][j]) < LDBL_EPSILON) score[2]++;
+            else if (out[j] < P->outputTest[i][j]) score[3]++;
+            else printf("Anomaly detected : predicted %LF, expected %LF\n",
+                        out[j], P->outputTest[i][j]);
+        }
+	}
+    float accuracy = (score[0] + score[2])/(float)(score[0]+score[1]+score[2]+score[3]);
+    float precision = score[0]/(float)(score[0]+score[1]);
+    float recall = score[0]/(float)(score[0]+score[3]);
+    P->fscore = 2.0f*precision*recall/(precision+recall);
+    //printf("F-Score : %.2LF%%\n", P->fscore*100);
+    return net;
+}
+
 static DWORD WINAPI Train(LPVOID Param) {
     NNParam *P = (NNParam*)Param;
     Network *net = CSave(P->hiddenN);
@@ -103,7 +147,7 @@ static DWORD WINAPI Train(LPVOID Param) {
 	for (ui i=0; i<P->toLoopValidate; i++) {
         ld *out = Network_Validate(net, P->inputTest[i], P->iSize, P->oSize == 1);
         for (ui j=0; j<P->oSize; j++) {
-            printf("\n%u : %.0LF\t%.0LF", j, out[j], P->outputTest[i][j]);
+            //printf("\n%u : %.0LF\t%.0LF", j, out[j], P->outputTest[i][j]);
             if (out[j] + P->outputTest[i][j] >= 2) score[0]++;
             else if (out[j] > P->outputTest[i][j]) score[1]++;
             else if (absl(out[j] - P->outputTest[i][j]) < LDBL_EPSILON) score[2]++;
@@ -114,15 +158,17 @@ static DWORD WINAPI Train(LPVOID Param) {
         //getchar();
 	}
 
+	/*
 	printf("\nTrue Positive : %u/%u\nFalse Positive : %u/%u\nTrue Negative : %u/%u\nFalse Negative : %u/%u\n",
             score[0], P->toLoopValidate, score[1], P->toLoopValidate,
             score[2], P->toLoopValidate, score[3], P->toLoopValidate);
+    */
 
     float accuracy = (score[0] + score[2])/(float)(score[0]+score[1]+score[2]+score[3]);
     float precision = score[0]/(float)(score[0]+score[1]);
     float recall = score[0]/(float)(score[0]+score[3]);
     P->fscore = 2.0f*precision*recall/(precision+recall);
-    printf("\nF-Score : %.1LF%%\n", P->fscore*100);
+    //printf("F-Score : %.2LF%%\n", P->fscore*100);
     Network_Purge(net);
     return 0;
 }
@@ -131,45 +177,49 @@ void threadedSearch(cui threads, NNParam *origin, ld ldecay) {
     HANDLE handles[threads];
     DWORD threads_id[threads];
     NNParam params[threads];
-    ld l_rate = origin->l_rate, bperf = .0L, brate = .0L;
+    ld bperf = .0L, brate = .0L;
     ui bhn = 0, c = 0;
 
-    while (l_rate > 10E-10) {
-        ld temp_rate = l_rate;
-        c++;
-        for (ui i=0; i<threads; i++) {
-            params[i].hiddenN = origin->hiddenN;
-            params[i].toLoopTrain = origin->toLoopTrain;
-            params[i].toLoopValidate = origin->toLoopValidate;
-            params[i].epoch = origin->epoch;
-            params[i].iSize = origin->iSize;
-            params[i].oSize = origin->oSize;
-            params[i].l_rate = l_rate;
-            params[i].inputTrain = origin->inputTrain;
-            params[i].outputTrain = origin->outputTrain;
-            params[i].inputTest = origin->inputTest;
-            params[i].outputTest = origin->outputTest;
-            handles[i] = CreateThread(NULL, 0, Train, &params[i], 0, &threads_id[i]);
-            if (handles[i] == NULL) {
-                ExitProcess(handles[i]);
-                printf("\nFailed thread %u\n", (ui)i);
+    while(c < 600) {
+        ld l_rate = origin->l_rate;
+        while (l_rate > 10E-6) {
+            ld temp_rate = l_rate;
+            c++;
+            for (ui i=0; i<threads; i++) {
+                params[i].hiddenN = origin->hiddenN;
+                params[i].toLoopTrain = origin->toLoopTrain;
+                params[i].toLoopValidate = origin->toLoopValidate;
+                params[i].epoch = origin->epoch;
+                params[i].iSize = origin->iSize;
+                params[i].oSize = origin->oSize;
+                params[i].l_rate = l_rate;
+                params[i].inputTrain = origin->inputTrain;
+                params[i].outputTrain = origin->outputTrain;
+                params[i].inputTest = origin->inputTest;
+                params[i].outputTest = origin->outputTest;
+                handles[i] = CreateThread(NULL, 0, Train, &params[i], 0, &threads_id[i]);
+                if (handles[i] == NULL) {
+                    ExitProcess(handles[i]);
+                    printf("\nFailed thread %u\n", (ui)i);
+                }
+                l_rate *= ldecay;
             }
-            l_rate *= ldecay;
-        }
-        //system("cls");
-        printf("Attempt %u : learning rate [%Le - %Le] best : %LF%% for %Le\n", c, temp_rate,
-               l_rate/ldecay, bperf*100, brate);
-        WaitForMultipleObjects(threads, handles, TRUE, INFINITE);
-        for (ui i=0; i<threads; i++) {
-            if (params[i].fscore > bperf) {
-                bperf = params[i].fscore;
-                brate = params[i].l_rate;
+            system("cls");
+            printf("\nAttempt %u/600 : learning rate [%Lg - %Lg] best : %.2LF%% for %Lg\n", c, temp_rate,
+                   l_rate/ldecay, bperf*100, brate);
+            WaitForMultipleObjects(threads, handles, TRUE, INFINITE);
+            for (ui i=0; i<threads; i++) {
+                if (params[i].fscore > bperf) {
+                    bperf = params[i].fscore;
+                    brate = params[i].l_rate;
+                }
+                CloseHandle(handles[i]);
             }
-            CloseHandle(handles[i]);
         }
     }
 
-
+    system("cls");
+    printf("\nBest F-Score : %.2LF%% for %Lg\n", bperf*100, brate);
 }
 
 void NNParam_Display(NNParam *param) {

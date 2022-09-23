@@ -185,11 +185,11 @@ void Network_Train(Network *net, ld *input[], ld *expected_output[], cui iSize,
 			//if (track) fprintf(f, "%u %f\n", c, (double)error);
 			//c++;
             end = clock();
-            /*
+
 			printf("\repoch %u/%u, sample %u/%u: error = %f [ %.1fit/s ]      ",
                     e+1, epoch, s+1, Size, (double)error,
                     (double)(1000.0/(end-begin)));
-            */
+
 		}
 	}
 
@@ -270,7 +270,7 @@ static ld Network_BackProp(Network *net, ld *expected, cui oSize,
 			else L->weights[w] -= l_rate * ml * L->pLayer->output[i];
 			w++;
 			if (!bias_done) {
-                if (adam && false) {
+                if (adam) {
                     Mbt[iL][j] = 0.9L*Mbt[iL][j]+(1-0.9L) * ml;
                     Vbt[iL][j] = 0.999L*Vbt[iL][j]+(1-0.999L) * ml;
                     ld MbC = Mbt[iL][j] / (1-b1t);
@@ -312,7 +312,7 @@ static ld Network_BackProp(Network *net, ld *expected, cui oSize,
 				else L->weights[w_i] -= l_rate * ml * L->pLayer->output[i];
 				w_i++;
 				if (!bias_done_i) {
-                    if (adam && false) {
+                    if (adam) {
                         Mbt[X-1][j] = 0.9L * Mbt[X-1][j] + (1-0.9L) * ml;
                         Vbt[X-1][j] = 0.999L * Vbt[X-1][j] + (1-0.999L) * ml;
                         ld MbC = Mbt[X-1][j] / (1-b1t);

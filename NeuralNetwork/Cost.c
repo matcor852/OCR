@@ -117,12 +117,22 @@ ld relu_(ld *arr, cui Size, cui ieme) {
 	return (arr[ieme] < 0) ? 0 : 1;
 }
 
+ld selu_(ld *arr, cui Size, cui ieme) {
+    if (ieme >= Size) {
+		printf("Warning: selu derivative index out of bound.\n");
+		return 0;
+	}
+	cld alpha = 1.6732632423543772848170429916717;
+    cld lambda = 1.0507009873554804934193349852946;
+    return lambda * (arr[ieme] > 0 ? 1 : alpha * expl(arr[ieme]));
+}
+
 ld leakyrelu_(ld *arr, cui Size, cui ieme) {
 	if (ieme >= Size) {
 		printf("Warning: leakyrelu derivative index out of bound.\n");
 		return 0;
 	}
-	return (arr[ieme] < 0) ? .01L : 1.0L;
+	return (arr[ieme] <= 0) ? .01L : 1.0L;
 }
 
 

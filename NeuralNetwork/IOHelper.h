@@ -24,6 +24,8 @@ struct NNParam
 Network* CSave(ui hn);
 void LoadData(NNParam* param);
 
+void PerfSearch(NNParam *origin, cui attempt);
+static Network* Train_Perf(NNParam *P);
 static DWORD WINAPI Train(LPVOID Param);
 void threadedSearch(cui threads, NNParam *origin, ld ldecay);
 void NNParam_Display(NNParam *param);
