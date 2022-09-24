@@ -1,7 +1,7 @@
 #include "Activations.h"
 
 void relu(ld *input, ld *output, cui Size) {
-	for (ui i=0; i<Size; i++) output[i] = max(.0, input[i]);
+	for(ld *o=output, *i=input; o<output+Size; o++, i++) *o = max(.0L, *i);
 }
 
 void leakyrelu(ld *input, ld *output, cui Size) {
@@ -17,34 +17,40 @@ void selu(ld *input, ld *output, cui Size) {
 }
 
 void none(ld *input, ld *output, cui Size) {
-	for (ui i=0; i<Size; i++) output[i] = input[i];
+	for(ld *o=output, *i=input; o<output+Size; o++, i++) *o = *i;
 }
 
 void sigmoid(ld *input, ld *output, cui Size) {
-	for (ui i=0; i<Size; i++) output[i] = 1/(1 + expl(-input[i]));
+	for(ld *o=output, *i=input; o<output+Size; o++, i++)
+        *o = 1.0L/(1 + expl(-(*i)));
 }
 
 void softmax(ld *input, ld *output, cui Size) {
-    ld max = input[0];
-	for (ui i=0; i<Size; i++) if (input[i] > max) max = input[i];
-	for (ui i=0; i<Size; i++) input[i] -= max;
-	ld s = .0, *expd = fvec_alloc(Size, false);
-	for (ui i=0; i<Size; i++) {
+    ld Max = input[0];
+    for(ld *i=input; i<input+Size; i++) Max = max((*i), Max);
+    for(ld *i=input; i<input+Size; i++) *i -= Max;
+
+	ld s = .0, expd[Size];
+	for(ld *i=input, *e=expd; i<input+Size; i++, e++) {
+        /*
         if (isnan(expl(input[i]))) {
             printf("\nnan in softmax caused by exp(%LF)\n", input[i]);
             exit(3);
         }
-		expd[i] = expl(input[i]);
-		s += expd[i];
+        */
+		*e = expl(*i);
+		s += *e;
 	}
-	for (ui i=0; i<Size; i++) {
+
+	for(ld *o=output, *e=expd; o<output+Size; o++, e++) {
+        /*
         if (isnan(expd[i]/(s+EPS))) {
             puts("nan 2 in softmax");
             exit(4);
         }
-        output[i] = expd[i]/(s+10E-8);
+        */
+        *o = (*e)/(s+10E-8);
 	}
-	free(expd);
 }
 
 void argmax(ld *input, ld *output, cui Size) {

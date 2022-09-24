@@ -156,7 +156,7 @@ void Network_Train(Network *net, ld *input[], ld *expected_output[], cui iSize,
 
 
     //ADAM
-    long double *Mwt[net->nbLayers-1], *Vwt[net->nbLayers-1],
+    ld *Mwt[net->nbLayers-1], *Vwt[net->nbLayers-1],
                 *Mbt[net->nbLayers-1], *Vbt[net->nbLayers-1];
     if (adam) {
         for (ui i=0; i<net->nbLayers-1; i++) {
@@ -244,8 +244,8 @@ static ld Network_BackProp(Network *net, ld *expected, cui oSize,
 
 	ld error = get_cost(cost_func)(L->output, expected, oSize);
 
-	ld *CostOut = fvec_alloc(L->Neurons, false);
-	ld *OutIn = fvec_alloc(L->Neurons, false);
+	ld CostOut[L->Neurons];
+	ld OutIn[L->Neurons];
 	for (ui i=0; i<L->Neurons; i++) {
 		CostOut[i] = cost_deriv(L->output[i], expected[i]);
 		OutIn[i] = deriv(L->input, L->Neurons, i);
@@ -283,9 +283,6 @@ static ld Network_BackProp(Network *net, ld *expected, cui oSize,
 		}
 		bias_done = true;
 	}
-	free(CostOut);
-	free(OutIn);
-
 
 	ld *tempLegacy;
 	for (ui X=net->nbLayers-2; X>0; X--) {

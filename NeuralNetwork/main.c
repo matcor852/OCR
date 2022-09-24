@@ -12,16 +12,16 @@ int main()
     srand((ui) time(NULL));
 
     NNParam *origin = (NNParam*) malloc(sizeof(NNParam));
-    origin->hiddenN = 617;
+    origin->hiddenN = 784;
     origin->toLoopTrain = 9000;
     origin->toLoopValidate = 90000;
-    origin->epoch = 5;
+    origin->epoch = 4;
     origin->l_rate = .1L;
     origin->fscore = .0L;
     LoadData(origin);
 
-    //threadedSearch(50, origin, 0.85);
-    PerfSearch(origin, 10000);
+    threadedSearch(50, origin, 0.85);
+    //PerfSearch(origin, 10000);
 
     Purge_NNParam(origin);
 

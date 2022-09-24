@@ -164,7 +164,7 @@ static DWORD WINAPI Train(LPVOID Param) {
             score[2], P->toLoopValidate, score[3], P->toLoopValidate);
     */
 
-    float accuracy = (score[0] + score[2])/(float)(score[0]+score[1]+score[2]+score[3]);
+    //float accuracy = (score[0] + score[2])/(float)(score[0]+score[1]+score[2]+score[3]);
     float precision = score[0]/(float)(score[0]+score[1]);
     float recall = score[0]/(float)(score[0]+score[3]);
     P->fscore = 2.0f*precision*recall/(precision+recall);
@@ -180,32 +180,36 @@ void threadedSearch(cui threads, NNParam *origin, ld ldecay) {
     ld bperf = .0L, brate = .0L;
     ui bhn = 0, c = 0;
 
-    while(c < 600) {
+    while(c < 1000) {
         ld l_rate = origin->l_rate;
         while (l_rate > 10E-6) {
             ld temp_rate = l_rate;
             c++;
-            for (ui i=0; i<threads; i++) {
-                params[i].hiddenN = origin->hiddenN;
-                params[i].toLoopTrain = origin->toLoopTrain;
-                params[i].toLoopValidate = origin->toLoopValidate;
-                params[i].epoch = origin->epoch;
-                params[i].iSize = origin->iSize;
-                params[i].oSize = origin->oSize;
-                params[i].l_rate = l_rate;
-                params[i].inputTrain = origin->inputTrain;
-                params[i].outputTrain = origin->outputTrain;
-                params[i].inputTest = origin->inputTest;
-                params[i].outputTest = origin->outputTest;
-                handles[i] = CreateThread(NULL, 0, Train, &params[i], 0, &threads_id[i]);
-                if (handles[i] == NULL) {
-                    ExitProcess(handles[i]);
-                    printf("\nFailed thread %u\n", (ui)i);
+            NNParam *p=params;
+            DWORD *d=threads_id;
+            HANDLE *h = handles;
+            for(; p<params+threads; p++, d++, h++)
+            {
+                (*p).hiddenN = origin->hiddenN;
+                (*p).toLoopTrain = origin->toLoopTrain;
+                (*p).toLoopValidate = origin->toLoopValidate;
+                (*p).epoch = origin->epoch;
+                (*p).iSize = origin->iSize;
+                (*p).oSize = origin->oSize;
+                (*p).l_rate = l_rate;
+                (*p).inputTrain = origin->inputTrain;
+                (*p).outputTrain = origin->outputTrain;
+                (*p).inputTest = origin->inputTest;
+                (*p).outputTest = origin->outputTest;
+                *h = CreateThread(NULL,0, Train, p, 0, d);
+                if (*h == NULL) {
+                    ExitProcess(*h);
+                    printf("\nFailed thread %p\n", (void*)h);
                 }
                 l_rate *= ldecay;
             }
             system("cls");
-            printf("\nAttempt %u/600 : learning rate [%Lg - %Lg] best : %.2LF%% for %Lg\n", c, temp_rate,
+            printf("\nAttempt %u/1000 : learning rate [%Lg - %Lg] best : %.2LF%% for %Lg\n", c, temp_rate,
                    l_rate/ldecay, bperf*100, brate);
             WaitForMultipleObjects(threads, handles, TRUE, INFINITE);
             for (ui i=0; i<threads; i++) {

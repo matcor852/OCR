@@ -32,22 +32,28 @@ char *cvec_alloc(cui n) {
 ld *fvec_rInit(cui n, cui conns) {
     int seed = (int) time(NULL);
 	ld *tmp = r8vec_normal_01_new(n, &seed);
-	ld min = tmp[0], max = tmp[0];
-	for (ui i=1; i<n; i++) {
-        if (tmp[i] < min) min = tmp[i];
-        else if (tmp[i] > max) max = tmp[i];
+	ld Min = tmp[0], Max = tmp[0];
+	for(ld *t=tmp+1; t<tmp+n; t++) {
+        Min = min(*t, Min);
+        Max = max(*t, Max);
 	}
-	ld ospan = max - min;
-	ld fspan = 2;
-	for (ui i=0; i<n; i++) tmp[i] = fspan*(tmp[i]-min)/ospan - 1;
+	ld ospan = Max - Min, fspan = 2;
+	for(ld *t=tmp; t<tmp+n; t++) *t = fspan*(*t-Min)/ospan-1;
 	return tmp;
 }
 
-ld absl(cld nb) {
-	return (nb < 0) ? -nb : nb;
-}
-
 void arr_shuffle(ld *arr[], ld *paired_arr[], cui Size) {
+    int n;
+    for(ld **a=arr, **pa=paired_arr; a<arr+Size; a++, pa++) {
+        n = rand() % Size;
+        ld *temp = *a, *temp_paired = *pa;
+        *a = arr[n];
+        arr[n] = temp;
+        *pa = paired_arr[n];
+        paired_arr[n] = temp_paired;
+    }
+
+    /*
 	for(ui i=0; i<Size; i++) {
 		int n = (int)(rand() % Size);
 		ld *temp = arr[i], *temp_paired = paired_arr[i];
@@ -56,6 +62,7 @@ void arr_shuffle(ld *arr[], ld *paired_arr[], cui Size) {
 		paired_arr[i] = paired_arr[n];
 		paired_arr[n] = temp_paired;
 	}
+	*/
 }
 
 

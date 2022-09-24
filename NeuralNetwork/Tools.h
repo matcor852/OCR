@@ -20,7 +20,7 @@ void matr_display(ld *arr, cui s, cui cols);
 ld *fvec_alloc(cui n, bool zInit);
 char *cvec_alloc(cui n);
 ld *fvec_rInit(cui n, cui conns);
-ld absl(cld nb);
+inline ld absl(cld nb) {return (nb < 0) ? -nb : nb;}
 void arr_shuffle(ld *arr[], ld *paired_arr[], cui Size);
 
 #endif // TOOLS_H

@@ -11,9 +11,9 @@ struct Layer
 {
 	ui Neurons, conns;
 	ld *bias, *weights, *input, *output;
-	Layer *pLayer, *nLayer;
 	void (*activation)(ld *input, ld *output, cui Size);
 	char *act_name;
+	Layer *pLayer, *nLayer;
 	bool loaded;
 };
 

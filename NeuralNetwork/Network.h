@@ -10,8 +10,8 @@
 typedef struct Network Network;
 struct Network
 {
-	Layer *layers;
 	ui nbLayers, currentLayer;
+	Layer *layers;
 };
 
 
