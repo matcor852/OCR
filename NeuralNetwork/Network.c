@@ -104,9 +104,7 @@ void Network_Save(Network *net, char name[]) {
 }
 
 void Network_Purge(Network *net) {
-	for (ui i=0; i<net->nbLayers && net->currentLayer>0; i++) {
-		Layer_Dispose(&net->layers[i]);
-	}
+    for(Layer *l=net->layers;l<net->layers+net->nbLayers;l++) Layer_Dispose(l);
 	free(net->layers);
 	free(net);
 }
@@ -211,21 +209,7 @@ static void Network_Forward(Network *net, ld *input, cui iSize) {
 		exit(2);
     }
     net->layers[0].output = input;
-	for (ui i=1; i<net->currentLayer; i++) {
-        Layer_Activate(&net->layers[i]);
-        /*
-        for (ui j=0; j<net->layers[i].Neurons; j++)
-            printf("\nout l%u n%u : %LF", i, j, net->layers[i].output[j]);
-        */
-	}
-	/*
-	for (ui i=0; i<net->layers[net->nbLayers-1].Neurons; i++) {
-        if (isnan(net->layers[net->nbLayers-1].output[i])) {
-            puts("nan in output");
-            exit(2);
-        }
-	}
-	*/
+	for (ui i=1; i<net->currentLayer; i++) Layer_Activate(&net->layers[i]);
 }
 
 static ld Network_BackProp(Network *net, ld *expected, cui oSize,
@@ -233,10 +217,11 @@ static ld Network_BackProp(Network *net, ld *expected, cui oSize,
                            ld *Mbt[], ld *Vbt[], ld l_rate, ui it,
                            bool adam)
 {
-    //IntegrityCheck(net);
 
+/*
     ld b1t = adam ? powl(0.9L, it) : 0,
        b2t = adam ? powl(0.999L, it) : 0;
+*/
 
 	Layer *L = &net->layers[net->nbLayers-1];
 	ld (*cost_deriv)(ld, ld) = get_cost_deriv(cost_func);
@@ -246,14 +231,30 @@ static ld Network_BackProp(Network *net, ld *expected, cui oSize,
 
 	ld CostOut[L->Neurons];
 	ld OutIn[L->Neurons];
-	for (ui i=0; i<L->Neurons; i++) {
-		CostOut[i] = cost_deriv(L->output[i], expected[i]);
-		OutIn[i] = deriv(L->input, L->Neurons, i);
-	}
+
+	ui i=0;
+	for(ld *cO=CostOut, *oI=OutIn, *o=L->output, *e=expected;
+        cO<CostOut+L->Neurons; cO++, oI++, o++, e++, i++) {
+        *cO = cost_deriv(*o, *e);
+        *oI = deriv(L->input, L->Neurons, i);
+    }
 
 	ld *Legacy = fvec_alloc(L->pLayer->Neurons, true);
-	ui w = 0;
+
 	bool bias_done = false;
+	for(ld *pO=L->pLayer->output, *leg=Legacy, *w=L->weights;
+        pO<L->pLayer->output+L->pLayer->Neurons; pO++, leg++) {
+        for(ld *cO=CostOut, *oI=OutIn, *b=L->bias;
+            cO<CostOut+L->Neurons; cO++, oI++, w++) {
+            ld ml = (*cO) * (*oI);
+            *leg += ml * (*w);
+            *w -= l_rate * ml * (*pO);
+            if (!bias_done) *b -= l_rate * ml;
+        }
+        bias_done = true;
+    }
+
+	/*
 	for (ui i=0; i<L->pLayer->Neurons; i++) {
 		for (ui j=0; j<L->Neurons; j++) {
             cui iL = net->nbLayers-2;
@@ -283,8 +284,36 @@ static ld Network_BackProp(Network *net, ld *expected, cui oSize,
 		}
 		bias_done = true;
 	}
+	*/
 
-	ld *tempLegacy;
+	ld *tempLegacy, *OutIn_i;
+	for(L=net->layers+(net->nbLayers-2); L>net->layers; L--) {
+        ld (*deriv_i)(ld*,cui,cui) = get_deriv(L->act_name);
+        tempLegacy = fvec_alloc(L->pLayer->Neurons, true);
+        OutIn_i = fvec_alloc(L->Neurons, false);
+        i=0;
+        for(ld *oI=OutIn_i; oI<OutIn_i+L->Neurons; oI++, i++)
+            *oI = deriv_i(L->input, L->Neurons, i);
+        bias_done = false;
+        for(ld *tL=tempLegacy, *w=L->weights, *pO=L->pLayer->output;
+            tL<tempLegacy+L->pLayer->Neurons; tL++, pO++) {
+            for(ld *l=Legacy, *oI=OutIn_i, *b=L->bias; l<Legacy+L->Neurons;
+                l++, oI++, b++, w++) {
+                ld ml = (*l) * (*oI);
+                *tL += ml * (*w);
+                *w -= l_rate * ml * (*pO);
+                if (!bias_done) *b -= l_rate * ml;
+            }
+            bias_done = true;
+        }
+        free(Legacy);
+        Legacy = tempLegacy;
+        free(OutIn_i);
+	}
+	free(Legacy);
+
+
+/*
 	for (ui X=net->nbLayers-2; X>0; X--) {
 		L = &net->layers[X];
 		ld (*deriv_i)(ld*,cui,cui) = get_deriv(L->act_name);
@@ -327,7 +356,8 @@ static ld Network_BackProp(Network *net, ld *expected, cui oSize,
 		free(OutIn_i);
 	}
 	free(Legacy);
-	//IntegrityCheck(net);
+*/
+
 	return error;
 }
 

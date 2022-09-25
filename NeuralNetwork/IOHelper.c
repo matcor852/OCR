@@ -70,8 +70,6 @@ void LoadData(NNParam* param) {
 	}
 	fclose(fptr1);
 
-
-
 	if ((err = fopen_s(&fptr2, pathValidate, "rb")) != 0){
 		strerror_s(errbuf,sizeof(errbuf), err);
 		fprintf(stderr, "Cannot open file '%s': %s\n", pathValidate, errbuf);
@@ -180,7 +178,7 @@ void threadedSearch(cui threads, NNParam *origin, ld ldecay) {
     ld bperf = .0L, brate = .0L;
     ui bhn = 0, c = 0;
 
-    while(c < 1000) {
+    while(/*c < 10000*/true) {
         ld l_rate = origin->l_rate;
         while (l_rate > 10E-6) {
             ld temp_rate = l_rate;
@@ -212,12 +210,14 @@ void threadedSearch(cui threads, NNParam *origin, ld ldecay) {
             printf("\nAttempt %u/1000 : learning rate [%Lg - %Lg] best : %.2LF%% for %Lg\n", c, temp_rate,
                    l_rate/ldecay, bperf*100, brate);
             WaitForMultipleObjects(threads, handles, TRUE, INFINITE);
-            for (ui i=0; i<threads; i++) {
-                if (params[i].fscore > bperf) {
-                    bperf = params[i].fscore;
-                    brate = params[i].l_rate;
+            p=params;
+            h=handles;
+            for(; p<params+threads; p++, h++) {
+                if ((*p).fscore > bperf) {
+                    bperf = (*p).fscore;
+                    brate = (*p).l_rate;
                 }
-                CloseHandle(handles[i]);
+                CloseHandle(*h);
             }
         }
     }

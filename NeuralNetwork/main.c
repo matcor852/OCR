@@ -15,12 +15,12 @@ int main()
     origin->hiddenN = 784;
     origin->toLoopTrain = 9000;
     origin->toLoopValidate = 90000;
-    origin->epoch = 4;
+    origin->epoch = 7;
     origin->l_rate = .1L;
     origin->fscore = .0L;
     LoadData(origin);
 
-    threadedSearch(50, origin, 0.85);
+    threadedSearch(50, origin, 0.95);
     //PerfSearch(origin, 10000);
 
     Purge_NNParam(origin);
