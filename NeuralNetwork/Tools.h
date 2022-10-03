@@ -9,7 +9,7 @@
 #include <math.h>
 #include "Rand.h"
 
-#define EPS 10E-2L
+#define EPS 10E-10L
 
 typedef unsigned int ui;
 typedef const ui cui;
@@ -19,7 +19,7 @@ typedef const ld cld;
 void matr_display(ld *arr, cui s, cui cols);
 ld *fvec_alloc(cui n, bool zInit);
 char *cvec_alloc(cui n);
-ld *fvec_rInit(cui n, cui conns);
+ld *fvec_rInit(cui n, cui conns, bool he_init);
 inline ld absl(cld nb) {return (nb < 0) ? -nb : nb;}
 void arr_shuffle(ld *arr[], ld *paired_arr[], cui Size);
 

@@ -4,13 +4,14 @@
 ld CrossEntropy(ld *predicted, ld *expected, cui Size) {
 	ld cost = .0L;
 	for (ui i=0; i<Size; i++) {
-        cost += expected[i] * logl(predicted[i]+EPS);
+        cost += expected[i] * logl(predicted[i]+EPS)
+                + (1-expected[i]) * logl(1-predicted[i]+EPS);
 	}
 	if (isnan(-cost)) {
         printf("\nnan in crossentropy\n");
         exit(4);
 	}
-	return -cost;
+	return -cost/(ld)Size;
 }
 
 ld RMSE(ld *predicted, ld *expected, cui Size) {
@@ -34,7 +35,7 @@ ld MSE(ld *predicted, ld *expected, cui Size) {
 
 
 ld CrossEntropy_(cld predicted, cld expected) {
-    return -expected/(predicted+EPS);
+    return -(predicted - expected)/(1-predicted+EPS)*predicted;
 }
 
 ld RMSE_(cld predicted, cld expected) {
@@ -75,19 +76,21 @@ ld softmax_(ld *arr, cui Size, cui ieme) {
 
 	ld sT = 0, tgt = expl(arr[ieme]);
 	for (ui i=0; i<Size; i++) {
+        /*
         if (isnan(expl(arr[i]))) {
             printf("nan ,n1 : %LF", arr[i]);
             exit(4);
         }
+        */
         sT += expl(arr[i]);
 	}
-
+/*
 	if (isnan(tgt*(sT-tgt)/(powl(sT, 2)+LDBL_EPSILON))) {
         printf("\nNaN softmax_ : %LF, %LF, %LF, %LF, %LF\n",
                sT, tgt, tgt*(sT-tgt), powl(sT, 2), arr[ieme]);
         exit(2);
 	}
-
+*/
 	return tgt*(sT-tgt)/(powl(sT, 2)+EPS);
 }
 
@@ -105,8 +108,9 @@ ld step_(ld *arr, cui Size, cui ieme) {
 		printf("Warning: step derivative index out of bound.\n");
 		return 0;
 	}
+	int seed = (int)time(NULL);
 	return (absl(arr[ieme] - .0L) < LDBL_EPSILON) ?
-                (ld)(r8_normal_01((int)time(NULL))) : .5L;
+                (ld)(r8_normal_01(&seed)) : .5L;
 }
 
 ld relu_(ld *arr, cui Size, cui ieme) {

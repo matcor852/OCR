@@ -136,6 +136,23 @@ ld *Network_Validate(Network *net, ld *input, cui Size, bool os1) {
     return net->layers[net->nbLayers-1].output;
 }
 
+void Network_Train(Network *net, NNParam *params)
+{
+    if (net->nbLayers < 2) {
+		printf("Attempting train on incomplete network; Starting purge...\n");
+		Network_Purge(net);
+		exit(1);
+	}
+	if (params->iSize != net->layers[0].Neurons ||
+		params->oSize != net->layers[net->nbLayers-1].Neurons) {
+		printf("Differing I/0 sizes; Starting purge...\n");
+		Network_Purge(net);
+		exit(1);
+	}
+
+
+}
+
 void Network_Train(Network *net, ld *input[], ld *expected_output[], cui iSize,
                    cui oSize, cui Size, cui epoch, char cost_func[], ld l_rate,
                    bool adam)
@@ -165,12 +182,12 @@ void Network_Train(Network *net, ld *input[], ld *expected_output[], cui iSize,
         }
     }
 
-/*
+
 	bool track = true;
 	int c = 1;
 	FILE *f = fopen("stats.txt", "w");
 	if (f == NULL) track = false;
-*/
+
 
 	clock_t begin, end;
 	for (ui e=0; e<epoch; e++) {
@@ -180,18 +197,20 @@ void Network_Train(Network *net, ld *input[], ld *expected_output[], cui iSize,
 			Network_Forward(net, input[s], iSize);
 			ld error = Network_BackProp(net, expected_output[s], oSize, cost_func,
                                Mwt, Vwt, Mbt, Vbt, l_rate, e*Size+s+1, adam);
-			//if (track) fprintf(f, "%u %f\n", c, (double)error);
-			//c++;
-            end = clock();
 
+			if (track) fprintf(f, "%u %f\n", c, (double)error);
+			c++;
+            end = clock();
+            /*
 			printf("\repoch %u/%u, sample %u/%u: error = %f [ %.1fit/s ]      ",
                     e+1, epoch, s+1, Size, (double)error,
                     (double)(1000.0/(end-begin)));
+            */
 
 		}
 	}
 
-	//if (track) fclose(f);
+	if (track) fclose(f);
 
     if (adam) {
         for (ui i=0; i<net->nbLayers-1; i++) {

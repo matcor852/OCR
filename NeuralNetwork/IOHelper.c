@@ -12,9 +12,9 @@ Network* CSave(ui hn) {
 	Layer *l1 = (Layer*) malloc(sizeof(Layer));
 	Layer *l2 = (Layer*) malloc(sizeof(Layer));
 	Layer *l3 = (Layer*) malloc(sizeof(Layer));
-	Layer_Init(l1, NULL, l2, 784, NULL, NULL, false, "none");
-	Layer_Init(l2, l1, l3, hn, NULL, NULL, false, "relu"); //sigmoid/relu
-	Layer_Init(l3, l2, NULL, 10, NULL, NULL, false, "softmax");
+	Layer_Init(l1, NULL, l2, 2, NULL, NULL, false, "none");
+	Layer_Init(l2, l1, l3, hn, NULL, NULL, false, "leakyrelu");
+	Layer_Init(l3, l2, NULL, 1, NULL, NULL, false, "sigmoid");
 
 	Network_AddLayer(net, l1);
 	Network_AddLayer(net, l2);
@@ -23,8 +23,40 @@ Network* CSave(ui hn) {
     return net;
 }
 
+void LoadXOR(NNParam *param) {
 
-void LoadData(NNParam* param) {
+    param->iSize = 2;
+    param->oSize = 1;
+    param->toLoopTrain = 4;
+    param->toLoopValidate = 4;
+
+    param->inputTrain = (ld**) malloc(sizeof(ld*) * param->toLoopTrain);
+    param->outputTrain = (ld**) malloc(sizeof(ld*) * param->toLoopTrain);
+    for(int i=0; i<param->toLoopTrain; i++) {
+        param->inputTrain[i] = malloc(sizeof(ld) * param->iSize);
+        param->outputTrain[i] = malloc(sizeof(ld) * param->oSize);
+    }
+    param->inputTrain[0][0] = .0L;
+    param->inputTrain[0][1] = .0L;
+    param->outputTrain[0][0] = .0L;
+
+    param->inputTrain[1][0] = .0L;
+    param->inputTrain[1][1] = 1.0L;
+    param->outputTrain[1][0] = 1.0L;
+
+    param->inputTrain[2][0] = 1.0L;
+    param->inputTrain[2][1] = .0L;
+    param->outputTrain[2][0] = 1.0L;
+
+    param->inputTrain[3][0] = 1.0L;
+    param->inputTrain[3][1] = 1.0L;
+    param->outputTrain[3][0] = .0L;
+
+    param->inputTest = param->inputTrain;
+    param->outputTest = param->outputTrain;
+}
+
+void LoadData(NNParam *param) {
 
     param->iSize = 784;
     param->oSize = 10;
@@ -98,41 +130,34 @@ void PerfSearch(NNParam *origin, cui attempt) {
     Network *net = NULL;
     while (c < attempt) {
         c++;
-        system("cls");
+        //system("cls");
         printf("\nAttempt %u; best : %.2LF%%\n", c, bperf*100);
         net = Train_Perf(origin);
         if (origin->fscore > bperf) {
             bperf = origin->fscore;
-            Network_Save(net, "OCR1");
+            Network_Save(net, "XOR1");
         }
         Network_Purge(net);
     }
-    system("cls");
+    //system("cls");
     printf("\nBest F-Score : %.2LF%%\n", bperf*100);
 }
 
 static Network* Train_Perf(NNParam *P) {
     Network *net = CSave(P->hiddenN);
+    //Network_Display(net, true);
     Network_Train(net, P->inputTrain, P->outputTrain, P->iSize, P->oSize,
-                  P->toLoopTrain, P->epoch, "CrossEntropy", P->l_rate, false);
-    ui score[4] = {0, 0, 0, 0};    //TP, FP, TN, FN
+                  P->toLoopTrain, P->epoch, "MSE", P->l_rate, false);
+    ui score = 0;
 	for (ui i=0; i<P->toLoopValidate; i++) {
         ld *out = Network_Validate(net, P->inputTest[i], P->iSize, P->oSize == 1);
         for (ui j=0; j<P->oSize; j++) {
-            //printf("\n%u : %.0LF\t%.0LF", j, out[j], P->outputTest[i][j]);
-            if (out[j] + P->outputTest[i][j] >= 2) score[0]++;
-            else if (out[j] > P->outputTest[i][j]) score[1]++;
-            else if (absl(out[j] - P->outputTest[i][j]) < LDBL_EPSILON) score[2]++;
-            else if (out[j] < P->outputTest[i][j]) score[3]++;
-            else printf("Anomaly detected : predicted %LF, expected %LF\n",
-                        out[j], P->outputTest[i][j]);
+            printf("\n%u : %.0LF\t%.0LF", j, out[j], P->outputTest[i][j]);
+            if (absl(out[j] - P->outputTest[i][j]) < LDBL_EPSILON) score++;
         }
 	}
-    float accuracy = (score[0] + score[2])/(float)(score[0]+score[1]+score[2]+score[3]);
-    float precision = score[0]/(float)(score[0]+score[1]);
-    float recall = score[0]/(float)(score[0]+score[3]);
-    P->fscore = 2.0f*precision*recall/(precision+recall);
-    //printf("F-Score : %.2LF%%\n", P->fscore*100);
+	printf("\nvalidation : %u/%u\n", score, P->toLoopValidate);
+    P->fscore = score/(ld)P->toLoopValidate;
     return net;
 }
 
@@ -140,33 +165,17 @@ static DWORD WINAPI Train(LPVOID Param) {
     NNParam *P = (NNParam*)Param;
     Network *net = CSave(P->hiddenN);
     Network_Train(net, P->inputTrain, P->outputTrain, P->iSize, P->oSize,
-                  P->toLoopTrain, P->epoch, "CrossEntropy", P->l_rate, false);
-    ui score[4] = {0, 0, 0, 0};    //TP, FP, TN, FN
+                  P->toLoopTrain, P->epoch, "MSE", P->l_rate, false);
+    ui score = 0, all = 0;
 	for (ui i=0; i<P->toLoopValidate; i++) {
         ld *out = Network_Validate(net, P->inputTest[i], P->iSize, P->oSize == 1);
         for (ui j=0; j<P->oSize; j++) {
             //printf("\n%u : %.0LF\t%.0LF", j, out[j], P->outputTest[i][j]);
-            if (out[j] + P->outputTest[i][j] >= 2) score[0]++;
-            else if (out[j] > P->outputTest[i][j]) score[1]++;
-            else if (absl(out[j] - P->outputTest[i][j]) < LDBL_EPSILON) score[2]++;
-            else if (out[j] < P->outputTest[i][j]) score[3]++;
-            else printf("Anomaly detected : predicted %LF, expected %LF\n",
-                        out[j], P->outputTest[i][j]);
+            if (out[j] + P->outputTest[i][j] >= 2) score++;
+            all++;
         }
-        //getchar();
 	}
-
-	/*
-	printf("\nTrue Positive : %u/%u\nFalse Positive : %u/%u\nTrue Negative : %u/%u\nFalse Negative : %u/%u\n",
-            score[0], P->toLoopValidate, score[1], P->toLoopValidate,
-            score[2], P->toLoopValidate, score[3], P->toLoopValidate);
-    */
-
-    //float accuracy = (score[0] + score[2])/(float)(score[0]+score[1]+score[2]+score[3]);
-    float precision = score[0]/(float)(score[0]+score[1]);
-    float recall = score[0]/(float)(score[0]+score[3]);
-    P->fscore = 2.0f*precision*recall/(precision+recall);
-    //printf("F-Score : %.2LF%%\n", P->fscore*100);
+    P->fscore = score/(ld)all;
     Network_Purge(net);
     return 0;
 }
@@ -178,9 +187,9 @@ void threadedSearch(cui threads, NNParam *origin, ld ldecay) {
     ld bperf = .0L, brate = .0L;
     ui bhn = 0, c = 0;
 
-    while(/*c < 10000*/true) {
+    while(c < 100) {
         ld l_rate = origin->l_rate;
-        while (l_rate > 10E-6) {
+        while (l_rate > 10E-10) {
             ld temp_rate = l_rate;
             c++;
             NNParam *p=params;
@@ -244,11 +253,13 @@ void Purge_NNParam(NNParam *param) {
     }
     free(param->inputTrain);
     free(param->outputTrain);
+    /*
     for (ui i=0; i<param->toLoopValidate; i++) {
         free(param->inputTest[i]);
         free(param->outputTest[i]);
     }
     free(param->inputTest);
     free(param->outputTest);
+    */
     free(param);
 }

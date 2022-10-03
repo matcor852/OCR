@@ -29,9 +29,10 @@ char *cvec_alloc(cui n) {
 	return tmp;
 }
 
-ld *fvec_rInit(cui n, cui conns) {
+ld *fvec_rInit(cui n, cui conns, bool he_init) {
     int seed = (int) time(NULL);
-	ld *tmp = r8vec_normal_01_new(n, &seed);
+	ld *tmp = r8vec_normal_ab_new(n, 0, he_init ? sqrtl(2.0L/conns) : 1, &seed);
+/*
 	ld Min = tmp[0], Max = tmp[0];
 	for(ld *t=tmp+1; t<tmp+n; t++) {
         Min = min(*t, Min);
@@ -39,6 +40,7 @@ ld *fvec_rInit(cui n, cui conns) {
 	}
 	ld ospan = Max - Min, fspan = 2;
 	for(ld *t=tmp; t<tmp+n; t++) *t = fspan*(*t-Min)/ospan-1;
+*/
 	return tmp;
 }
 

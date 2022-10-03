@@ -7,7 +7,8 @@ void Layer_Init(Layer *layer, Layer *pLayer, Layer *nLayer, cui neurons,
 	if(pLayer != NULL) {
         layer->conns = pLayer->Neurons * neurons;
 		layer->weights = (weights == NULL) ?
-			fvec_rInit(pLayer->Neurons*neurons, layer->conns) : weights;
+			fvec_rInit(pLayer->Neurons*neurons, pLayer->Neurons,
+                        strcmp(act_name, "relu")) : weights;
 		layer->bias = (bias == NULL) ? fvec_alloc(neurons, true) : bias;
 		layer->input = fvec_alloc(neurons, false);
 		layer->output = fvec_alloc(neurons, false);
