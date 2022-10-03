@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <err.h>
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include "openImage.h"
@@ -68,7 +69,7 @@ uchar **openImage(const char *filename, st *width, st *height){
 
 uchar *openImage(const char *filename, st *width, st *height)
 {
-	SDL_Surface *surface_tmp = IMG_Load(path);
+	SDL_Surface *surface_tmp = IMG_Load(filename);
 	if (surface_tmp == NULL)
 		errx(EXIT_FAILURE, "%s", SDL_GetError());
 	SDL_Surface *surface = SDL_ConvertSurfaceFormat(surface_tmp, SDL_PIXELFORMAT_RGB888, 0);
@@ -76,18 +77,19 @@ uchar *openImage(const char *filename, st *width, st *height)
 		errx(EXIT_FAILURE, "%s", SDL_GetError());
 	SDL_FreeSurface(surface_tmp);
 	*width = surface->w, *height = surface->h;
-	Uint32 *pixels = newPixels(*width, *height);
+	uchar *pixels = newPixels(*width, *height);
 	int len = surface->w * surface->h;
+	Uint32 *pxls = surface->pixels;
 	SDL_PixelFormat *format = surface->format;
 	if (SDL_LockSurface(surface) != 0)
 		errx(EXIT_FAILURE, "%s", SDL_GetError());
 	for (int i = 0; i < len; i++)
 	{
 		Uint8 r, g, b;
-		SDL_GetRGB(surface->pixels[i], format, &r, &g, &b);
+		SDL_GetRGB(pxls[i], format, &r, &g, &b);
 		Uint8 average = 0.3 * r + 0.59 * g + 0.11 * b;
 		r = g = b = average;
-		pixels[i] SDL_MapRGB(format, r, g, b);
+		pixels[i] = SDL_MapRGB(format, r, g, b);
 	}
 	SDL_UnlockSurface(surface);
 	SDL_FreeSurface(surface);

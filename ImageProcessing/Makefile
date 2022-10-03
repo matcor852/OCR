@@ -15,5 +15,5 @@ run:
 	rm main *.d
 
 clean:
-	rm -rf *[.do] main test*
+	rm -rf *[.do] main
 	clear

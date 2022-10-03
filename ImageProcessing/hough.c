@@ -65,12 +65,16 @@ uchar *getLine(uchar **pixels, st width, st height, int r, int theta, int thresh
 
 void smoothLine(uchar *line, st len, st min)
 {
+	printf("len: %zu\n", len);
+	printf("min: %zu\n", min);
+	printf("first: %d\n", line[0]);
 	// TODO
 	return;
 }
 
 void test(void)
 {
+	/*
 	st width, height;
 	uchar **pixels = openImage("Images/image_04.jpeg", &width, &height);
 	for (st y = 0; y < height; y++)
@@ -219,4 +223,6 @@ void test(void)
 		}
 		free(line);
 	}
+	*/
+	return;
 }

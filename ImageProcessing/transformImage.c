@@ -67,7 +67,6 @@ uchar *resizeImage(uchar *pixels, st w, st h, st new_w, st new_h)
 	uchar *new_pixels = newPixels(new_w, new_h);
 	float ratio_w = (float)w / new_w;
 	float ratio_h = (float)h / new_h;
-	float x, y;
 	for (st new_y = 0; new_y < new_h; new_y++)
 	{
 		st upper_y = new_y * ratio_h;
@@ -81,9 +80,9 @@ uchar *resizeImage(uchar *pixels, st w, st h, st new_w, st new_h)
 				new_pixels[new_y * new_w + new_x] = 0;
 				continue;
 			}
-			float weight_left = 1 - (x - (int)x);
+			float weight_left = 1 - (new_x * ratio_w - left_x);
 			float weight_right = 1 - weight_left;
-			float weight_top = 1 - (y - (int)y);
+			float weight_top = 1 - (new_y * ratio_h - upper_y);
 			float weight_bottom = 1 - weight_top;
 			float value = 0;
 			value += pixels[upper_y * w + left_x] * weight_left * weight_top;

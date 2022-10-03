@@ -6,7 +6,8 @@
 #include "transformImage.h"
 #include "hough.h"
 
-int main(){
+int main(int argc, char **argv)
+{
 	/*
 	char *filename = "Images/image_01.jpeg";
 	st width, height;
