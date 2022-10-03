@@ -4,34 +4,42 @@
 #include "openImage.h"
 #define PI 3.141592654
 
-void getY(st x, st *_y, st *y_, st r, float _cos, float _sin){
+void getY(st x, st *_y, st *y_, st r, float _cos, float _sin)
+{
 	float value = (r - x * _cos) / _sin;
 	*_y = value - 2;
 	*y_ = value + 2;
 }
 
-void getX(st *_x, st *x_, st y, st r, float _cos, float _sin){
+void getX(st *_x, st *x_, st y, st r, float _cos, float _sin)
+{
 	float value = (r - y * _sin) / _cos;
 	*_x = value - 2;
 	*x_ = value + 2;
 }
 
-int XtoY(st x, st r, float _cos, float _sin){
+int XtoY(st x, st r, float _cos, float _sin)
+{
 	return (r - x * _cos) / _sin;
 }
 
-int YtoX(st y, st r, float _cos, float _sin){
+int YtoX(st y, st r, float _cos, float _sin)
+{
 	return (r - y * _sin) / _cos;
 }
 
-uchar *getLine(uchar **pixels, st width, st height, int r, int theta, int threshold, st *len){
+uchar *getLine(uchar **pixels, st width, st height, int r, int theta, int threshold, st *len)
+{
 	float _sin = sin(theta * PI / 180);
 	float _cos = cos(theta * PI / 180);
-	if ((45 <= theta && theta <= 135) || (225 <= theta && theta <= 315)){
+	if ((45 <= theta && theta <= 135) || (225 <= theta && theta <= 315))
+	{
 		uchar *line = (uchar *)malloc(width * sizeof(uchar));
-		for (st x = 0; x < width; x++){
+		for (st x = 0; x < width; x++)
+		{
 			st y = XtoY(x, r, _cos, _sin);
-			if (y < 0 || y >= height){
+			if (y < 0 || y >= height)
+			{
 				line[x] = 0;
 				continue;
 			}
@@ -41,9 +49,11 @@ uchar *getLine(uchar **pixels, st width, st height, int r, int theta, int thresh
 		return line;
 	}
 	uchar *line = (uchar *)malloc(height * sizeof(uchar));
-	for (st y = 0; y < height; y++){
+	for (st y = 0; y < height; y++)
+	{
 		st x = YtoX(y, r, _cos, _sin);
-		if (x < 0 || x >= width){
+		if (x < 0 || x >= width)
+		{
 			line[y] = 0;
 			continue;
 		}
@@ -53,12 +63,14 @@ uchar *getLine(uchar **pixels, st width, st height, int r, int theta, int thresh
 	return line;
 }
 
-void smoothLine(uchar *line, st len, st min){
+void smoothLine(uchar *line, st len, st min)
+{
 	// TODO
 	return;
 }
 
-void test(void){
+void test(void)
+{
 	st width, height;
 	uchar **pixels = openImage("Images/image_04.jpeg", &width, &height);
 	for (st y = 0; y < height; y++)
@@ -73,9 +85,12 @@ void test(void){
 	int nb_pixels;
 	st best_r, best_theta;
 	int best_value = 0;
-	for (st r = 0; r < r_max; r++){
-		for (st theta = 0; theta < 360; theta++){
-			if (180 <= theta && theta <= 270){
+	for (st r = 0; r < r_max; r++)
+	{
+		for (st theta = 0; theta < 360; theta++)
+		{
+			if (180 <= theta && theta <= 270)
+			{
 				r_theta[r][theta] = 0;
 				continue;
 			}
@@ -84,17 +99,21 @@ void test(void){
 			float _cos = cos(theta * PI / 180);
 			total = 0;
 			nb_pixels = 0;
-			if ((45 <= theta && theta <= 135) || (225 <= theta && theta <= 315)){
-				for (st x = 0; x < width; x++){
+			if ((45 <= theta && theta <= 135) || (225 <= theta && theta <= 315))
+			{
+				for (st x = 0; x < width; x++)
+				{
 					st _y;
 					st y_;
 					getY(x, &_y, &y_, r, _cos, _sin);
-					for (st y = _y; y <= y_; y++){
+					for (st y = _y; y <= y_; y++)
+					{
 						if (y >= height)
 							break;
 						if (y < 0)
 							y = 0;
-						if (fabs(r - x * _cos - y * _sin) < 1){
+						if (fabs(r - x * _cos - y * _sin) < 1)
+						{
 							if (x > x_max)
 								x_max = x;
 							if (x < x_min)
@@ -109,17 +128,21 @@ void test(void){
 					}
 				}
 			}
-			else {
-				for (st y = 0; y < height; y++){
+			else
+			{
+				for (st y = 0; y < height; y++)
+				{
 					st _x;
 					st x_;
 					getX(&_x, &x_, y, r, _cos, _sin);
-					for(st x = _x; x <= x_; x++){
+					for (st x = _x; x <= x_; x++)
+					{
 						if (x >= width)
 							break;
 						if (x < 0)
 							x = 0;
-						if (fabs(r - x * _cos - y * _sin) < 1){
+						if (fabs(r - x * _cos - y * _sin) < 1)
+						{
 							if (x > x_max)
 								x_max = x;
 							if (x < x_min)
@@ -136,7 +159,8 @@ void test(void){
 			}
 			int value = (nb_pixels && (x_max - x_min > width / 4 || y_max - y_min > height / 4)) ? total / nb_pixels : 0;
 			r_theta[r][theta] = value;
-			if (value > best_value){
+			if (value > best_value)
+			{
 				best_r = r;
 				best_theta = theta;
 				best_value = value;
@@ -146,20 +170,25 @@ void test(void){
 		}
 	}
 	char *chars = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?i+~<>!lI-;:,\"^`_'. ";
-	for (st r = 0; r < r_max; r += 15){
-		for (st theta = 0; theta < 360; theta++){
+	for (st r = 0; r < r_max; r += 15)
+	{
+		for (st theta = 0; theta < 360; theta++)
+		{
 			printf("%c", chars[(int)(69 - 69 * ((float)r_theta[r][theta] / best_value))]);
 		}
 		printf("\n");
 	}
-	for (st i = 0; i < 20; i++){
+	for (st i = 0; i < 20; i++)
+	{
 		int best_value = 0;
 		st best_r = 0, best_theta = 0;
 		int value;
 		for (st r = 0; r < r_max; r++)
-			for (st theta = 0; theta < 360; theta++){
+			for (st theta = 0; theta < 360; theta++)
+			{
 				value = r_theta[r][theta];
-				if (value > best_value){
+				if (value > best_value)
+				{
 					best_value = value;
 					best_r = r;
 					best_theta = theta;
@@ -177,12 +206,14 @@ void test(void){
 		for (st i = 0; i < len; i++)
 			printf("%c ", line[i] ? '#' : '.');
 		printf("\n");
-		for (st r = best_r - 20; r <= best_r + 20; r++){
+		for (st r = best_r - 20; r <= best_r + 20; r++)
+		{
 			if (r >= r_max)
 				break;
 			if (r < 0)
 				continue;
-			for (st theta = best_theta - 20; theta <= best_theta + 20; theta++){
+			for (st theta = best_theta - 20; theta <= best_theta + 20; theta++)
+			{
 				r_theta[r][theta % 360] = 0;
 			}
 		}

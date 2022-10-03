@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "tools.h"
 
+/*
 uchar **newPixels(st width, st height){
 	uchar **pixels = (uchar **)malloc(sizeof(uchar *) * height);
 	for (st i = 0; i < height; i++)
@@ -18,6 +19,23 @@ void printImage(st width, st height, uchar **pixels){
 	for (size_t y = 0; y < height; y++){
 		for (size_t x = 0; x < width; x++)
 			printf("%02x ", pixels[y][x]);
+		printf("\n");
+	}
+}
+*/
+
+uchar *newPixels(st width, st height){
+	return (uchar *)malloc(sizeof(uchar) * width * height);
+}
+
+void freeImage(uchar *pixels){
+	free(pixels);
+}
+
+void printImage(st width, st height, uchar *pixels){
+	for (size_t y = 0; y < height; y++){
+		for (size_t x = 0; x < width; x++)
+			printf("%02x ", pixels[y * width + x]);
 		printf("\n");
 	}
 }
