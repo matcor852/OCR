@@ -1,100 +1,232 @@
-#include <stdio.h>
 #include <stdlib.h>
+#include <stdio.h>
+#include <stdbool.h>  
+#include "solver.h" 
 
+// Variables globales (tableaux) pour la mémorisation
+bool isOnRow[9][9];
+bool isOnCol[9][9];
+bool isOnBloc[9][9];
 
-int solver(int array[9][9]) {
+int findBestCell(int x[81],int y[81],int v[81],int nbCell, int* value)
+{
+    //int nbval[81][81];
+    int possibleVals[81][81][9];
 
-    //global variables
-    size_t isOnRow[9][9];
-    size_t isOnCol[9][9];
-    size_t isOnBloc[9][9];
+    *value = -1;
+    int bestCell = 0, mini=100;
+    for (int i=0; i<nbCell; i++)
+    {   
+        for (int k=0;k<9;k++) possibleVals[x[i]][y[i]][k] = 0;
 
-    size_t x[81];
-    size_t y[81];
-    int v[81];
-
-    size_t nbEmptyCell = 0;
-
-    //initialization boolean arrays and build empty cells
-    int k;
-    for (int i = 0; i < 9; i++)
-        for (int j = 0; j < 9; j++)
-            for (int k=1; k < 10; k++)
-            isOnRow[i][k-1] = isOnCol[j][k-1] = isOnBloc[3*(i/3)+(j/3)][k-1] = 0;
-
-    for (int i = 0; i < 9; i++)
-        for (int j = 0; j < 9; j++)
-            if ( (k = array[i][j]) != 0)
-                isOnRow[i][k-1] = isOnCol[j][k-1] = isOnBloc[3*(i/3)+(j/3)][k-1] = 1;
-            else {
-                x[nbEmptyCell] = i;
-                y[nbEmptyCell] = j;
-                v[nbEmptyCell] = -1;
-                nbEmptyCell ++;
+        if (v[i] == -1)
+        {
+            int val=0,cvalue = 0;
+            for (int k=0;k<9;k++)
+            {
+                if (!isOnRow[x[i]][k] && !isOnCol[y[i]][k] && !isOnBloc[3*(x[i]/3)+(y[i]/3)][k])
+                { 
+                    cvalue = k;
+                    val++;
+                    possibleVals[x[i]][y[i]][k] = 1;
+                }
             }
-                
-    size_t indexCell = 0;
-    size_t vCurrent = 0;
-    size_t nCount = 0;
-
-    while (indexCell != nbEmptyCell) {
-        nCount++;
-
-        size_t vx = x[indexCell];
-        size_t vy = y[indexCell];
-        int vv = v[indexCell];
-
-        if(vv != -1)
-            isOnRow[vx][vv] = isOnCol[vy][vv] = isOnBloc[3*(vx/3)+(vy/3)][vv] = 0;
-
-        if (vCurrent > 8) {
-            if (indexCell == 0)
-                    return 0;
-            indexCell--;
-            vCurrent = v[indexCell]+1;
-        }    
-        else {
-
-            vv = vCurrent;
-            vCurrent++;
-            if (!isOnRow[vx][vv] && !isOnCol[vy][vv] && !isOnBloc[3*(vx/3)+(vy/3)][vv]) {
-                isOnRow[vx][vv] = isOnCol[vy][vv] = isOnBloc[3*(vx/3)+(vy/3)][vv] = 1;
-                v[indexCell] = vv;
-                indexCell++;
-                v[indexCell] = -1;
-                vCurrent = 0;
+            if ( val < mini )
+            {
+                bestCell = i;
+                mini = val;
+                if (val==1)
+                {
+                    *value = cvalue;
+                    return bestCell;
+                }
             }
         }
     }
 
-    for(size_t i = 0; i < nbEmptyCell; i++)
-        array[x[i]][y[i]] = v[i]+1;
+    // Row
+    for (int i=0;i<9;i++)
+    {
+        for (int k=0;k<9;k++)
+        {
+            int countValue = 0,rowValue=0;
+            for (int j=0;j<9;j++)
+            {
+                if (possibleVals[i][j][k]==1)
+                {
+                    countValue++;
+                    rowValue = j;
+                    if (countValue>1) break;
+                }
+            }
+            if (countValue==1)
+            {
+                //printf("Induite sur ligne: x=%d,y=%d,v=%d\n",i+1,rowValue+1,k+1);
+                for (int vc=0;vc < nbCell ; vc++ )
+                {
+                    if ((x[vc]==i) && y[vc]==rowValue)
+                    {
+                        *value = k;
+                        return vc;
+                    }
+                        
+                }
+            }
+        }
+    }
+    // Column
+    for (int i=0;i<9;i++)
+    {
+        for (int k=0;k<9;k++)
+        {
+            int countValue = 0,colValue=0;
+            for (int j=0;j<9;j++)
+            {
+                if (possibleVals[j][i][k]==1)
+                {
+                    countValue++;
+                    colValue = j;
+                    if (countValue>1) break;
+                }
+            }
+            if (countValue==1)
+            {
+                //printf("Induite sur colonne: x=%d,y=%d,v=%d\n",colValue+1,i+1,k+1);
+                for (int vc=0;vc < nbCell ; vc++ )
+                {
+                    if ((x[vc]==colValue) && y[vc]==i)
+                    {
+                        *value = k;
+                        return vc;
+                    }
+                        
+                }
+            }
+        }
+    }
 
-    return nCount;
+    // Bloc
+    for (int i=0;i<9;i++)
+    {
+        int vx= 3*(i/3);
+        int vy= (i%3)*3;
+
+        for (int k=0;k<9;k++)
+        {
+            int countValue = 0,blocValue=0;
+            for (int j=0;j<9;j++)
+            {
+                if (possibleVals[vx+(j/3)][vy+(j%3)][k]==1)
+                {
+                    countValue++;
+                    blocValue = j;
+                    if (countValue>1) break;
+                }
+            }
+            if (countValue==1)
+            {
+                //printf("Induite sur bloc: x=%d,y=%d,v=%d\n",vx+(blocValue/3)+1,vy+(blocValue%3)+1,k+1);
+                for (int vc=0;vc < nbCell ; vc++ )
+                {
+                    if ((x[vc]==vx+(blocValue/3)) && y[vc]==vy+(blocValue%3))
+                    {
+                        *value = k;
+                        return vc;
+                    }
+                        
+                }
+            }
+        }
+    }
+    //printf("Attention /// plusieurs valeurs possibles\n");
+    return bestCell;
 }
 
-int main(void) {
-	int array[9][9] =
+int solver (int array[9][9])
+{
+    // Initialise les tableaux
+    for (int i=0; i < 9; i++)
+        for (int j=0; j < 9; j++)
+            isOnRow[i][j] = isOnCol[i][j] = isOnBloc[i][j] = false;
+
+    // List cells to find 
+    int k;
+    int nbCell = 0;
+    int x[81],y[81],v[81],s[81],f[81];
+    for (int i=0; i < 9; i++)
+        for (int j=0; j < 9; j++)
+        {
+            if ((k=array[i][j]) == 0)
+            {
+                x[nbCell] = i;
+                y[nbCell] = j;
+                v[nbCell] = -1;
+                nbCell++;
+            }
+            else
+                isOnRow[i][k-1] = isOnCol[j][k-1] = isOnBloc[3*(i/3)+(j/3)][k-1] = true;
+        }
+
+    // Backtracking itératif avec le tas de cellule
+    int indexCell = 0,value;
+    s[0] = findBestCell(x,y,v,nbCell,&value);
+    int currVal;
+    currVal = f[s[0]] = -1;
+    if (value != -1)
+    { 
+        currVal = value-1;
+        f[s[0]] = value;
+    }
+
+    int countMove = 0;
+
+    while (indexCell < nbCell)
     {
-        {9,0,0,1,0,0,0,0,5},
-        {0,0,5,0,9,0,2,0,1},
-        {8,0,0,0,4,0,0,0,0},
-        {0,0,0,0,8,0,0,0,0},
-        {0,0,0,7,0,0,0,0,0},
-        {0,0,0,0,2,6,0,0,9},
-        {2,0,0,3,0,0,0,0,6},
-        {0,0,0,2,0,0,9,0,0},
-        {0,0,1,9,0,4,5,7,0}
-    };
-    int nCount = solver(array);
-    if (nCount) {
-        printf("Solved in %d moves\n",nCount);
-        for(size_t i = 0; i < 9; i++) {
-            for(size_t j = 0; j < 9; j++)
-                printf("%d ", array[i][j]);
-            printf("\n");
+        countMove++;
+
+        int vx = x[s[indexCell]];
+        int vy = y[s[indexCell]];
+
+        currVal++;
+        if (currVal > 8)
+        {
+            if (indexCell==0)
+            {
+                for (int i=0; i<nbCell; i++) array[x[i]][y[i]] = v[i]+1;
+                return 0;
+            }
+            int bContinue=1;
+            while ( bContinue )
+            {
+                v[s[indexCell]] = -1;
+                indexCell--;
+                //printf("Remonte Cell %d\n",indexCell);                
+                currVal = v[s[indexCell]];
+                vx = x[s[indexCell]];
+                vy = y[s[indexCell]];
+                isOnRow[vx][currVal] = isOnCol[vy][currVal] = isOnBloc[3*(vx/3)+(vy/3)][currVal] = false;
+                if (f[s[indexCell]==-1]) bContinue = 0;
+            }
+        }
+        else
+        {
+            if ( !isOnRow[vx][currVal] && !isOnCol[vy][currVal] && !isOnBloc[3*(vx/3)+(vy/3)][currVal] )
+            {
+                v[s[indexCell]] = currVal;
+                isOnRow[vx][currVal] = isOnCol[vy][currVal] = isOnBloc[3*(vx/3)+(vy/3)][currVal] = true;
+                //printf("> %d Cell %d,%d = %d\n",indexCell,vx+1,vy+1,currVal+1);
+                indexCell++;
+                s[indexCell] = findBestCell(x,y,v,nbCell,&value);
+                f[s[indexCell]] = currVal = -1;
+                if (value!=-1)
+                {
+                    currVal = value-1;
+                    f[s[indexCell]] = value;
+                } 
+            }
         }
     }
-    else printf("Impossible to solve");
-	return 0;
-} 
+
+    for (int i=0; i<nbCell; i++) array[x[i]][y[i]] = v[i]+1;
+    return countMove;
+}

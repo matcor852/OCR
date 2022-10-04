@@ -1,8 +1,14 @@
-CC = gcc -fsanitize=address -fsanitize=undefined-trap -fsanitize=undefined-trap-on-error -ftrapv
-CFLAGS = -Wall -Weverything -O3
+all:
+	clang -Wall -Wextra -std=c99 -O3 -MMD *.c -c
+	clang *.o -o main
 
-OBJ = main.o solver.o solverTools.o
-DEP = ${OBJ:.o=.d}
+run:
+	make
+	./main
+	rm main *.d
 
-all: 
+clean: 
+	rm -rf [.do] main
+	clear
+
 	
