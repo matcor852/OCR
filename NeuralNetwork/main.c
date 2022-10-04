@@ -17,6 +17,7 @@ int main()
     origin->toLoopTrain = 9000;
     origin->toLoopValidate = 90000;
     origin->epoch = 500;
+    origin->epochInterval = 89;
     origin->l_rate = .1;
     origin->fscore = .0L;
     origin->cost_func = "MSE";
@@ -26,8 +27,9 @@ int main()
     LoadXOR(origin);
 
 
+
     //threadedSearch(50, origin, 0.95);
-    PerfSearch(origin, 1);
+    PerfSearch(origin);
 
     Purge_NNParam(origin);
 

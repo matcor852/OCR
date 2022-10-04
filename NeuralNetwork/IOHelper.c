@@ -124,13 +124,43 @@ void LoadData(NNParam *param) {
 	fclose(fptr2);
 }
 
-void PerfSearch(NNParam *origin, cui attempt) {
+float Validate(Network *net, NNParam *P)
+{
+    ui score = 0, all = 0;
+	for (ui i=0; i<P->toLoopValidate; i++) {
+        ld *out = Network_Validate(net, P->inputTest[i], P->iSize, P->oSize == 1);
+        for (ui j=0; j<P->oSize; j++) {
+            //printf("\n%u : %.0LF\t%.0LF", j, out[j], P->outputTest[i][j]);
+            if (absl(out[j] - P->outputTest[i][j]) < LDBL_EPSILON) score++;
+            all++;
+        }
+	}
+    return score/(float)all;
+}
+
+void PerfSearch(NNParam *origin) {
     ld bperf = .0L;
     ui c = 0;
-    Network *net = NULL;
+    Network *net = CSave(origin->hiddenN);
+    printf("\nBeginning Neural Network training with following parameters :\n");
+    NNParam_Display(origin);
+
+    for(int e=0; e < origin->epoch; ) {
+        printf("[ Epoch %u/%u ] Accuracy : %.2f%%\n",
+                e, origin->epoch, 100*Validate(net, origin));
+        Network_Train(net, origin);
+
+        int ne = min(origin->epochInterval, origin->epoch-e);
+        origin->epochInterval = ne;
+        e += ne;
+    }
+    printf("\n[ Epoch %u/%u ] Accuracy : %.2f%%\n",
+            origin->epoch, origin->epoch, 100*Validate(net, origin));
+
+
+/*
     while (c < attempt) {
         c++;
-        //system("cls");
         printf("\nAttempt %u; best : %.2LF%%\n", c, bperf*100);
         net = Train_Perf(origin);
         if (origin->fscore > bperf) {
@@ -139,15 +169,13 @@ void PerfSearch(NNParam *origin, cui attempt) {
         }
         Network_Purge(net);
     }
-    //system("cls");
-    printf("\nBest F-Score : %.2LF%%\n", bperf*100);
+    printf("\nBest Perf : %.2LF%%\n", bperf*100);
+    */
 }
 
 static Network* Train_Perf(NNParam *P) {
     Network *net = CSave(P->hiddenN);
-    //Network_Display(net, true);
-    Network_Train(net, P->inputTrain, P->outputTrain, P->iSize, P->oSize,
-                  P->toLoopTrain, P->epoch, "MSE", P->l_rate, false);
+    //Network_Train(net, P);
     ui score = 0;
 	for (ui i=0; i<P->toLoopValidate; i++) {
         ld *out = Network_Validate(net, P->inputTest[i], P->iSize, P->oSize == 1);
@@ -164,8 +192,7 @@ static Network* Train_Perf(NNParam *P) {
 static DWORD WINAPI Train(LPVOID Param) {
     NNParam *P = (NNParam*)Param;
     Network *net = CSave(P->hiddenN);
-    Network_Train(net, P->inputTrain, P->outputTrain, P->iSize, P->oSize,
-                  P->toLoopTrain, P->epoch, "MSE", P->l_rate, false);
+    Network_Train(net, P);
     ui score = 0, all = 0;
 	for (ui i=0; i<P->toLoopValidate; i++) {
         ld *out = Network_Validate(net, P->inputTest[i], P->iSize, P->oSize == 1);
@@ -236,30 +263,32 @@ void threadedSearch(cui threads, NNParam *origin, ld ldecay) {
 }
 
 void NNParam_Display(NNParam *param) {
-    printf("\nNeural Network Params :\n");
-    printf("\tHidden neurons : %u\n", param->hiddenN);
-    printf("\tTraining samples : %u\n", param->toLoopTrain);
-    printf("\tValidation samples : %u\n", param->toLoopValidate);
-    printf("\tEpoch : %u\n", param->epoch);
-    printf("\tLearning Rate : %LF\n", param->l_rate);
-    printf("\tF-Score : %.2LF%%\n", param->fscore*100);
+    //printf("\nNeural Network Params :\n");
+    printf("\n\tHidden neurons : %u", param->hiddenN);
+    printf("\t\tLearning Rate : %Lg\n", param->l_rate);
+    printf("\tTraining samples : %u", param->toLoopTrain);
+    printf("\t\tValidation samples : %u\n", param->toLoopValidate);
+    printf("\tEpoch : %u", param->epoch);
+    printf("\t\t\tEpoch interval : %u\n", param->epochInterval);
+    printf("\tCost Function : %s", param->cost_func);
+    printf("\t\tTracking : %s\n\n", param->track ? "true" : "false");
 }
 
 
 void Purge_NNParam(NNParam *param) {
+    bool freeOnce = param->toLoopTrain == param->toLoopValidate;
     for (ui i=0; i<param->toLoopTrain; i++) {
         free(param->inputTrain[i]);
         free(param->outputTrain[i]);
     }
     free(param->inputTrain);
     free(param->outputTrain);
-    /*
+    if(freeOnce) return;
     for (ui i=0; i<param->toLoopValidate; i++) {
         free(param->inputTest[i]);
         free(param->outputTest[i]);
     }
     free(param->inputTest);
     free(param->outputTest);
-    */
     free(param);
 }

@@ -158,7 +158,7 @@ void Network_Train(Network *net, NNParam *params)
         if (f == NULL) params->track = false;
 	}
 
-	for (ui e=0; e<params->epoch; e++) {
+	for (ui e=0; e<params->epochInterval; e++) {
 		arr_shuffle(params->inputTrain, params->outputTrain, params->toLoopTrain);
 		for (ui s=0; s<params->toLoopTrain; s++) {
 			Network_Forward(net, params->inputTrain[s], params->iSize);
@@ -276,10 +276,10 @@ static ld Network_BackProp(Network *net, NNParam *params, cui nth) {
         pO<L->pLayer->output+L->pLayer->Neurons; pO++, leg++) {
         for(ld *cO=CostOut, *oI=OutIn, *b=L->bias;
             cO<CostOut+L->Neurons; cO++, oI++, w++) {
-            ld ml = (* ) * (*oI);
+            ld ml = (*cO) * (*oI);
             *leg += ml * (*w);
-            *w -= l_rate * ml * (*pO);
-            if (!bias_done) *b -= l_rate * ml;
+            *w -= params->l_rate * ml * (*pO);
+            if (!bias_done) *b -= params->l_rate * ml;
         }
         bias_done = true;
     }
@@ -299,8 +299,8 @@ static ld Network_BackProp(Network *net, NNParam *params, cui nth) {
                 l++, oI++, b++, w++) {
                 ld ml = (*l) * (*oI);
                 *tL += ml * (*w);
-                *w -= l_rate * ml * (*pO);
-                if (!bias_done) *b -= l_rate * ml;
+                *w -= params->l_rate * ml * (*pO);
+                if (!bias_done) *b -= params->l_rate * ml;
             }
             bias_done = true;
         }
