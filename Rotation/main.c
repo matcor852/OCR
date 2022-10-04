@@ -12,7 +12,16 @@
 #define 	SMOOTHING_ON   1
 #define 	SDL_ROTOZOOM_SCOPE   extern
 
-
+void save_texture(const char* file_name, SDL_Renderer* renderer, SDL_Texture* texture, int w, int h) 
+{
+    SDL_Texture* target = SDL_GetRenderTarget(renderer);
+    SDL_SetRenderTarget(renderer, texture);
+    SDL_Surface* surface = SDL_CreateRGBSurface(0, w, h, 32, 0, 0, 0, 0);
+    SDL_RenderReadPixels(renderer, NULL, surface->format->format, surface->pixels, surface->pitch);
+    IMG_SavePNG(surface, file_name);
+    SDL_FreeSurface(surface);
+    SDL_SetRenderTarget(renderer, target);
+}
 
 void draw(SDL_Renderer* renderer, SDL_Texture * texture, int mouse_x, int mouse_y)
 { 
@@ -42,6 +51,8 @@ void event_loop(SDL_Renderer* renderer, SDL_Texture* colored, SDL_Texture* grays
     // (Fake) position of the mouse cursor.
     int mouse_x = 100;
     int mouse_y = 100;
+    int w;
+    int h;
 
     draw(renderer, colored,mouse_x,mouse_y);
 
@@ -53,22 +64,26 @@ void event_loop(SDL_Renderer* renderer, SDL_Texture* colored, SDL_Texture* grays
         switch (event.type)
         {
             // If the "quit" button is pushed, ends the event loop.
-            case SDL_QUIT:
+            case SDL_QUIT:	
                 return;
-
             // If the window is resized, updates and redraws the diagonals.
             case SDL_WINDOWEVENT:
                 if (event.window.event == SDL_WINDOWEVENT_RESIZED)
+		{
+			w = event.window.data1;
+			h = event.window.data2;
                         draw(renderer,t,mouse_x,mouse_y);
+		}
                 break;
-
             case SDL_KEYDOWN:
                 if (t == colored)
                     t = grayscale;
                 else
                     t = colored;
                 draw(renderer,t,mouse_x,mouse_y);
-                break;
+		if (event.key.keysym.scancode == SDL_SCANCODE_S)
+			save_texture("edited.png",renderer,t,w,h);
+		break;
 	
             // If the mouse is moving, updates the position of the cursor.
             case SDL_MOUSEMOTION:
