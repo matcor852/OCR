@@ -2,6 +2,7 @@
 #include <math.h>
 #include "tools.h"
 #include "openImage.h"
+#include "transformImage.h"
 #define PI 3.141592654
 
 void getY(st x, st *_y, st *y_, st r, float _cos, float _sin)
@@ -28,13 +29,13 @@ int YtoX(st y, st r, float _cos, float _sin)
 	return (r - y * _sin) / _cos;
 }
 
-uchar *getLine(uchar **pixels, st width, st height, int r, int theta, int threshold, st *len)
+uc *getLine(uc **pixels, st width, st height, int r, int theta, int threshold, st *len)
 {
 	float _sin = sin(theta * PI / 180);
 	float _cos = cos(theta * PI / 180);
 	if ((45 <= theta && theta <= 135) || (225 <= theta && theta <= 315))
 	{
-		uchar *line = (uchar *)malloc(width * sizeof(uchar));
+		uc *line = (uc *)malloc(width * sizeof(uc));
 		for (st x = 0; x < width; x++)
 		{
 			st y = XtoY(x, r, _cos, _sin);
@@ -48,7 +49,7 @@ uchar *getLine(uchar **pixels, st width, st height, int r, int theta, int thresh
 		*len = width;
 		return line;
 	}
-	uchar *line = (uchar *)malloc(height * sizeof(uchar));
+	uc *line = malloc(height * sizeof(uc));
 	for (st y = 0; y < height; y++)
 	{
 		st x = YtoX(y, r, _cos, _sin);
@@ -63,20 +64,55 @@ uchar *getLine(uchar **pixels, st width, st height, int r, int theta, int thresh
 	return line;
 }
 
-void smoothLine(uchar *line, st len, st min)
+void smoothLine(uc *line, st len)
 {
-	printf("len: %zu\n", len);
-	printf("min: %zu\n", min);
-	printf("first: %d\n", line[0]);
-	// TODO
-	return;
+	uc histo[256] = {0};
+	for (st i = 0; i < len; i++)
+		histo[line[i]]++;
+	unsigned int total = 0;
+	uc threshold = 0;
+	while (total < len / 2)
+		total += histo[threshold++];
+	for (st i = 0; i < len; i++)
+		line[i] = line[i] > threshold ? 1 : 0;
+	for (st r_smooth = 1; r_smooth < len / 2; r_smooth++)
+	{
+		uc newLine[len];
+		for (st i = 0; i < len; i++)
+		{
+			st nb = 0;
+			st sum = 0;
+			for (st j = i - r_smooth; j <= i + r_smooth; j++)
+			{
+				if (j < 0 || j >= len)
+					continue;
+				sum += line[j];
+				nb++;
+			}
+			newLine[i] = (sum + nb / 2) / nb;
+		}
+		st i_start = 0;
+		while (i_start < len && newLine[i_start] == 0)
+			i_start++;
+		st i_end = len - 1;
+		while (i_end >= 0 && newLine[i_end] == 0)
+			i_end--;
+		for (st i = i_start; i <= i_end; i++)
+			if (newLine[i] == 0)
+			{
+				line = newLine;
+				break;
+			}
+		// TODO: get coordinates of the two points
+	}
 }
 
 void test(void)
 {
+	Image *image = openImage("Images/image_04.jpeg");
+	invertImage(image);
+	st width = image->width, height = image->height;
 	/*
-	st width, height;
-	uchar **pixels = openImage("Images/image_04.jpeg", &width, &height);
 	for (st y = 0; y < height; y++)
 		for (st x = 0; x < width; x++)
 			pixels[y][x] = 255 - pixels[y][x];

@@ -1,45 +1,29 @@
 #include <stdio.h>
 #include "tools.h"
 
-/*
-uchar **newPixels(st width, st height){
-	uchar **pixels = (uchar **)malloc(sizeof(uchar *) * height);
-	for (st i = 0; i < height; i++)
-		pixels[i] = (uchar *)malloc(sizeof(uchar) * width);
-	return pixels;
+Image *newImage(st width, st height)
+{
+	Image *image = malloc(sizeof(Image));
+	image->pixels = malloc(width * height * sizeof(uc));
+	image->width = width;
+	image->height = height;
+	return image;
 }
 
-void freeImage(uchar **pixels, st height){
-	for (size_t i = 0; i < height; i++)
-		free(pixels[i]);
-	free(pixels);
+void freeImage(Image *image)
+{
+	free(image->pixels);
+	free(image);
 }
 
-void printImage(st width, st height, uchar **pixels){
-	for (size_t y = 0; y < height; y++){
-		for (size_t x = 0; x < width; x++)
-			printf("%02x ", pixels[y][x]);
+void printImage(Image *image)
+{
+	uc *pixels = image->pixels;
+	st w = image->width, h = image->height;
+	for (size_t y = 0; y < h; y++)
+	{
+		for (size_t x = 0; x < w; x++)
+			printf("%02x ", pixels[y * w + x]);
 		printf("\n");
 	}
-}
-*/
-
-uchar *newPixels(st width, st height){
-	return (uchar *)malloc(sizeof(uchar) * width * height);
-}
-
-void freeImage(uchar *pixels){
-	free(pixels);
-}
-
-void printImage(st width, st height, uchar *pixels){
-	for (size_t y = 0; y < height; y++){
-		for (size_t x = 0; x < width; x++)
-			printf("%02x ", pixels[y * width + x]);
-		printf("\n");
-	}
-}
-
-uchar to_uchar(float n){
-	return n >= (uchar)n + 0.5 ? (uchar)n + 1 : (uchar)n;
 }
