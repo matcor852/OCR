@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <time.h>
 
-#include "Network.h"
+//#include "Network.h"
 #include "IOHelper.h"
 
 
@@ -22,6 +22,7 @@ int main()
     origin->cost_func = "MSE";
     origin->l1Norm = .0L; //0.010L;
     origin->l2Norm = .0L; //0.02L;
+    origin->track = true;
     LoadXOR(origin);
 
 

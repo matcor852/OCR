@@ -150,9 +150,31 @@ void Network_Train(Network *net, NNParam *params)
 		exit(1);
 	}
 
+	FILE *f = NULL;
+	int c = 0;
+	if(params->track) {
+        c = 1;
+        f = fopen("stats.txt", "w");
+        if (f == NULL) params->track = false;
+	}
+
+	for (ui e=0; e<params->epoch; e++) {
+		arr_shuffle(params->inputTrain, params->outputTrain, params->toLoopTrain);
+		for (ui s=0; s<params->toLoopTrain; s++) {
+			Network_Forward(net, params->inputTrain[s], params->iSize);
+			ld error = Network_BackProp(net, params, s);
+			if (params->track) {
+                fprintf(f, "%u %f\n", c, (double)error);
+                c++;
+			}
+		}
+	}
+
+	if (params->track) fclose(f);
 
 }
 
+/*
 void Network_Train(Network *net, ld *input[], ld *expected_output[], cui iSize,
                    cui oSize, cui Size, cui epoch, char cost_func[], ld l_rate,
                    bool adam)
@@ -201,11 +223,11 @@ void Network_Train(Network *net, ld *input[], ld *expected_output[], cui iSize,
 			if (track) fprintf(f, "%u %f\n", c, (double)error);
 			c++;
             end = clock();
-            /*
+
 			printf("\repoch %u/%u, sample %u/%u: error = %f [ %.1fit/s ]      ",
                     e+1, epoch, s+1, Size, (double)error,
                     (double)(1000.0/(end-begin)));
-            */
+
 
 		}
 	}
@@ -221,6 +243,7 @@ void Network_Train(Network *net, ld *input[], ld *expected_output[], cui iSize,
         }
     }
 }
+*/
 
 static void Network_Forward(Network *net, ld *input, cui iSize) {
     if (iSize != net->layers[0].Neurons) {
@@ -231,79 +254,35 @@ static void Network_Forward(Network *net, ld *input, cui iSize) {
 	for (ui i=1; i<net->currentLayer; i++) Layer_Activate(&net->layers[i]);
 }
 
-static ld Network_BackProp(Network *net, ld *expected, cui oSize,
-                           char cost_func[], ld *Mwt[], ld *Vwt[],
-                           ld *Mbt[], ld *Vbt[], ld l_rate, ui it,
-                           bool adam)
-{
-
-/*
-    ld b1t = adam ? powl(0.9L, it) : 0,
-       b2t = adam ? powl(0.999L, it) : 0;
-*/
-
-	Layer *L = &net->layers[net->nbLayers-1];
-	ld (*cost_deriv)(ld, ld) = get_cost_deriv(cost_func);
+static ld Network_BackProp(Network *net, NNParam *params, cui nth) {
+    Layer *L = &net->layers[net->nbLayers-1];
+	ld (*cost_deriv)(ld, ld) = get_cost_deriv(params->cost_func);
 	ld (*deriv)(ld*,cui,cui) = get_deriv(L->act_name);
-
-	ld error = get_cost(cost_func)(L->output, expected, oSize);
-
+	ld *expected = params->outputTrain[nth];
+	ld error = get_cost(params->cost_func)(L->output, expected, params->oSize);
 	ld CostOut[L->Neurons];
 	ld OutIn[L->Neurons];
 
 	ui i=0;
 	for(ld *cO=CostOut, *oI=OutIn, *o=L->output, *e=expected;
         cO<CostOut+L->Neurons; cO++, oI++, o++, e++, i++) {
-        *cO = cost_deriv(*o, *e);
+        *cO = cost_deriv(*o, *e); //+L1+L2
         *oI = deriv(L->input, L->Neurons, i);
     }
 
 	ld *Legacy = fvec_alloc(L->pLayer->Neurons, true);
-
 	bool bias_done = false;
 	for(ld *pO=L->pLayer->output, *leg=Legacy, *w=L->weights;
         pO<L->pLayer->output+L->pLayer->Neurons; pO++, leg++) {
         for(ld *cO=CostOut, *oI=OutIn, *b=L->bias;
             cO<CostOut+L->Neurons; cO++, oI++, w++) {
-            ld ml = (*cO) * (*oI);
+            ld ml = (* ) * (*oI);
             *leg += ml * (*w);
             *w -= l_rate * ml * (*pO);
             if (!bias_done) *b -= l_rate * ml;
         }
         bias_done = true;
     }
-
-	/*
-	for (ui i=0; i<L->pLayer->Neurons; i++) {
-		for (ui j=0; j<L->Neurons; j++) {
-            cui iL = net->nbLayers-2;
-			ld ml = CostOut[j] * OutIn[j];
-			Legacy[i] += ml * L->weights[w];
-			if (adam) {
-                ld gd = ml * L->pLayer->output[i];
-                Mwt[iL][w] = 0.9L*Mwt[iL][w]+(1-0.9L)*gd;
-                Vwt[iL][w] = 0.999L*Vwt[iL][w]+(1-0.999L)*powl(gd, 2);
-                ld MwC = Mwt[iL][w] / (1-b1t);
-                ld VwC = Vwt[iL][w] / (1-b2t);
-                L->weights[w] -= l_rate*MwC/(sqrtl(VwC) + EPS);
-			}
-			else L->weights[w] -= l_rate * ml * L->pLayer->output[i];
-			w++;
-			if (!bias_done) {
-                if (adam) {
-                    Mbt[iL][j] = 0.9L*Mbt[iL][j]+(1-0.9L) * ml;
-                    Vbt[iL][j] = 0.999L*Vbt[iL][j]+(1-0.999L) * ml;
-                    ld MbC = Mbt[iL][j] / (1-b1t);
-                    ld VbC = Vbt[iL][j] / (1-b2t);
-                    ld nn = sqrtl(VbC);
-                    L->bias[j] -= l_rate/(isnan(nn) ? EPS : nn) * MbC;
-                }
-                else L->bias[j] -= l_rate * ml;
-			}
-		}
-		bias_done = true;
-	}
-	*/
 
 	ld *tempLegacy, *OutIn_i;
 	for(L=net->layers+(net->nbLayers-2); L>net->layers; L--) {
@@ -331,55 +310,8 @@ static ld Network_BackProp(Network *net, ld *expected, cui oSize,
 	}
 	free(Legacy);
 
-
-/*
-	for (ui X=net->nbLayers-2; X>0; X--) {
-		L = &net->layers[X];
-		ld (*deriv_i)(ld*,cui,cui) = get_deriv(L->act_name);
-		tempLegacy = fvec_alloc(L->pLayer->Neurons, true);
-		ld *OutIn_i = fvec_alloc(L->Neurons, false);
-		for (ui i=0; i<L->Neurons; i++)
-			OutIn_i[i] = deriv_i(L->input, L->Neurons, i);
-		ui w_i = 0;
-		bool bias_done_i = false;
-		for (ui i=0; i<L->pLayer->Neurons; i++) {
-			for (ui j=0; j<L->Neurons; j++) {
-				ld ml = Legacy[j] * OutIn_i[j];
-				tempLegacy[i] += ml * L->weights[w_i];
-				if (adam) {
-                    ld gd = ml * L->pLayer->output[i];
-                    Mwt[X-1][w_i] = 0.9L*Mwt[X-1][w_i]+(1-0.9L)*gd;
-                    Vwt[X-1][w_i] = 0.999L*Vwt[X-1][w_i]+(1-0.999L)*powl(gd, 2);
-                    ld MwC = Mwt[X-1][w_i] / (1-b1t);
-                    ld VwC = Vwt[X-1][w_i] / (1-b2t);
-                    L->weights[w_i] -= l_rate * (MwC/(sqrtl(VwC) + EPS));
-				}
-				else L->weights[w_i] -= l_rate * ml * L->pLayer->output[i];
-				w_i++;
-				if (!bias_done_i) {
-                    if (adam) {
-                        Mbt[X-1][j] = 0.9L * Mbt[X-1][j] + (1-0.9L) * ml;
-                        Vbt[X-1][j] = 0.999L * Vbt[X-1][j] + (1-0.999L) * ml;
-                        ld MbC = Mbt[X-1][j] / (1-b1t);
-                        ld VbC = Vbt[X-1][j] / (1-b2t);
-                        ld nn = sqrtl(VbC);
-                        L->bias[j] -= l_rate/(isnan(nn) ? EPS : nn) * MbC;
-                    }
-                    else L->bias[j] -= l_rate * ml;
-				}
-			}
-			bias_done_i = true;
-		}
-		free(Legacy);
-		Legacy = tempLegacy;
-		free(OutIn_i);
-	}
-	free(Legacy);
-*/
-
 	return error;
 }
-
 
 static void IntegrityCheck(Network *net) {
     for(ui i=1; i<net->nbLayers; i++) {

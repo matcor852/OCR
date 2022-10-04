@@ -9,19 +9,6 @@
 
 #include "Network.h"
 
-
-typedef struct NNParam NNParam;
-struct NNParam
-{
-    ui hiddenN, toLoopTrain, toLoopValidate,
-        epoch, iSize, oSize;
-    ld l_rate, fscore, l1Norm, l2Norm;
-    ld **inputTrain, **outputTrain;
-    ld **inputTest, **outputTest;
-    char *cost_func;
-
-};
-
 Network* CSave(ui hn);
 void LoadXOR(NNParam *param);
 void LoadData(NNParam* param);
