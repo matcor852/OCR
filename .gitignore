@@ -66,3 +66,4 @@ NeuralNetwork/curated/hcd_784_95_training.bin
 NeuralNetwork/curated/hcd_784_95_validation.bin
 *.save-failed
 NeuralNetwork/stats.txt
+NeuralNetwork/stats.txt

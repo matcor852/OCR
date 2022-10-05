@@ -5,7 +5,6 @@
 #include <time.h>
 #include "Layer.h"
 #include "Cost.h"
-#include "Optimizers.h"
 
 typedef struct Network Network;
 struct Network
@@ -14,18 +13,24 @@ struct Network
 	Layer *layers;
 };
 
+typedef struct Optimizer Optimizer;
+struct Optimizer
+{
+    ld l1Norm, l2Norm;
+    ld **Mwt, **Vwt, **Mbt, **Vbt;
+};
+
 typedef struct NNParam NNParam;
 struct NNParam
 {
     ui hiddenN, toLoopTrain, toLoopValidate,
         epoch, epochInterval, iSize, oSize, track;
-    ld l_rate, fscore, l1Norm, l2Norm;
+    ld l_rate, fscore;
     ld **inputTrain, **outputTrain;
     ld **inputTest, **outputTest;
-    char *cost_func;
-
+    char *cost_func, *StatsFile;
+    Optimizer *optimizer;
 };
-
 
 void Network_Load(Network *net, char path[]);
 void Network_Init(Network *net, cui nbLayers);

@@ -124,7 +124,7 @@ void LoadData(NNParam *param) {
 	fclose(fptr2);
 }
 
-float Validate(Network *net, NNParam *P)
+float Validate(Network *net, const NNParam *P)
 {
     ui score = 0, all = 0;
 	for (ui i=0; i<P->toLoopValidate; i++) {
@@ -144,49 +144,19 @@ void PerfSearch(NNParam *origin) {
     Network *net = CSave(origin->hiddenN);
     printf("\nBeginning Neural Network training with following parameters :\n");
     NNParam_Display(origin);
-
+    if (origin->track) fclose(fopen(origin->StatsFile, "w"));
+    Optimizer_Init(net, origin->optimizer);
     for(int e=0; e < origin->epoch; ) {
         printf("[ Epoch %u/%u ] Accuracy : %.2f%%\n",
                 e, origin->epoch, 100*Validate(net, origin));
         Network_Train(net, origin);
-
-        int ne = min(origin->epochInterval, origin->epoch-e);
+        int ne = min((int)origin->epochInterval, (int)(origin->epoch-e));
         origin->epochInterval = ne;
         e += ne;
     }
     printf("\n[ Epoch %u/%u ] Accuracy : %.2f%%\n",
             origin->epoch, origin->epoch, 100*Validate(net, origin));
-
-
-/*
-    while (c < attempt) {
-        c++;
-        printf("\nAttempt %u; best : %.2LF%%\n", c, bperf*100);
-        net = Train_Perf(origin);
-        if (origin->fscore > bperf) {
-            bperf = origin->fscore;
-            Network_Save(net, "XOR1");
-        }
-        Network_Purge(net);
-    }
-    printf("\nBest Perf : %.2LF%%\n", bperf*100);
-    */
-}
-
-static Network* Train_Perf(NNParam *P) {
-    Network *net = CSave(P->hiddenN);
-    //Network_Train(net, P);
-    ui score = 0;
-	for (ui i=0; i<P->toLoopValidate; i++) {
-        ld *out = Network_Validate(net, P->inputTest[i], P->iSize, P->oSize == 1);
-        for (ui j=0; j<P->oSize; j++) {
-            printf("\n%u : %.0LF\t%.0LF", j, out[j], P->outputTest[i][j]);
-            if (absl(out[j] - P->outputTest[i][j]) < LDBL_EPSILON) score++;
-        }
-	}
-	printf("\nvalidation : %u/%u\n", score, P->toLoopValidate);
-    P->fscore = score/(ld)P->toLoopValidate;
-    return net;
+    Optimizer_Dispose(net, origin->optimizer);
 }
 
 static DWORD WINAPI Train(LPVOID Param) {

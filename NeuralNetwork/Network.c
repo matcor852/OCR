@@ -154,7 +154,7 @@ void Network_Train(Network *net, NNParam *params)
 	int c = 0;
 	if(params->track) {
         c = 1;
-        f = fopen("stats.txt", "w");
+        f = fopen(params->StatsFile, "a");
         if (f == NULL) params->track = false;
 	}
 
@@ -164,86 +164,14 @@ void Network_Train(Network *net, NNParam *params)
 			Network_Forward(net, params->inputTrain[s], params->iSize);
 			ld error = Network_BackProp(net, params, s);
 			if (params->track) {
-                fprintf(f, "%u %f\n", c, (double)error);
+                fprintf(f, "%f\n", (double)error);
                 c++;
 			}
 		}
 	}
 
 	if (params->track) fclose(f);
-
 }
-
-/*
-void Network_Train(Network *net, ld *input[], ld *expected_output[], cui iSize,
-                   cui oSize, cui Size, cui epoch, char cost_func[], ld l_rate,
-                   bool adam)
-{
-	if (net->nbLayers < 2) {
-		printf("Attempting train on incomplete network; Starting purge...\n");
-		Network_Purge(net);
-		exit(1);
-	}
-	if (iSize != net->layers[0].Neurons ||
-		oSize != net->layers[net->nbLayers-1].Neurons) {
-		printf("Differing I/0 sizes; Starting purge...\n");
-		Network_Purge(net);
-		exit(1);
-	}
-
-
-    //ADAM
-    ld *Mwt[net->nbLayers-1], *Vwt[net->nbLayers-1],
-                *Mbt[net->nbLayers-1], *Vbt[net->nbLayers-1];
-    if (adam) {
-        for (ui i=0; i<net->nbLayers-1; i++) {
-            Mwt[i] = fvec_alloc(net->layers[i+1].conns, true);
-            Vwt[i] = fvec_alloc(net->layers[i+1].conns, true);
-            Mbt[i] = fvec_alloc(net->layers[i+1].Neurons, true);
-            Vbt[i] = fvec_alloc(net->layers[i+1].Neurons, true);
-        }
-    }
-
-
-	bool track = true;
-	int c = 1;
-	FILE *f = fopen("stats.txt", "w");
-	if (f == NULL) track = false;
-
-
-	clock_t begin, end;
-	for (ui e=0; e<epoch; e++) {
-		arr_shuffle(input, expected_output, Size);
-		for (ui s=0; s<Size; s++) {
-            begin = clock();
-			Network_Forward(net, input[s], iSize);
-			ld error = Network_BackProp(net, expected_output[s], oSize, cost_func,
-                               Mwt, Vwt, Mbt, Vbt, l_rate, e*Size+s+1, adam);
-
-			if (track) fprintf(f, "%u %f\n", c, (double)error);
-			c++;
-            end = clock();
-
-			printf("\repoch %u/%u, sample %u/%u: error = %f [ %.1fit/s ]      ",
-                    e+1, epoch, s+1, Size, (double)error,
-                    (double)(1000.0/(end-begin)));
-
-
-		}
-	}
-
-	if (track) fclose(f);
-
-    if (adam) {
-        for (ui i=0; i<net->nbLayers-1; i++) {
-            free(Mwt[i]);
-            free(Vwt[i]);
-            free(Mbt[i]);
-            free(Vbt[i]);
-        }
-    }
-}
-*/
 
 static void Network_Forward(Network *net, ld *input, cui iSize) {
     if (iSize != net->layers[0].Neurons) {
@@ -259,7 +187,8 @@ static ld Network_BackProp(Network *net, NNParam *params, cui nth) {
 	ld (*cost_deriv)(ld, ld) = get_cost_deriv(params->cost_func);
 	ld (*deriv)(ld*,cui,cui) = get_deriv(L->act_name);
 	ld *expected = params->outputTrain[nth];
-	ld error = get_cost(params->cost_func)(L->output, expected, params->oSize);
+	ld error = get_cost(params->cost_func)(L->output, expected, params->oSize)
+                + Penalty(net, params->optimizer);
 	ld CostOut[L->Neurons];
 	ld OutIn[L->Neurons];
 

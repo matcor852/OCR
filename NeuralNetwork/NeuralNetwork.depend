@@ -60,15 +60,15 @@
 1663975320 source:d:\code\c\ocr\neuralnetwork\activations.c
 	"Activations.h"
 
-1662714496 source:d:\code\tp\c\ocr\neuralnetwork\activations.c
+1664371002 source:d:\code\tp\c\ocr\neuralnetwork\activations.c
 	"Activations.h"
 
-1662448874 d:\code\tp\c\ocr\neuralnetwork\activations.h
+1664371002 d:\code\tp\c\ocr\neuralnetwork\activations.h
 	<math.h>
 	<float.h>
 	"Tools.h"
 
-1662543715 d:\code\tp\c\ocr\neuralnetwork\tools.h
+1664970706 d:\code\tp\c\ocr\neuralnetwork\tools.h
 	<stdio.h>
 	<stdlib.h>
 	<stdbool.h>
@@ -84,25 +84,25 @@
 	<unistd.h>
 	<fcntl.h>
 
-1662540381 source:d:\code\tp\c\ocr\neuralnetwork\cost.c
+1664877865 source:d:\code\tp\c\ocr\neuralnetwork\cost.c
 	"Cost.h"
 
-1662448874 d:\code\tp\c\ocr\neuralnetwork\cost.h
+1664371002 d:\code\tp\c\ocr\neuralnetwork\cost.h
 	<math.h>
 	<float.h>
 	"Tools.h"
 
-1662453825 source:d:\code\tp\c\ocr\neuralnetwork\layer.c
+1664877865 source:d:\code\tp\c\ocr\neuralnetwork\layer.c
 	"Layer.h"
 
-1662448874 d:\code\tp\c\ocr\neuralnetwork\layer.h
+1664371002 d:\code\tp\c\ocr\neuralnetwork\layer.h
 	<time.h>
 	"Activations.h"
 
-1662971422 source:d:\code\tp\c\ocr\neuralnetwork\network.c
+1664977891 source:d:\code\tp\c\ocr\neuralnetwork\network.c
 	"Network.h"
 
-1662971422 d:\code\tp\c\ocr\neuralnetwork\network.h
+1664975959 d:\code\tp\c\ocr\neuralnetwork\network.h
 	<errno.h>
 	<time.h>
 	"Layer.h"
@@ -111,14 +111,13 @@
 1662448874 source:d:\code\tp\c\ocr\neuralnetwork\randuniform.c
 	"RandUniform.h"
 
-1662714496 source:d:\code\tp\c\ocr\neuralnetwork\tools.c
+1664877865 source:d:\code\tp\c\ocr\neuralnetwork\tools.c
 	"Tools.h"
 
-1663065600 source:d:\code\tp\c\ocr\neuralnetwork\main.c
+1664975959 source:d:\code\tp\c\ocr\neuralnetwork\main.c
 	<stdio.h>
 	<stdlib.h>
 	<time.h>
-	"Network.h"
 	"IOHelper.h"
 
 1662539061 d:\code\tp\c\ocr\neuralnetwork\rand.h
@@ -149,18 +148,23 @@
 	<windows.h>
 	"Network.h"
 
-1663064851 source:d:\code\tp\c\ocr\neuralnetwork\iohelper.c
+1664976026 source:d:\code\tp\c\ocr\neuralnetwork\iohelper.c
 	"IOHelper.h"
 
-1662977880 d:\code\tp\c\ocr\neuralnetwork\iohelper.h
-	"Tools.h"
+1664974322 d:\code\tp\c\ocr\neuralnetwork\iohelper.h
 	<stdio.h>
 	<stdlib.h>
 	<windows.h>
-	"Network.h"
+	"Optimizers.h"
 
 1664909428 d:\code\c\ocr\neuralnetwork\optimizers.h
 
 1664831424 source:d:\code\c\ocr\neuralnetwork\optimizers.c
 	"Optimizers.h"
+
+1664977899 source:d:\code\tp\c\ocr\neuralnetwork\optimizers.c
+	"Optimizers.h"
+
+1664977891 d:\code\tp\c\ocr\neuralnetwork\optimizers.h
+	"Network.h"
 
