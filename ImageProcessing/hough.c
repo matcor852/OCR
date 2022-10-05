@@ -179,6 +179,19 @@ void smoothLine(uc *line, st len)
 }
 */
 
+void printR_theta(uc *r_theta, st r_max)
+{
+	char *chars = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?i+~<>!lI-;:,\"^`_'. ";
+	for (st r = 0; r < r_max; r += 15)
+	{
+		for (st theta = 0; theta < 360; theta++)
+		{
+			printf("%c", chars[(int)(69 - 69 * ((float)r_theta[r * 360 + theta] / 255))]);
+		}
+		printf("\n");
+	}
+}
+
 void detectGrid()
 {
 	Image *image = openImage("Images/image_04.jpeg");
@@ -190,103 +203,7 @@ void detectGrid()
 	uc r_theta[r_max * 360];
 	fillR_theta(image, r_theta, r_max);
 	/*
-	int total;
-	int nb_pixels;
-	st best_r, best_theta;
-	int best_value = 0;
-	for (st r = 0; r < r_max; r++)
-	{
-		for (st theta = 0; theta < 360; theta++)
-		{
-			if (180 <= theta && theta <= 270)
-			{
-				r_theta[r][theta] = 0;
-				continue;
-			}
-			st x_min = width, x_max = 0, y_max = 0, y_min = height;
-			float _sin = sin(theta * PI / 180);
-			float _cos = cos(theta * PI / 180);
-			total = 0;
-			nb_pixels = 0;
-			if ((45 <= theta && theta <= 135) || (225 <= theta && theta <= 315))
-			{
-				for (st x = 0; x < width; x++)
-				{
-					st _y;
-					st y_;
-					getY(x, &_y, &y_, r, _cos, _sin);
-					for (st y = _y; y <= y_; y++)
-					{
-						if (y >= height)
-							break;
-						if (y < 0)
-							y = 0;
-						if (fabs(r - x * _cos - y * _sin) < 1)
-						{
-							if (x > x_max)
-								x_max = x;
-							if (x < x_min)
-								x_min = x;
-							if (y > y_max)
-								y_max = y;
-							if (y < y_min)
-								y_min = y;
-							total += pixels[y][x];
-							nb_pixels++;
-						}
-					}
-				}
-			}
-			else
-			{
-				for (st y = 0; y < height; y++)
-				{
-					st _x;
-					st x_;
-					getX(&_x, &x_, y, r, _cos, _sin);
-					for (st x = _x; x <= x_; x++)
-					{
-						if (x >= width)
-							break;
-						if (x < 0)
-							x = 0;
-						if (fabs(r - x * _cos - y * _sin) < 1)
-						{
-							if (x > x_max)
-								x_max = x;
-							if (x < x_min)
-								x_min = x;
-							if (y > y_max)
-								y_max = y;
-							if (y < y_min)
-								y_min = y;
-							total += pixels[y][x];
-							nb_pixels++;
-						}
-					}
-				}
-			}
-			int value = (nb_pixels && (x_max - x_min > width / 4 || y_max - y_min > height / 4)) ? total / nb_pixels : 0;
-			r_theta[r][theta] = value;
-			if (value > best_value)
-			{
-				best_r = r;
-				best_theta = theta;
-				best_value = value;
-			}
-			if (!value)
-				theta++;
-		}
-	}
-	char *chars = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?i+~<>!lI-;:,\"^`_'. ";
-	for (st r = 0; r < r_max; r += 15)
-	{
-		for (st theta = 0; theta < 360; theta++)
-		{
-			printf("%c", chars[(int)(69 - 69 * ((float)r_theta[r][theta] / best_value))]);
-		}
-		printf("\n");
-	}
+	
 	for (st i = 0; i < 20; i++)
 	{
 		int best_value = 0;
