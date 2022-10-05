@@ -156,6 +156,7 @@ void PerfSearch(NNParam *origin) {
     }
     printf("\n[ Epoch %u/%u ] Accuracy : %.2f%%\n",
             origin->epoch, origin->epoch, 100*Validate(net, origin));
+    Network_Display(net, true);
     Optimizer_Dispose(net, origin->optimizer);
 }
 

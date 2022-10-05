@@ -207,7 +207,9 @@ static ld Network_BackProp(Network *net, NNParam *params, cui nth) {
             cO<CostOut+L->Neurons; cO++, oI++, w++) {
             ld ml = (*cO) * (*oI);
             *leg += ml * (*w);
-            *w -= params->l_rate * ml * (*pO);
+            *w -= params->l_rate * ml * (*pO)
+                + (*w >= .0L ? 1.0L : -1.0L) * params->optimizer->l1Norm
+                + 2 * params->optimizer->l2Norm * (*w);
             if (!bias_done) *b -= params->l_rate * ml;
         }
         bias_done = true;
@@ -228,7 +230,9 @@ static ld Network_BackProp(Network *net, NNParam *params, cui nth) {
                 l++, oI++, b++, w++) {
                 ld ml = (*l) * (*oI);
                 *tL += ml * (*w);
-                *w -= params->l_rate * ml * (*pO);
+                *w -= params->l_rate * ml * (*pO)
+                    + (*w >= .0L ? 1.0L : -1.0L) * params->optimizer->l1Norm
+                    + 2 * params->optimizer->l2Norm * (*w);
                 if (!bias_done) *b -= params->l_rate * ml;
             }
             bias_done = true;
@@ -265,6 +269,7 @@ static void IntegrityCheck(Network *net) {
 
 void Optimizer_Init(Network *net, Optimizer *optz)
 {
+    optz->iter = 0;
     optz->Mwt = (ld**) malloc(sizeof(ld*) * net->nbLayers-1);
     optz->Mbt = (ld**) malloc(sizeof(ld*) * net->nbLayers-1);
     optz->Vwt = (ld**) malloc(sizeof(ld*) * net->nbLayers-1);

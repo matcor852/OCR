@@ -16,6 +16,7 @@ struct Network
 typedef struct Optimizer Optimizer;
 struct Optimizer
 {
+    ui iter;
     ld l1Norm, l2Norm;
     ld **Mwt, **Vwt, **Mbt, **Vbt;
 };

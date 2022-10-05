@@ -16,8 +16,8 @@ int main()
     origin->epochInterval = 100;
     origin->l_rate = .1;
     origin->optimizer = (Optimizer*) malloc(sizeof(Optimizer));
-    origin->optimizer->l1Norm = .010L; //0.010L;
-    origin->optimizer->l2Norm = .02L; //0.02L;
+    origin->optimizer->l1Norm = .0L; //0.010L;
+    origin->optimizer->l2Norm = .0L; //0.001L;
     origin->cost_func = "MSE";
     origin->track = true;
     origin->StatsFile = "stats.txt";
