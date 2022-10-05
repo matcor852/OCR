@@ -1,10 +1,56 @@
 #include "rotate_image.h"
 
+//catch all events in an endless loop
+void event_loop(SDL_Renderer* renderer, SDL_Texture* colored)
+{
+    SDL_Event event;
+    // Width and height of the window.
+    int w,h;
+    // Variable of angle of editing
+    float angle = 0;
+    //Step is add to angle when arrow is pressed
+    float step = 2;
+
+    draw(renderer, colored, angle);
+
+    while (1)
+    {
+        SDL_WaitEvent(&event);
+        switch (event.type)
+        {
+            case SDL_QUIT:  
+                return;
+
+            case SDL_WINDOWEVENT:
+                if (event.window.event == SDL_WINDOWEVENT_RESIZED)
+                    {
+                        w = event.window.data1;
+                        h = event.window.data2;
+                        draw(renderer,colored,angle);
+                    }
+                break;
+
+            case SDL_KEYDOWN:
+                if (event.key.keysym.scancode == SDL_SCANCODE_S)
+                    save_texture("edited.png",renderer,colored,w,h);
+                if (event.key.keysym.scancode == SDL_SCANCODE_LEFT || event.key.keysym.scancode == SDL_SCANCODE_A)
+                    angle = angle - step;
+                if (event.key.keysym.scancode == SDL_SCANCODE_RIGHT || event.key.keysym.scancode == SDL_SCANCODE_D)
+                    angle = angle + step;
+                if (event.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
+                    return;
+                draw(renderer,colored,angle);
+                break;
+        }
+
+    }
+}
+
 //draws the image with a certain angle "angle"
 void draw(SDL_Renderer* renderer, SDL_Texture * texture, double angle)
 { 
     SDL_RenderClear(renderer);
-    SDL_RenderCopyEx(renderer, texture , NULL, NULL, angle, NULL, 0);
+    SDL_RenderCopyEx(renderer, texture, NULL, NULL, angle, NULL, 0);
     SDL_RenderPresent(renderer);
 }
 

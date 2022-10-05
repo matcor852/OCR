@@ -3,23 +3,40 @@
 
 int main(int argc, char ** argv)
 {
-    if (argc != 2)
+    //ARGUMENTS ANALYSIS---------------------------------
+    if (argc != 3)
+        errx(EXIT_FAILURE, "%s", "Not enough arguments");
+
+    int preview = 0; //if mode preview is wanted (with flag -p)
+    for (size_t i = 0; argv[2][i]!=0;i++)
     {
-        errx(EXIT_FAILURE, "Invalid argues: input_file");
+        if ( (argv[2][i]!='p' && argv[2][i]!='-') && 
+        (argv[2][i] > 57 || argv[2][i] <48) )
+            errx(EXIT_FAILURE, "%s", "Argument 2 must be \"-p\" or an angle");
+        if (argv[2][i]=='-')
+            preview = 1;
     }
 
+
+    //SDL THINGS-----------------------------------------
     // Initializes the SDL.
     if (SDL_Init(SDL_INIT_VIDEO) != 0)
         errx(EXIT_FAILURE, "%s", SDL_GetError());
 
     // Creates a window.
-    SDL_Window* window = SDL_CreateWindow("Image editor", 0, 0, 1, 1,
-            SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
+    SDL_Window* window;
+    if (preview)
+        window = SDL_CreateWindow("Image editor", 0, 0, 1, 1,
+                    SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
+    else
+        window = SDL_CreateWindow("Image editor", 0, 0, 1, 1,
+                    SDL_WINDOW_HIDDEN | SDL_WINDOW_RESIZABLE);
     if (window == NULL)
         errx(EXIT_FAILURE, "%s", SDL_GetError());
 
     // Creates a renderer.
-    SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, SDL_RENDERER_ACCELERATED);
+    SDL_Renderer* renderer = SDL_CreateRenderer(window, -1, 
+                    SDL_RENDERER_ACCELERATED);
     if (renderer == NULL)
         errx(EXIT_FAILURE, "%s", SDL_GetError());
 
@@ -31,72 +48,45 @@ int main(int argc, char ** argv)
     // - Resize the window according to the size of the image.
     SDL_SetWindowSize(window, surface->w,surface->h);
 
-
     // - Create a texture from the colored surface.
     SDL_Texture * colored = SDL_CreateTextureFromSurface(renderer,surface);
     if (colored == NULL)
         errx(EXIT_FAILURE, "%s", SDL_GetError());
-
-/*  //Grayscaled surface making
+    /*
+    //Grayscaled surface making
     surface_to_grayscale(surface);
     SDL_Texture * grayscale = SDL_CreateTextureFromSurface(renderer,surface);
     if (grayscale == NULL)
         errx(EXIT_FAILURE, "%s", SDL_GetError());
-    SDL_FreeSurface(surface)
-*/
-    
-    event_loop(renderer,colored);
+    */
+    SDL_FreeSurface(surface);
 
-    // Destruction
+    
+    //MAIN-----------------------------------------------
+    if(preview)
+        event_loop(renderer,colored);
+    else
+    {
+        double angle = strtoul(argv[2],NULL,10);
+        int w,h;
+        SDL_QueryTexture(colored, NULL, NULL, &w, &h);
+        int end = 3;
+        while (end>1)
+        {
+            SDL_RenderCopyEx(renderer,colored, NULL, NULL,angle,NULL,0);
+            SDL_RenderPresent(renderer);
+            save_texture("edited.png",renderer,colored,w,h);
+            end = end-1;
+        }
+    }  
+
+    //DESTRUCTION--------------------------------------
     SDL_DestroyTexture(colored);
     //SDL_DestroyTexture(grayscale);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
+    IMG_Quit();
     SDL_Quit();
+
     return EXIT_SUCCESS;
-}
-
-//catch all events in an endless loop
-void event_loop(SDL_Renderer* renderer, SDL_Texture* colored)
-{
-    SDL_Event event;
-    SDL_Texture* t = colored;
-    // Width and height of the window.
-    int w,h;
-    // Variable of angle of editing
-    float angle = 0;
-
-    draw(renderer, colored, angle);
-
-    while (1)
-    {
-        SDL_WaitEvent(&event);
-        switch (event.type)
-        {
-            case SDL_QUIT:  
-                return;
-
-            case SDL_WINDOWEVENT:
-                if (event.window.event == SDL_WINDOWEVENT_RESIZED)
-                    {
-                        w = event.window.data1;
-                        h = event.window.data2;
-                        draw(renderer,t,angle);
-                    }
-                break;
-
-            case SDL_KEYDOWN:
-                if (event.key.keysym.scancode == SDL_SCANCODE_S)
-                    save_texture("edited.png",renderer,t,w,h);
-                if (event.key.keysym.scancode == SDL_SCANCODE_LEFT || event.key.keysym.scancode == SDL_SCANCODE_A)
-                    angle = angle - 0.2;
-                if (event.key.keysym.scancode == SDL_SCANCODE_RIGHT || event.key.keysym.scancode == SDL_SCANCODE_D)
-                    angle = angle + 0.2;
-                if (event.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
-                    return;
-                draw(renderer,t,angle);
-                break;
-        }
-
-    }
 }

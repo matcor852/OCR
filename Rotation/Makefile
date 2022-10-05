@@ -13,6 +13,7 @@ run:
 	echo "========== End of output =========="
 	rm main *.d
 
+
 clean:
-	rm -rf *[.do] main test*
+	rm -rf *[.do] main test* edited.png
 	clear
