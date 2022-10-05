@@ -164,7 +164,7 @@ void Network_Train(Network *net, NNParam *params)
 			Network_Forward(net, params->inputTrain[s], params->iSize);
 			ld error = Network_BackProp(net, params, s);
 			if (params->track) {
-                fprintf(f, "%f\n", (double)error);
+                fprintf(f, "%LF\n", error);
                 c++;
 			}
 		}
@@ -195,7 +195,7 @@ static ld Network_BackProp(Network *net, NNParam *params, cui nth) {
 	ui i=0;
 	for(ld *cO=CostOut, *oI=OutIn, *o=L->output, *e=expected;
         cO<CostOut+L->Neurons; cO++, oI++, o++, e++, i++) {
-        *cO = cost_deriv(*o, *e); //+L1+L2
+        *cO = cost_deriv(*o, *e);
         *oI = deriv(L->input, L->Neurons, i);
     }
 
@@ -252,7 +252,6 @@ static void IntegrityCheck(Network *net) {
                 exit(2);
             }
         }
-
         for (ui j=0; j<net->layers[i].Neurons; j++) {
             //printf("\nb : %LF", net->layers[i].bias[j]);
             if (isnan(net->layers[i].bias[j]) || isinf(net->layers[i].bias[j])) {
@@ -262,4 +261,50 @@ static void IntegrityCheck(Network *net) {
         }
     }
     puts("No Integrity error.");
+}
+
+void Optimizer_Init(Network *net, Optimizer *optz)
+{
+    optz->Mwt = (ld**) malloc(sizeof(ld*) * net->nbLayers-1);
+    optz->Mbt = (ld**) malloc(sizeof(ld*) * net->nbLayers-1);
+    optz->Vwt = (ld**) malloc(sizeof(ld*) * net->nbLayers-1);
+    optz->Vbt = (ld**) malloc(sizeof(ld*) * net->nbLayers-1);
+    for (ui i=0; i<net->nbLayers-1; i++) {
+        optz->Mwt[i] = fvec_alloc(net->layers[i+1].conns, true);
+        optz->Vwt[i] = fvec_alloc(net->layers[i+1].conns, true);
+        optz->Mbt[i] = fvec_alloc(net->layers[i+1].Neurons, true);
+        optz->Vbt[i] = fvec_alloc(net->layers[i+1].Neurons, true);
+    }
+}
+
+ld Penalty(Network *net, Optimizer *optz)
+{
+    bool dn1 = optz->l1Norm == 0.0L;
+    bool dn2 = optz->l2Norm == 0.0L;
+    if (dn1 && dn2) return .0L;
+    ld l1 = .0L, l2 = .0L;
+    Layer *l = NULL;
+    for (ui i=1; i<net->currentLayer; i++) {
+        l = &net->layers[i];
+        for (ld *w=l->weights; w<l->weights+l->conns; w++) {
+            if (!dn1) l1 += absl(*w);
+            if (!dn2) l2 += (*w) * (*w);
+        }
+    }
+    return optz->l1Norm*l1 + optz->l2Norm*l2;
+}
+
+void Optimizer_Dispose(Network *net, Optimizer *optz)
+{
+    for (ui i=0; i<net->nbLayers-1; i++) {
+        free(optz->Mwt[i]);
+        free(optz->Mbt[i]);
+        free(optz->Vwt[i]);
+        free(optz->Vbt[i]);
+    }
+    free(optz->Mwt);
+    free(optz->Mbt);
+    free(optz->Vwt);
+    free(optz->Vbt);
+    free(optz);
 }

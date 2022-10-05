@@ -48,4 +48,9 @@ static void IntegrityCheck(Network *net);
 Layer *lvec_alloc(cui n);
 
 
+void Optimizer_Init(Network *net, Optimizer *optz);
+void Optimizer_Dispose(Network *net, Optimizer *optz);
+ld Penalty(Network *net, Optimizer *optz);
+
+
 #endif // NETWORK_H

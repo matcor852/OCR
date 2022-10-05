@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <windows.h>
 
-#include "Optimizers.h"
+#include "Network.h"
 
 Network* CSave(ui hn);
 void LoadXOR(NNParam *param);

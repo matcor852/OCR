@@ -51,10 +51,6 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="Network.h" />
-		<Unit filename="Optimizers.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="Optimizers.h" />
 		<Unit filename="Rand.c">
 			<Option compilerVar="CC" />
 		</Unit>
