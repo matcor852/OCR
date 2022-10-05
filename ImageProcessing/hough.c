@@ -10,10 +10,11 @@ void fillR_thetaVertical(Image *image, uc *r_theta, st r_max, st theta, float _c
 	st w = image->width, h = image->height;
 	uc *pixels = image->pixels;
 	int value;
-	int nb = 0;
+	int nb;
 	for (st r = 0; r < r_max; r++)
 	{
 		value = 0;
+		nb = 0;
 		for (st y = 0; y < h; y++)
 		{
 			st x = (r - y * _sin) / _cos;
@@ -23,7 +24,7 @@ void fillR_thetaVertical(Image *image, uc *r_theta, st r_max, st theta, float _c
 				nb++;
 			}
 		}
-		r_theta[r * 360 + theta] = (value + nb / 2) / nb;
+		r_theta[r * 360 + theta] = nb ? value / nb : 0;
 	}
 }
 
@@ -32,10 +33,11 @@ void fillR_thetaHorizontal(Image *image, uc *r_theta, st r_max, st theta, float 
 	st w = image->width, h = image->height;
 	uc *pixels = image->pixels;
 	int value;
-	int nb = 0;
+	int nb;
 	for (st r = 0; r < r_max; r++)
 	{
 		value = 0;
+		nb = 0;
 		for (st x = 0; x < w; x++)
 		{
 			st y = (r - x * _cos) / _sin;
@@ -45,7 +47,7 @@ void fillR_thetaHorizontal(Image *image, uc *r_theta, st r_max, st theta, float 
 				nb++;
 			}
 		}
-		r_theta[r * 360 + theta] = (value + nb / 2) / nb;
+		r_theta[r * 360 + theta] = nb ? value / nb : 0;
 	}
 }
 
@@ -57,19 +59,17 @@ void fillR_theta(Image *image, uc *r_theta, st r_max)
 	{
 		// vertical: [0, 45[, [135, 180[, [315, 360[
 		// horizontal: [45, 135[, [270, 315[
-		// skip useless angles (180 to 270)
 		if (theta == 180)
 		{
 			theta = 270;
 			vertical = 0;
 		}
-		// switch from vertical to horizontal and vice versa
 		if (theta == 45 || theta == 135 || theta == 315)
 			vertical = !vertical;
-		_cos = cos(theta), _sin = sin(theta);
-		(vertical ? fillR_thetaVertical : fillR_thetaHorizontal)(image, r_theta, r_max, theta, _cos, _sin);
+		_cos = cos(theta * PI / 180), _sin = sin(theta * PI / 180);
+		(vertical ? fillR_thetaVertical : fillR_thetaHorizontal) \
+		(image, r_theta, r_max, theta, _cos, _sin);
 	}
-	// fill from 180 to 270 with 0
 	for (st r = 0; r < r_max; r++)
 		for (st theta = 180; theta < 270; theta++)
 			r_theta[r * 360 + theta] = 0;
@@ -181,12 +181,15 @@ void smoothLine(uc *line, st len)
 
 void printR_theta(uc *r_theta, st r_max)
 {
-	char *chars = "$@B%8&WM#*oahkbdpqwmZO0QLCJUYXzcvunxrjft/\\|()1{}[]?i+~<>!lI-;:,\"^`_'. ";
+	// display theta [270 - 360[ + [0 - 180[
+	static char *chars = " .'_`^\",:;I-!<>~+i?][}{1()|/\\ftjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@";
 	for (st r = 0; r < r_max; r += 15)
 	{
-		for (st theta = 0; theta < 360; theta++)
+		for (st theta = 270; theta != 180; theta++)
 		{
-			printf("%c", chars[(int)(69 - 69 * ((float)r_theta[r * 360 + theta] / 255))]);
+			if (theta == 360)
+				theta = 0;
+			printf("%c", chars[r_theta[r * 360 + theta] * 70 / 256]);
 		}
 		printf("\n");
 	}
@@ -202,8 +205,8 @@ void detectGrid()
 		return;
 	uc r_theta[r_max * 360];
 	fillR_theta(image, r_theta, r_max);
+	printR_theta(r_theta, r_max);
 	/*
-	
 	for (st i = 0; i < 20; i++)
 	{
 		int best_value = 0;
