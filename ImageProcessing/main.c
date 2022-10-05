@@ -33,7 +33,7 @@ int main(int argc, char **argv)
 	return 0;
 	*/
 	//*
-	test();
+	detectGrid();
 	return 0;
 	//*/
 }

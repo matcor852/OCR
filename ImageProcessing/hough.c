@@ -5,6 +5,77 @@
 #include "transformImage.h"
 #define PI 3.141592654
 
+void fillR_thetaVertical(Image *image, uc *r_theta, st r_max, st theta, float _cos, float _sin)
+{
+	st w = image->width, h = image->height;
+	uc *pixels = image->pixels;
+	int value;
+	int nb = 0;
+	for (st r = 0; r < r_max; r++)
+	{
+		value = 0;
+		for (st y = 0; y < h; y++)
+		{
+			st x = (r - y * _sin) / _cos;
+			if (x >= 0 && x < w)
+			{
+				value += pixels[y * w + x];
+				nb++;
+			}
+		}
+		r_theta[r * 360 + theta] = (value + nb / 2) / nb;
+	}
+}
+
+void fillR_thetaHorizontal(Image *image, uc *r_theta, st r_max, st theta, float _cos, float _sin)
+{
+	st w = image->width, h = image->height;
+	uc *pixels = image->pixels;
+	int value;
+	int nb = 0;
+	for (st r = 0; r < r_max; r++)
+	{
+		value = 0;
+		for (st x = 0; x < w; x++)
+		{
+			st y = (r - x * _cos) / _sin;
+			if (y >= 0 && y < h)
+			{
+				value += pixels[y * w + x];
+				nb++;
+			}
+		}
+		r_theta[r * 360 + theta] = (value + nb / 2) / nb;
+	}
+}
+
+void fillR_theta(Image *image, uc *r_theta, st r_max)
+{
+	int vertical = 1;
+	float _cos, _sin;
+	for (st theta = 0; theta < 360; theta++)
+	{
+		// vertical: [0, 45[, [135, 180[, [315, 360[
+		// horizontal: [45, 135[, [270, 315[
+		// skip useless angles (180 to 270)
+		if (theta == 180)
+		{
+			theta = 270;
+			vertical = 0;
+		}
+		// switch from vertical to horizontal and vice versa
+		if (theta == 45 || theta == 135 || theta == 315)
+			vertical = !vertical;
+		_cos = cos(theta), _sin = sin(theta);
+		(vertical ? fillR_thetaVertical : fillR_thetaHorizontal)(image, r_theta, r_max, theta, _cos, _sin);
+	}
+	// fill from 180 to 270 with 0
+	for (st r = 0; r < r_max; r++)
+		for (st theta = 180; theta < 270; theta++)
+			r_theta[r * 360 + theta] = 0;
+}
+
+/*
 void getY(st x, st *_y, st *y_, st r, float _cos, float _sin)
 {
 	float value = (r - x * _cos) / _sin;
@@ -106,21 +177,19 @@ void smoothLine(uc *line, st len)
 		// TODO: get coordinates of the two points
 	}
 }
+*/
 
-void test(void)
+void detectGrid()
 {
 	Image *image = openImage("Images/image_04.jpeg");
 	invertImage(image);
 	st width = image->width, height = image->height;
-	/*
-	for (st y = 0; y < height; y++)
-		for (st x = 0; x < width; x++)
-			pixels[y][x] = 255 - pixels[y][x];
 	st r_max = sqrt(width * width + height * height);
-
-	int **r_theta = (int **)malloc(sizeof(int *) * r_max);
-	for (st r = 0; r < r_max; r++)
-		r_theta[r] = (int *)malloc(sizeof(int) * 360);
+	if (r_max == 0)
+		return;
+	uc r_theta[r_max * 360];
+	fillR_theta(image, r_theta, r_max);
+	/*
 	int total;
 	int nb_pixels;
 	st best_r, best_theta;
