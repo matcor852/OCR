@@ -12,9 +12,9 @@ Network* CSave(ui hn) {
 	Layer *l1 = (Layer*) malloc(sizeof(Layer));
 	Layer *l2 = (Layer*) malloc(sizeof(Layer));
 	Layer *l3 = (Layer*) malloc(sizeof(Layer));
-	Layer_Init(l1, NULL, l2, 2, NULL, NULL, false, "none");
+	Layer_Init(l1, NULL, l2, 784, NULL, NULL, false, "none");
 	Layer_Init(l2, l1, l3, hn, NULL, NULL, false, "leakyrelu");
-	Layer_Init(l3, l2, NULL, 1, NULL, NULL, false, "sigmoid");
+	Layer_Init(l3, l2, NULL, 10, NULL, NULL, false, "softmax");
 
 	Network_AddLayer(net, l1);
 	Network_AddLayer(net, l2);
@@ -124,18 +124,22 @@ void LoadData(NNParam *param) {
 	fclose(fptr2);
 }
 
-float Validate(Network *net, const NNParam *P)
+void Validate(Network *net, const NNParam *P)
 {
-    ui score = 0, all = 0;
+    ui score = 0, all = 0, pos = 0;
 	for (ui i=0; i<P->toLoopValidate; i++) {
         ld *out = Network_Validate(net, P->inputTest[i], P->iSize, P->oSize == 1);
         for (ui j=0; j<P->oSize; j++) {
             //printf("\n%u : %.0LF\t%.0LF", j, out[j], P->outputTest[i][j]);
             if (absl(out[j] - P->outputTest[i][j]) < LDBL_EPSILON) score++;
+            if (P->outputTest[i][j] >= 1.0L && out[j] >= 1.0L) pos++;
             all++;
         }
+        //printf("\n");
 	}
-    return score/(float)all;
+    printf("%.2f%% (%u/%u)\tScore : %.2f%%\tValidated : %u/%u\n",
+           100.0*score/(float)all, score, all,
+           100.0*pos/(float)P->toLoopValidate, pos, P->toLoopValidate);
 }
 
 void PerfSearch(NNParam *origin) {
@@ -147,17 +151,19 @@ void PerfSearch(NNParam *origin) {
     if (origin->track) fclose(fopen(origin->StatsFile, "w"));
     Optimizer_Init(net, origin->optimizer);
     for(int e=0; e < origin->epoch; ) {
-        printf("[ Epoch %u/%u ] Accuracy : %.2f%%\n",
-                e, origin->epoch, 100*Validate(net, origin));
+        printf("[ Epoch %u/%u ] Accuracy : ", e, origin->epoch);
+        Validate(net, origin);
         Network_Train(net, origin);
         int ne = min((int)origin->epochInterval, (int)(origin->epoch-e));
         origin->epochInterval = ne;
         e += ne;
     }
-    printf("\n[ Epoch %u/%u ] Accuracy : %.2f%%\n",
-            origin->epoch, origin->epoch, 100*Validate(net, origin));
-    Network_Display(net, true);
+    printf("\n[ Epoch %u/%u ] Accuracy : ",origin->epoch, origin->epoch);
+    Validate(net, origin);
+    //Network_Display(net, true);
     Optimizer_Dispose(net, origin->optimizer);
+    Network_Save(net, origin->NNName);
+    Network_Purge(net);
 }
 
 static DWORD WINAPI Train(LPVOID Param) {

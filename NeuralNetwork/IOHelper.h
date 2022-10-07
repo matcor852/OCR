@@ -10,7 +10,7 @@
 Network* CSave(ui hn);
 void LoadXOR(NNParam *param);
 void LoadData(NNParam* param);
-float Validate(Network *net, const NNParam *P);
+void Validate(Network *net, const NNParam *P);
 
 void PerfSearch(NNParam *origin);
 static Network* Train_Perf(NNParam *P);

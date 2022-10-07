@@ -29,7 +29,7 @@ struct NNParam
     ld l_rate, fscore;
     ld **inputTrain, **outputTrain;
     ld **inputTest, **outputTest;
-    char *cost_func, *StatsFile;
+    char *cost_func, *StatsFile, *NNName;
     Optimizer *optimizer;
 };
 

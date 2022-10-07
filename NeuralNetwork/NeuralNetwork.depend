@@ -35,13 +35,13 @@
 	<float.h>
 	"Tools.h"
 
-1665001494 source:d:\code\c\ocr\neuralnetwork\main.c
+1665178536 source:d:\code\c\ocr\neuralnetwork\main.c
 	<stdio.h>
 	<stdlib.h>
 	<time.h>
 	"IOHelper.h"
 
-1665000393 d:\code\c\ocr\neuralnetwork\network.h
+1665168102 d:\code\c\ocr\neuralnetwork\network.h
 	<errno.h>
 	<time.h>
 	"Layer.h"
@@ -137,10 +137,10 @@
 	<time.h>
 	<math.h>
 
-1665001580 source:d:\code\c\ocr\neuralnetwork\iohelper.c
+1665178712 source:d:\code\c\ocr\neuralnetwork\iohelper.c
 	"IOHelper.h"
 
-1664992355 d:\code\c\ocr\neuralnetwork\iohelper.h
+1665173380 d:\code\c\ocr\neuralnetwork\iohelper.h
 	<stdio.h>
 	<stdlib.h>
 	<windows.h>
