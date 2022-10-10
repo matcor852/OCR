@@ -11,6 +11,7 @@ Network* CSave(ui hn);
 void LoadXOR(NNParam *param);
 void LoadData(NNParam* param);
 void Validate(Network *net, const NNParam *P);
+void OverfitLoad(NNParam *param);
 
 void PerfSearch(NNParam *origin);
 static Network* Train_Perf(NNParam *P);

@@ -35,7 +35,7 @@ ld MSE(ld *predicted, ld *expected, cui Size) {
 
 
 ld CrossEntropy_(cld predicted, cld expected) {
-    return -(predicted - expected)/(1-predicted+EPS)*predicted;
+    return (predicted - expected)/(1-predicted+EPS)*predicted;
 }
 
 ld RMSE_(cld predicted, cld expected) {

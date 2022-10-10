@@ -13,7 +13,7 @@ Network* CSave(ui hn) {
 	Layer *l2 = (Layer*) malloc(sizeof(Layer));
 	Layer *l3 = (Layer*) malloc(sizeof(Layer));
 	Layer_Init(l1, NULL, l2, 784, NULL, NULL, false, "none");
-	Layer_Init(l2, l1, l3, hn, NULL, NULL, false, "leakyrelu");
+	Layer_Init(l2, l1, l3, hn, NULL, NULL, false, "relu");
 	Layer_Init(l3, l2, NULL, 10, NULL, NULL, false, "softmax");
 
 	Network_AddLayer(net, l1);
@@ -140,6 +140,57 @@ void Validate(Network *net, const NNParam *P)
     printf("%.2f%% (%u/%u)\tScore : %.2f%%\tValidated : %u/%u\n",
            100.0*score/(float)all, score, all,
            100.0*pos/(float)P->toLoopValidate, pos, P->toLoopValidate);
+}
+
+void OverfitLoad(NNParam *param)
+{
+    param->iSize = 784;
+    param->oSize = 10;
+
+    ui startI = 0;
+	char pathTrain[] = "D:/Code/C/OCR/NeuralNetwork/curated/hcd_784_95_training.bin";
+	char pathValidate[] = "D:/Code/C/OCR/NeuralNetwork/curated/hcd_784_95_validation.bin";
+
+	ui SamplesTrain = 0, SamplesValidate = 0;
+	if (sscanf_s(pathTrain, "%*[^_]%*[_]%*[^_]%*[_]%u", &SamplesTrain) != 1) {
+		printf("Could not read amount of samples in filename; Exiting...\n");
+		exit(1);
+	}
+	if (sscanf_s(pathValidate, "%*[^_]%*[_]%*[^_]%*[_]%u", &SamplesValidate) != 1) {
+		printf("Could not read amount of samples in filename; Exiting...\n");
+		exit(1);
+	}
+
+	FILE *fptr1, *fptr2;
+
+	int err;
+	char errbuf[64];
+	if ((err = fopen_s(&fptr1, pathTrain, "rb")) != 0){
+		strerror_s(errbuf,sizeof(errbuf), err);
+		fprintf(stderr, "Cannot open file '%s': %s\n", pathTrain, errbuf);
+		exit(1);
+	}
+	param->toLoopTrain = min(SamplesTrain, param->toLoopTrain);
+	param->toLoopValidate = param->toLoopTrain;
+	param->inputTrain = (ld**) malloc(sizeof(float*) * param->toLoopTrain);
+	param->outputTrain = (ld**) malloc(sizeof(float*) * param->toLoopTrain);
+	ld *tempIn, *tempOut;
+	float *temp;
+	for(ui i=0; i<param->toLoopTrain; i++) {
+		tempIn = fvec_alloc(param->iSize, false);
+		tempOut = fvec_alloc(param->oSize, true);
+		temp = fvec_alloc(1, false);
+		fread(temp, sizeof(float), 1, fptr1);
+		tempOut[(int)((ui)temp[0]-startI)] = 1.0L;
+		free(temp);
+		fread(tempIn, sizeof(float), param->iSize, fptr1);
+		param->inputTrain[i] = tempIn;
+		param->outputTrain[i] = tempOut;
+	}
+	fclose(fptr1);
+
+	param->inputTest = param->inputTrain;
+	param->outputTest = param->outputTrain;
 }
 
 void PerfSearch(NNParam *origin) {

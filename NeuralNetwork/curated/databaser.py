@@ -21,7 +21,7 @@ for i in range(start, stop+1):
         print("\rsaving folder {0}/{1}, file {2}              ".format(str(i), str(stop), file), end='')
         path = root + "{0}/{1}".format(str(i), file)
         im = Image.open(path, 'r')
-        data = [x/255 for x in im.getdata()]
+        data = [2*x/255-1 for x in im.getdata()]
         data.insert(0, i)
         validation.write(struct.pack('%sf' % oSize, *data))
         c2 += 1
@@ -30,7 +30,7 @@ for i in range(start, stop+1):
         path = root + "{0}/{1}".format(str(i), file)
         im = Image.open(path, 'r')
         im = im.resize(size)
-        data = [x/255 for x in im.getdata()]
+        data = [2*x/255-1 for x in im.getdata()]
         data.insert(0, i)
         training.write(struct.pack('%sf' % oSize, *data))
         c1 += 1
