@@ -5,6 +5,18 @@
 #include "transformImage.h"
 #define PI 3.141592654
 
+typedef struct
+{
+	st x1, y1, x2, y2;
+} Segment;
+
+int isVertical(st theta)
+{
+	return (0 <= theta && theta < 45) ||
+		   (135 <= theta && theta < 225) ||
+		   (315 <= theta && theta < 360);
+}
+
 void fillR_thetaVertical(Image *image, uc *r_theta, st r_max, st theta, float _cos, float _sin)
 {
 	st w = image->width, h = image->height;
@@ -67,71 +79,62 @@ void fillR_theta(Image *image, uc *r_theta, st r_max)
 		if (theta == 45 || theta == 135 || theta == 315)
 			vertical = !vertical;
 		_cos = cos(theta * PI / 180), _sin = sin(theta * PI / 180);
-		(vertical ? fillR_thetaVertical : fillR_thetaHorizontal) \
-		(image, r_theta, r_max, theta, _cos, _sin);
+		(vertical ? fillR_thetaVertical : fillR_thetaHorizontal)(image, r_theta, r_max, theta, _cos, _sin);
 	}
 	for (st r = 0; r < r_max; r++)
 		for (st theta = 180; theta < 270; theta++)
 			r_theta[r * 360 + theta] = 0;
 }
 
-/*
-void getY(st x, st *_y, st *y_, st r, float _cos, float _sin)
+void printR_theta(uc *r_theta, st r_max)
 {
-	float value = (r - x * _cos) / _sin;
-	*_y = value - 2;
-	*y_ = value + 2;
-}
-
-void getX(st *_x, st *x_, st y, st r, float _cos, float _sin)
-{
-	float value = (r - y * _sin) / _cos;
-	*_x = value - 2;
-	*x_ = value + 2;
-}
-
-int XtoY(st x, st r, float _cos, float _sin)
-{
-	return (r - x * _cos) / _sin;
-}
-
-int YtoX(st y, st r, float _cos, float _sin)
-{
-	return (r - y * _sin) / _cos;
-}
-
-uc *getLine(uc **pixels, st width, st height, int r, int theta, int threshold, st *len)
-{
-	float _sin = sin(theta * PI / 180);
-	float _cos = cos(theta * PI / 180);
-	if ((45 <= theta && theta <= 135) || (225 <= theta && theta <= 315))
+	// display theta [270 - 360[ + [0 - 180[
+	static char *chars = " .'_`^\",:;I-!<>~+i?][}{1()|/\\ftjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@";
+	for (st r = 0; r < r_max; r += 15)
 	{
-		uc *line = (uc *)malloc(width * sizeof(uc));
-		for (st x = 0; x < width; x++)
+		for (st theta = 270; theta != 180; theta++)
 		{
-			st y = XtoY(x, r, _cos, _sin);
-			if (y < 0 || y >= height)
-			{
-				line[x] = 0;
-				continue;
-			}
-			line[x] = pixels[y][x] > threshold ? 255 : 0;
+			if (theta == 360)
+				theta = 0;
+			printf("%c", chars[r_theta[r * 360 + theta] * 70 / 256]);
 		}
-		*len = width;
-		return line;
+		printf("\n");
 	}
-	uc *line = malloc(height * sizeof(uc));
+}
+
+void getVerticalLine(Image *image, st r, st theta, uc *line)
+{
+	uc *pixels = image->pixels;
+	st width = image->width;
+	st height = image->height;
+	float _cos = cos(theta * PI / 180);
+	float _sin = sin(theta * PI / 180);
 	for (st y = 0; y < height; y++)
 	{
-		st x = YtoX(y, r, _cos, _sin);
+		st x = (r - y * _sin) / _cos;
 		if (x < 0 || x >= width)
-		{
 			line[y] = 0;
-			continue;
-		}
-		line[y] = pixels[y][x] > threshold ? 255 : 0;
+		else
+			line[y] = pixels[y * width + x];
 	}
-	*len = height;
+	return line;
+}
+
+void getHorizontalLine(Image *image, st r, st theta, uc *line)
+{
+	uc *pixels = image->pixels;
+	st width = image->width;
+	st height = image->height;
+	float _cos = cos(theta * PI / 180);
+	float _sin = sin(theta * PI / 180);
+	for (st x = 0; x < width; x++)
+	{
+		st y = (r - x * _cos) / _sin;
+		if (y < 0 || y >= height)
+			line[x] = 0;
+		else
+			line[x] = pixels[y * width + x];
+	}
 	return line;
 }
 
@@ -169,30 +172,142 @@ void smoothLine(uc *line, st len)
 		while (i_end >= 0 && newLine[i_end] == 0)
 			i_end--;
 		for (st i = i_start; i <= i_end; i++)
+		{
 			if (newLine[i] == 0)
 			{
 				line = newLine;
 				break;
 			}
-		// TODO: get coordinates of the two points
+		}
 	}
 }
-*/
 
-void printR_theta(uc *r_theta, st r_max)
+Segment *getBestSegment(uc *r_theta, st r_max, Image *image)
 {
-	// display theta [270 - 360[ + [0 - 180[
-	static char *chars = " .'_`^\",:;I-!<>~+i?][}{1()|/\\ftjrxnuvczXYUJCLQ0OZmwqpdbkhao*#MW&8%B@";
-	for (st r = 0; r < r_max; r += 15)
+	Segment *best_segment = NULL;
+	st best_value = 0;
+	st best_r = 0;
+	st best_theta = 0;
+	for (st r = 0; r < r_max; r++)
 	{
 		for (st theta = 270; theta != 180; theta++)
 		{
 			if (theta == 360)
 				theta = 0;
-			printf("%c", chars[r_theta[r * 360 + theta] * 70 / 256]);
+			if (r_theta[r * 360 + theta] > best_value)
+			{
+				best_value = r_theta[r * 360 + theta];
+				best_r = r;
+				best_theta = theta;
+			}
 		}
-		printf("\n");
 	}
+	if (best_value == 0)
+		return NULL;
+	int vertical = isVertical(best_theta);
+	st height = image->height, width = image->width;
+	st len = vertical ? height : width;
+	uc line[len];
+	if (vertical)
+		getVerticalLine(image, best_r, best_theta, line);
+	else
+		getHorizontalLine(image, best_r, best_theta, line);
+	smoothLine(line, len);
+	st i_start = 0, i_end = len - 1;
+	while (i_start < len && line[i_start] == 0)
+		i_start++;
+	while (i_end >= 0 && line[i_end] == 0)
+		i_end--;
+	float _cos = cos(best_theta * PI / 180);
+	float _sin = sin(best_theta * PI / 180);
+	// Intersection between the line and the top border
+	st top_y = 0;
+	st top_x = (best_r - top_y * _sin) / _cos;
+	// Intersection between the line and the bottom border
+	st bottom_y = height - 1;
+	st bottom_x = (best_r - bottom_y * _sin) / _cos;
+	// Intersection between the line and the left border
+	st left_x = 0;
+	st left_y = (best_r - left_x * _cos) / _sin;
+	// Intersection between the line and the right border
+	st right_x = width - 1;
+	st right_y = (best_r - right_x * _cos) / _sin;
+
+	st x1, y1, x2, y2;
+	if (vertical)
+	{
+		if (top_x < 0) // Intersection with the left border
+		{
+			x1 = left_x;
+			y1 = left_y;
+		}
+		else if (top_x >= width) // Intersection with the right border
+		{
+			x1 = right_x;
+			y1 = right_y;
+		}
+		else
+		{
+			x1 = top_x;
+			y1 = top_y;
+		}
+		if (bottom_x < 0) // Intersection with the left border
+		{
+			x2 = left_x;
+			y2 = left_y;
+		}
+		else if (bottom_x >= width) // Intersection with the right border
+		{
+			x2 = right_x;
+			y2 = right_y;
+		}
+		else
+		{
+			x2 = bottom_x;
+			y2 = bottom_y;
+		}
+	}
+	else
+	{
+		if (left_y < 0) // Intersection with the top border
+		{
+			x1 = top_x;
+			y1 = top_y;
+		}
+		else if (left_y >= height) // Intersection with the bottom border
+		{
+			x1 = bottom_x;
+			y1 = bottom_y;
+		}
+		else
+		{
+			x1 = left_x;
+			y1 = left_y;
+		}
+		if (right_y < 0) // Intersection with the top border
+		{
+			x2 = top_x;
+			y2 = top_y;
+		}
+		else if (right_y >= height) // Intersection with the bottom border
+		{
+			x2 = bottom_x;
+			y2 = bottom_y;
+		}
+		else
+		{
+			x2 = right_x;
+			y2 = right_y;
+		}
+	}
+	float ratio_start = (float)i_start / len;
+	float ratio_end = (float)i_end / len;
+	st x_start = x1 + ratio_start * (x2 - x1);
+	st y_start = y1 + ratio_start * (y2 - y1);
+	st x_end = x1 + ratio_end * (x2 - x1);
+	st y_end = y1 + ratio_end * (y2 - y1);
+	
+	// TODO: get coordinates of the two points
 }
 
 void detectGrid()
@@ -206,6 +321,7 @@ void detectGrid()
 	uc r_theta[r_max * 360];
 	fillR_theta(image, r_theta, r_max);
 	printR_theta(r_theta, r_max);
+	Segment segments[50];
 	/*
 	for (st i = 0; i < 20; i++)
 	{
