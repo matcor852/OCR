@@ -20,4 +20,5 @@ clean:
 
 save:
 	git add --all
-	git status --porcelain | git commit -m
+	git commit -m "\"$(git status --porcelain)\""
+	git push

@@ -184,7 +184,6 @@ void smoothLine(uc *line, st len)
 
 Segment *getBestSegment(uc *r_theta, st r_max, Image *image)
 {
-	Segment *best_segment = NULL;
 	st best_value = 0;
 	st best_r = 0;
 	st best_theta = 0;
@@ -220,85 +219,20 @@ Segment *getBestSegment(uc *r_theta, st r_max, Image *image)
 		i_end--;
 	float _cos = cos(best_theta * PI / 180);
 	float _sin = sin(best_theta * PI / 180);
-	// Intersection between the line and the top border
-	st top_y = 0;
-	st top_x = (best_r - top_y * _sin) / _cos;
-	// Intersection between the line and the bottom border
-	st bottom_y = height - 1;
-	st bottom_x = (best_r - bottom_y * _sin) / _cos;
-	// Intersection between the line and the left border
-	st left_x = 0;
-	st left_y = (best_r - left_x * _cos) / _sin;
-	// Intersection between the line and the right border
-	st right_x = width - 1;
-	st right_y = (best_r - right_x * _cos) / _sin;
-
 	st x1, y1, x2, y2;
 	if (vertical)
 	{
-		if (top_x < 0) // Intersection with the left border
-		{
-			x1 = left_x;
-			y1 = left_y;
-		}
-		else if (top_x >= width) // Intersection with the right border
-		{
-			x1 = right_x;
-			y1 = right_y;
-		}
-		else
-		{
-			x1 = top_x;
-			y1 = top_y;
-		}
-		if (bottom_x < 0) // Intersection with the left border
-		{
-			x2 = left_x;
-			y2 = left_y;
-		}
-		else if (bottom_x >= width) // Intersection with the right border
-		{
-			x2 = right_x;
-			y2 = right_y;
-		}
-		else
-		{
-			x2 = bottom_x;
-			y2 = bottom_y;
-		}
+		y1 = 0;
+		x1 = (best_r - y1 * _sin) / _cos;
+		y2 = height - 1;
+		x2 = (best_r - y2 * _sin) / _cos;
 	}
 	else
 	{
-		if (left_y < 0) // Intersection with the top border
-		{
-			x1 = top_x;
-			y1 = top_y;
-		}
-		else if (left_y >= height) // Intersection with the bottom border
-		{
-			x1 = bottom_x;
-			y1 = bottom_y;
-		}
-		else
-		{
-			x1 = left_x;
-			y1 = left_y;
-		}
-		if (right_y < 0) // Intersection with the top border
-		{
-			x2 = top_x;
-			y2 = top_y;
-		}
-		else if (right_y >= height) // Intersection with the bottom border
-		{
-			x2 = bottom_x;
-			y2 = bottom_y;
-		}
-		else
-		{
-			x2 = right_x;
-			y2 = right_y;
-		}
+		x1 = 0;
+		y1 = (best_r - x1 * _cos) / _sin;
+		x2 = width - 1;
+		y2 = (best_r - x2 * _cos) / _sin;
 	}
 	float ratio_start = (float)i_start / len;
 	float ratio_end = (float)i_end / len;
@@ -306,8 +240,14 @@ Segment *getBestSegment(uc *r_theta, st r_max, Image *image)
 	st y_start = y1 + ratio_start * (y2 - y1);
 	st x_end = x1 + ratio_end * (x2 - x1);
 	st y_end = y1 + ratio_end * (y2 - y1);
-	
-	// TODO: get coordinates of the two points
+	Segment *segment = malloc(sizeof(Segment));
+	segment->x1 = x_start;
+	segment->y1 = y_start;
+	segment->x2 = x_end;
+	segment->y2 = y_end;
+	return segment;
+	// TODO: delete in r_theta
+	// TODO: store theta and length
 }
 
 void detectGrid()
@@ -321,7 +261,14 @@ void detectGrid()
 	uc r_theta[r_max * 360];
 	fillR_theta(image, r_theta, r_max);
 	printR_theta(r_theta, r_max);
-	Segment segments[50];
+	Segment *segments[50];
+	for (st i = 0; i < 50; i++)
+	{
+		Segment *segment = getBestSegment(r_theta, r_max, image);
+		if (segment == NULL)
+			break;
+		segments[i] = segment;
+	}
 	/*
 	for (st i = 0; i < 20; i++)
 	{
