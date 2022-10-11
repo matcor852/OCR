@@ -12,11 +12,7 @@ int main()
     origin->hiddenN = 20;
     origin->toLoopTrain = 500000;
     origin->toLoopValidate = 500000;
-<<<<<<< Updated upstream
     origin->epoch = 600;
-=======
-    origin->epoch = 200000;
->>>>>>> Stashed changes
     origin->epochInterval = 10;
     origin->l_rate = .001L;
     origin->optimizer = (Optimizer*) malloc(sizeof(Optimizer));
