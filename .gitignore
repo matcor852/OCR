@@ -71,3 +71,9 @@ NeuralNetwork/stats.txt
 *.save-failed
 NeuralNetwork/stats.txt
 *.save-failed
+NeuralNetwork/curated/hcd_784_10000_validation.bin
+NeuralNetwork/curated/hcd_784_10000_validation.bin
+NeuralNetwork/curated/hcd_784_60000_training.bin
+NeuralNetwork/curated/mnist_test.csv
+NeuralNetwork/curated/mnist_train.csv
+NeuralNetwork/stats.txt

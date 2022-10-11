@@ -35,7 +35,7 @@
 	<float.h>
 	"Tools.h"
 
-1665352234 source:d:\code\c\ocr\neuralnetwork\main.c
+1665432497 source:d:\code\c\ocr\neuralnetwork\main.c
 	<stdio.h>
 	<stdlib.h>
 	<time.h>
@@ -47,7 +47,7 @@
 	"Layer.h"
 	"Cost.h"
 
-1665343870 source:d:\code\c\ocr\neuralnetwork\network.c
+1665424279 source:d:\code\c\ocr\neuralnetwork\network.c
 	"Network.h"
 
 1660947709 source:d:\code\c\ocr\neuralnetwork\randuniform.c
@@ -137,7 +137,7 @@
 	<time.h>
 	<math.h>
 
-1665343647 source:d:\code\c\ocr\neuralnetwork\iohelper.c
+1665432093 source:d:\code\c\ocr\neuralnetwork\iohelper.c
 	"IOHelper.h"
 
 1665334386 d:\code\c\ocr\neuralnetwork\iohelper.h
