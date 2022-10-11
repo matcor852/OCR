@@ -208,8 +208,8 @@ static ld Network_BackProp(Network *net, NNParam *params, cui nth) {
             ld ml = (*cO) * (*oI);
             *leg += ml * (*w);
             *w -= params->l_rate * ml * (*pO)
-                + (*w >= .0L ? 1.0L : -1.0L) * params->optimizer->l1Norm
-                + 2 * params->optimizer->l2Norm * (*w);
+                - (*w >= .0L ? 1.0L : -1.0L) * params->optimizer->l1Norm
+                - 2 * params->optimizer->l2Norm * (*w);
             if (!bias_done) *b -= params->l_rate * ml;
         }
         bias_done = true;

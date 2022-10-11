@@ -62,8 +62,8 @@ void LoadData(NNParam *param) {
     param->oSize = 10;
 
     ui startI = 0;
-	char pathTrain[] = "D:/Code/C/OCR/NeuralNetwork/curated/hcd_784_95_training.bin";
-	char pathValidate[] = "D:/Code/C/OCR/NeuralNetwork/curated/hcd_784_95_validation.bin";
+	char pathTrain[] = "D:/Code/C/OCR/NeuralNetwork/curated/hcd_784_60000_training.bin";
+	char pathValidate[] = "D:/Code/C/OCR/NeuralNetwork/curated/hcd_784_10000_validation.bin";
 
 	ui SamplesTrain = 0, SamplesValidate = 0;
 	if (sscanf_s(pathTrain, "%*[^_]%*[_]%*[^_]%*[_]%u", &SamplesTrain) != 1) {
@@ -148,8 +148,8 @@ void OverfitLoad(NNParam *param)
     param->oSize = 10;
 
     ui startI = 0;
-	char pathTrain[] = "D:/Code/C/OCR/NeuralNetwork/curated/hcd_784_95_training.bin";
-	char pathValidate[] = "D:/Code/C/OCR/NeuralNetwork/curated/hcd_784_95_validation.bin";
+	char pathTrain[] = "D:/Code/C/OCR/NeuralNetwork/curated/hcd_784_60000_training.bin";
+	char pathValidate[] = "D:/Code/C/OCR/NeuralNetwork/curated/hcd_784_10000_validation.bin";
 
 	ui SamplesTrain = 0, SamplesValidate = 0;
 	if (sscanf_s(pathTrain, "%*[^_]%*[_]%*[^_]%*[_]%u", &SamplesTrain) != 1) {

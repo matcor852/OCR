@@ -10,11 +10,11 @@ int main()
 
     NNParam *origin = (NNParam*) malloc(sizeof(NNParam));
     origin->hiddenN = 20;
-    origin->toLoopTrain = 900;
-    origin->toLoopValidate = 900;
-    origin->epoch = 200000;
-    origin->epochInterval = 100;
-    origin->l_rate = .01L;
+    origin->toLoopTrain = 500000;
+    origin->toLoopValidate = 500000;
+    origin->epoch = 600;
+    origin->epochInterval = 10;
+    origin->l_rate = .001L;
     origin->optimizer = (Optimizer*) malloc(sizeof(Optimizer));
     origin->optimizer->l1Norm = .0L; //0.010L;
     origin->optimizer->l2Norm = .0L; //0.001L;
