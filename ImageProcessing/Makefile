@@ -17,3 +17,7 @@ run:
 clean:
 	rm -rf *[.do] main
 	clear
+
+save:
+	git add --all
+	git status --porcelain | git commit -m
