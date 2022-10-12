@@ -13,7 +13,7 @@ void LoadData(NNParam* param);
 float Validate(Network *net, const NNParam *P);
 void OverfitLoad(NNParam *param);
 
-void PerfSearch(NNParam *origin);
+void PerfSearch(NNParam *origin, Network *net);
 static DWORD WINAPI Train(LPVOID Param);
 void threadedSearch(cui threads, NNParam *origin, ld ldecay);
 void NNParam_Display(NNParam *param);

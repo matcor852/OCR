@@ -62,8 +62,8 @@ void LoadData(NNParam *param) {
     param->oSize = 10;
 
     ui startI = 0;
-	char pathTrain[] = "D:/Code/TP/C/OCR/NeuralNetwork/curated/hcd_784_60000_training.bin";
-	char pathValidate[] = "D:/Code/TP/C/OCR/NeuralNetwork/curated/hcd_784_10000_validation.bin";
+	char pathTrain[] = "D:/Code/C/OCR/NeuralNetwork/curated/hcd_784_60000_training.bin";
+	char pathValidate[] = "D:/Code/C/OCR/NeuralNetwork/curated/hcd_784_10000_validation.bin";
 
 	ui SamplesTrain = 0, SamplesValidate = 0;
 	if (sscanf_s(pathTrain, "%*[^_]%*[_]%*[^_]%*[_]%u", &SamplesTrain) != 1) {
@@ -151,8 +151,8 @@ void OverfitLoad(NNParam *param)
     param->oSize = 10;
 
     ui startI = 0;
-	char pathTrain[] = "D:/Code/TP/C/OCR/NeuralNetwork/curated/hcd_784_60000_training.bin";
-	char pathValidate[] = "D:/Code/TP/C/OCR/NeuralNetwork/curated/hcd_784_10000_validation.bin";
+	char pathTrain[] = "D:/Code/C/OCR/NeuralNetwork/curated/hcd_784_60000_training.bin";
+	char pathValidate[] = "D:/Code/C/OCR/NeuralNetwork/curated/hcd_784_10000_validation.bin";
 
 	ui SamplesTrain = 0, SamplesValidate = 0;
 	if (sscanf_s(pathTrain, "%*[^_]%*[_]%*[^_]%*[_]%u", &SamplesTrain) != 1) {
@@ -196,10 +196,10 @@ void OverfitLoad(NNParam *param)
 	param->outputTest = param->outputTrain;
 }
 
-void PerfSearch(NNParam *origin) {
+void PerfSearch(NNParam *origin, Network *net) {
     float bperf = .0f, curr_perf;
     ui c = 0;
-    Network *net = CSave(origin->hiddenN);
+    if (net == NULL) net = CSave(origin->hiddenN);
     printf("\nBeginning Neural Network training with following parameters :\n");
     NNParam_Display(origin);
     if (origin->track) fclose(fopen(origin->StatsFile, "w"));
@@ -316,11 +316,11 @@ void threadedSearch(cui threads, NNParam *origin, ld ldecay) {
 void NNParam_Display(NNParam *param) {
     //printf("\nNeural Network Params :\n");
     printf("\n\tHidden neurons : %u", param->hiddenN);
-    printf("\t\tLearning Rate : %Lg\n", param->l_rate);
+    printf("\t\t\tLearning Rate : %Lg\n", param->l_rate);
     printf("\tTraining samples : %u", param->toLoopTrain);
     printf("\t\tValidation samples : %u\n", param->toLoopValidate);
     printf("\tEpoch : %u", param->epoch);
-    printf("\t\t\tEpoch interval : %u\n", param->epochInterval);
+    printf("\t\t\t\tEpoch interval : %u\n", param->epochInterval);
     printf("\tCost Function : %s", param->cost_func);
     printf("\t\tTracking : %s\n\n", param->track ? "true" : "false");
 }
