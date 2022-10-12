@@ -255,7 +255,10 @@ static ld Network_BackProp(Network *net, NNParam *params, cui nth) {
     }
 
     if (optz != NULL) {
-
+        mwt = optz->Mwt[net->nbLayers-3];
+        vwt = optz->Vwt[net->nbLayers-3];
+        mbt = optz->Mbt[net->nbLayers-3];
+        vbt = optz->Vbt[net->nbLayers-3];
     }
 
 	ld *tempLegacy, *OutIn_i;
@@ -275,6 +278,11 @@ static ld Network_BackProp(Network *net, NNParam *params, cui nth) {
                 *tL += ml * (*w);
                 if (!dn1) l1 += absl(*w);
                 if (!dn2) l2 += (*w) * (*w);
+                if (optz != NULL) {
+
+                }
+
+
                 *w -= params->l_rate * ml * (*pO)
                     + params->l_rate * (*w >= .0L ? 1.0L : -1.0L) * params->l1Norm
                     + params->l_rate * 2 * params->l2Norm * (*w);
@@ -286,7 +294,9 @@ static ld Network_BackProp(Network *net, NNParam *params, cui nth) {
         Legacy = tempLegacy;
         free(OutIn_i);
 	}
+
 	free(Legacy);
+	if (optz != NULL) optz->iter++;
 	return error + params->l1Norm*l1 + params->l2Norm*l2;
 }
 
