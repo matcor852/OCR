@@ -136,8 +136,9 @@ void getHorizontalLine(Image *image, st r, st theta, uc *line)
 	}
 }
 
-void smoothLine(uc *line, st len)
+void smoothLine(uc *line, st len, st *i_start, st *i_end)
 {
+	// Gets the median as threshold
 	uc histo[256] = {0};
 	for (st i = 0; i < len; i++)
 		histo[line[i]]++;
@@ -147,43 +148,51 @@ void smoothLine(uc *line, st len)
 		total += histo[threshold++];
 	for (st i = 0; i < len; i++)
 		line[i] = line[i] > threshold ? 1 : 0;
-	for (st r_smooth = 1; r_smooth < len / 2; r_smooth++)
+	// Fills the gaps smaller than min_gap
+	int change = 1;
+	st min_gap = 2.5 / 100 * len;
+	while (change)
 	{
-		uc newLine[len];
-		for (st i = 0; i < len; i++)
+		change = 0;
+		for (size_t i = 0; i < len; i++)
 		{
-			st nb = 0;
-			st sum = 0;
-			for (st j = i - r_smooth; j <= i + r_smooth; j++)
+			if (line[i] == 0)
 			{
-				if (j < 0 || j >= len)
-					continue;
-				sum += line[j];
-				nb++;
-			}
-			printf("nb = %zu, sum = %zu\n", nb, sum);
-			newLine[i] = nb ? (sum + nb / 2) / nb : 0;
-			printf("mean = %u\n", newLine[i]);
-		}
-		st i_start = 0;
-		while (i_start < len && newLine[i_start] == 0)
-			i_start++;
-		st i_end = len - 1;
-		while (i_end >= 0 && newLine[i_end] == 0)
-			i_end--;
-		int is_smooth = 1;
-		for (st i = i_start; i <= i_end; i++)
-		{
-			if (newLine[i] == 0)
-			{
-				line = newLine;
-				is_smooth = 0;
-				break;
+				st j = i;
+				while (j < len && line[j] == 0)
+					j++;
+				if (j - i < min_gap)
+				{
+					for (st k = i; k < j; k++)
+						line[k] = 1;
+					change = 1;
+				}
+				i = j;
 			}
 		}
-		if (is_smooth)
-			return;
 	}
+	// Keeps only the longest line
+	st max_len = 0;
+	st max_start = 0;
+	for (size_t i = 0; i < len; i++)
+	{
+		if (line[i] == 1)
+		{
+			st j = i;
+			while (j < len && line[j] == 1)
+				j++;
+			if (j - i > max_len)
+			{
+				max_len = j - i;
+				max_start = i;
+			}
+			i = j;
+		}
+	}
+	for (size_t i = 0; i < len; i++)
+		line[i] = i >= max_start && i < max_start + max_len ? 1 : 0;
+	*i_start = max_start;
+	*i_end = max_start + max_len;
 }
 
 void deleteBest(uc *r_theta, st r_max, st best_r, st best_theta)
@@ -232,17 +241,12 @@ Segment *getBestSegment(uc *r_theta, st r_max, Image *image)
 		getVerticalLine(image, best_r, best_theta, line);
 	else
 		getHorizontalLine(image, best_r, best_theta, line);
-	printf("Smoothing...\n");
-	smoothLine(line, len);
-	printf("Computing Edges...\n");
-	st i_start = 0, i_end = len - 1;
-	while (i_start < len && line[i_start] == 0)
-		i_start++;
-	while (i_end >= 0 && line[i_end] == 0)
-		i_end--;
+	st i_start, i_end;
+	smoothLine(line, len, &i_start, &i_end);
+	printf("i_start = %zu, i_end = %zu\n", i_start, i_end);
 	float _cos = cos(best_theta * PI / 180);
 	float _sin = sin(best_theta * PI / 180);
-	st x1, y1, x2, y2;
+	int x1, y1, x2, y2;
 	if (vertical)
 	{
 		y1 = 0;
@@ -257,6 +261,7 @@ Segment *getBestSegment(uc *r_theta, st r_max, Image *image)
 		x2 = width - 1;
 		y2 = (best_r - x2 * _cos) / _sin;
 	}
+	printf("x1 = %d, y1 = %d, x2 = %d, y2 = %d\n", x1, y1, x2, y2);
 	float ratio_start = (float)i_start / len;
 	float ratio_end = (float)i_end / len;
 	st x_start = x1 + ratio_start * (x2 - x1);
@@ -271,7 +276,15 @@ Segment *getBestSegment(uc *r_theta, st r_max, Image *image)
 	segment->theta = best_theta;
 	segment->length = sqrt(pow(x_end - x_start, 2) + pow(y_end - y_start, 2));
 	deleteBest(r_theta, r_max, best_r, best_theta);
-	printf("Segment: (%zu, %zu), (%zu, %zu)\nLength: %zu\n\n", x_start, y_start, x_end, y_end, segment->length);
+	printf("Segment: (%zu, %zu), (%zu, %zu)\n", x_start, y_start, x_end, y_end);
+	printf("Theta: %zu\n", best_theta);
+	printf("Length: %zu\n", segment->length);
+	if (segment->length < len / 4)
+	{
+		printf("Segment too short\n");
+		free(segment);
+		return NULL;
+	}
 	return segment;
 }
 
@@ -286,14 +299,20 @@ void detectGrid()
 	uc r_theta[r_max * 360];
 	fillR_theta(image, r_theta, r_max);
 	printR_theta(r_theta, r_max);
-	Segment *segments[50];
+	Segment **segments = malloc(sizeof(Segment *) * 50);
+	st nb_Segments = 0;
 	for (st i = 0; i < 50; i++)
 	{
 		Segment *segment = getBestSegment(r_theta, r_max, image);
-		if (segment == NULL)
-			break;
-		segments[i] = segment;
+		printf("\n");
+		if (segment != NULL)
+		{
+			segments[nb_Segments] = segment;
+			nb_Segments++;
+		}
 	}
+	segments = realloc(segments, sizeof(Segment *) * nb_Segments);
+	printf("width = %zu, height = %zu\n", width, height);
 	/*
 	for (st i = 0; i < 20; i++)
 	{
