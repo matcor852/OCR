@@ -312,25 +312,27 @@ void detectGrid()
 		}
 	}
 	printf("width = %zu, height = %zu\n", width, height);
-	for (st i_first_segment = 0; i_first_segment < nb_segments; i_first_segment++)
+	for (st i_segment1 = 0; i_segment1 < nb_segments; i_segment1++)
 	{
-		Segment *first_segment = segments[i_first_segment];
+		Segment *segment1 = segments[i_segment1];
 		st adj1[30];
 		st i_adj1 = 0;
 		for (st j = 0; j < nb_segments; j++)
 		{
-			if (j == i_first_segment)
+			if (j == i_segment1)
 				continue;
-			if (abs(first_segment->length - segments[j]->length) > r_max)
+			if (abs(segment1->length - segments[j]->length) > r_max)
 				continue;
-			int diff_theta = (-90 + first_segment->theta - segments[j]->theta) % 180;
+			int diff_theta = (-90 + segment1->theta - segments[j]->theta) % 180;
 			if (diff_theta > 5 || diff_theta < 175)
 				continue;
-			int diff_coord1 = pow(first_segment->x1 - segments[j]->x1, 2) +
-							  pow(first_segment->y1 - segments[j]->y1, 2);
-			int diff_coord2 = pow(first_segment->x1 - segments[j]->x2, 2) +
-							  pow(first_segment->y1 - segments[j]->y2, 2);
-			if (diff_coord1 > pow(0.015 * r_max, 2) || diff_coord2 > pow(0.015 * r_max, 2))
+			int diff_coord1 = pow(segment1->x1 - segments[j]->x1, 2) +
+							  pow(segment1->y1 - segments[j]->y1, 2);
+			int diff_coord2 = pow(segment1->x1 - segments[j]->x2, 2) +
+							  pow(segment1->y1 - segments[j]->y2, 2);
+			if (diff_coord2 <= pow(0.015 * r_max, 2))
+				swapPoints(segments[j]);
+			else if (diff_coord1 > pow(0.015 * r_max, 2))
 				continue;
 			adj1[i_adj1] = j;
 			i_adj1++;
@@ -341,18 +343,20 @@ void detectGrid()
 		st i_adj2 = 0;
 		for (st j = 0; j < nb_segments; j++)
 		{
-			if (j == i_first_segment)
+			if (j == i_segment1)
 				continue;
-			if (abs(first_segment->length - segments[j]->length) > r_max)
+			if (abs(segment1->length - segments[j]->length) > r_max)
 				continue;
-			int diff_theta = (-90 + first_segment->theta - segments[j]->theta) % 180;
+			int diff_theta = (-90 + segment1->theta - segments[j]->theta) % 180;
 			if (diff_theta > 5 || diff_theta < 175)
 				continue;
-			int diff_coord1 = pow(first_segment->x2 - segments[j]->x1, 2) +
-							  pow(first_segment->y2 - segments[j]->y1, 2);
-			int diff_coord2 = pow(first_segment->x2 - segments[j]->x2, 2) +
-							  pow(first_segment->y2 - segments[j]->y2, 2);
-			if (diff_coord1 > pow(0.015 * r_max, 2) || diff_coord2 > pow(0.015 * r_max, 2))
+			int diff_coord1 = pow(segment1->x2 - segments[j]->x1, 2) +
+							  pow(segment1->y2 - segments[j]->y1, 2);
+			int diff_coord2 = pow(segment1->x2 - segments[j]->x2, 2) +
+							  pow(segment1->y2 - segments[j]->y2, 2);
+			if (diff_coord2 <= pow(0.015 * r_max, 2))
+				swapPoints(segments[j]);
+			else if (diff_coord1 > pow(0.015 * r_max, 2))
 				continue;
 			adj2[i_adj2] = j;
 			i_adj2++;
@@ -361,7 +365,7 @@ void detectGrid()
 
 		for (st j = 0; j < nb_segments; j++)
 		{
-			if (j == i_first_segment)
+			if (j == i_segment1)
 				continue;
 			st k;
 			for (k = 0; adj1[k] != nb_segments; k++)
@@ -378,11 +382,17 @@ void detectGrid()
 			}
 			if (adj2[k] == nb_segments)
 				continue;
-			Segment *segment3 = segments[j];
+			Segment *segment4 = segments[j];
 			for (st k = 0; adj1[k] != nb_segments; k++)
 			{
-				Segment *segment1 = segments[k];
-
+				Segment *segment2 = segments[k];
+				st diff_coord1 = pow(segment2->x1 - segment4->x1, 2) +
+								 pow(segment2->y1 - segment4->y1, 2);
+				st diff_coord2 = pow(segment2->x2 - segment4->x2, 2) +
+								 pow(segment2->y2 - segment4->y2, 2);
+				if (diff_coord1 > pow(0.015 * r_max, 2) &&
+					diff_coord2 > pow(0.015 * r_max, 2))
+					continue;
 			}
 		}
 	}
