@@ -228,14 +228,14 @@ Segment *getBestSegment(uc *r_theta, st r_max, Image *image)
 		return NULL;
 	int vertical = isVertical(best_theta);
 	st height = image->height, width = image->width;
-	st len = vertical ? height : width;
-	uc line[len];
+	st length = vertical ? height : width;
+	uc line[length];
 	if (vertical)
 		getVerticalLine(image, best_r, best_theta, line);
 	else
 		getHorizontalLine(image, best_r, best_theta, line);
 	st i_start, i_end;
-	smoothLine(line, best_value, len, &i_start, &i_end);
+	smoothLine(line, best_value, length, &i_start, &i_end);
 	float _cos = cos(best_theta * PI / 180);
 	float _sin = sin(best_theta * PI / 180);
 	int x1, y1, x2, y2;
@@ -253,25 +253,25 @@ Segment *getBestSegment(uc *r_theta, st r_max, Image *image)
 		x2 = width - 1;
 		y2 = (best_r - x2 * _cos) / _sin;
 	}
-	float ratio_start = (float)i_start / len;
-	float ratio_end = (float)i_end / len;
-	int x_start = x1 + ratio_start * (x2 - x1);
-	int y_start = y1 + ratio_start * (y2 - y1);
-	int x_end = x1 + ratio_end * (x2 - x1);
-	int y_end = y1 + ratio_end * (y2 - y1);
+	float ratio_start = (float)i_start / length;
+	float ratio_end = (float)i_end / length;
+	st x_start = x1 + ratio_start * (x2 - x1);
+	st y_start = y1 + ratio_start * (y2 - y1);
+	st x_end = x1 + ratio_end * (x2 - x1);
+	st y_end = y1 + ratio_end * (y2 - y1);
+	deleteBest(r_theta, r_max, best_r, best_theta);
+	if (x_start >= width || x_start >= width || y_start >= height || y_start >= height)
+		return NULL;
+	st lenth_segment = sqrt(pow(x_end - x_start, 2) + pow(y_end - y_start, 2));
+	if (lenth_segment < length / 10)
+		return NULL;
 	Segment *segment = malloc(sizeof(Segment));
-	segment->x1 = x_start < 0 ? 0 : x_start;
-	segment->y1 = y_start < 0 ? 0 : y_start;
-	segment->x2 = x_end >= width ? width - 1 : x_end;
-	segment->y2 = y_end >= height ? height - 1 : y_end;
+	segment->x1 = x_start;
+	segment->y1 = y_start;
+	segment->x2 = x_end;
+	segment->y2 = y_end;
 	segment->theta = best_theta;
 	segment->length = sqrt(pow(x_end - x_start, 2) + pow(y_end - y_start, 2));
-	deleteBest(r_theta, r_max, best_r, best_theta);
-	if (segment->length < len / 10)
-	{
-		free(segment);
-		return NULL;
-	}
 	return segment;
 }
 
@@ -286,7 +286,7 @@ void detectGrid()
 	uc r_theta[r_max * 360];
 	fillR_theta(image, r_theta, r_max);
 	printR_theta(r_theta, r_max);
-	Segment *segments[50];
+	Segment *segments[30];
 	st nb_Segments = 0;
 	while (nb_Segments < 30)
 	{
@@ -302,48 +302,8 @@ void detectGrid()
 		}
 	}
 	printf("width = %zu, height = %zu\n", width, height);
-	/*
-	for (st i = 0; i < 20; i++)
+	for (st i_first_segment = 0; i_first_segment < nb_Segments; i_first_segment++)
 	{
-		int best_value = 0;
-		st best_r = 0, best_theta = 0;
-		int value;
-		for (st r = 0; r < r_max; r++)
-			for (st theta = 0; theta < 360; theta++)
-			{
-				value = r_theta[r][theta];
-				if (value > best_value)
-				{
-					best_value = value;
-					best_r = r;
-					best_theta = theta;
-				}
-			}
-		printf("r = %zu, theta = %zu, value = %d\n", best_r, best_theta, best_value);
-		int p1x = 0, p1y = best_r / sin(best_theta * PI / 180);
-		int p2y = 0, p2x = best_r / cos(best_theta * PI / 180);
-		int p3x = width - 1, p3y = (best_r - p3x * cos(best_theta * PI / 180)) / sin(best_theta * PI / 180);
-		int p4y = 0, p4x = (best_r - p4y * sin(best_theta * PI / 180)) / cos(best_theta * PI / 180);
-		printf("p1 = (%d, %d); p2 = (%d, %d)\n", p1x, p1y, p2x, p2y);
-		printf("p3 = (%d, %d); p4 = (%d, %d)\n\n", p3x, p3y, p4x, p4y);
-		st len;
-		uchar *line = getLine(pixels, width, height, best_r, best_theta, best_value, &len);
-		for (st i = 0; i < len; i++)
-			printf("%c ", line[i] ? '#' : '.');
-		printf("\n");
-		for (st r = best_r - 20; r <= best_r + 20; r++)
-		{
-			if (r >= r_max)
-				break;
-			if (r < 0)
-				continue;
-			for (st theta = best_theta - 20; theta <= best_theta + 20; theta++)
-			{
-				r_theta[r][theta % 360] = 0;
-			}
-		}
-		free(line);
+		
 	}
-	*/
-	return;
 }
