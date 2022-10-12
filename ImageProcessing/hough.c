@@ -287,14 +287,14 @@ void detectGrid()
 	fillR_theta(image, r_theta, r_max);
 	printR_theta(r_theta, r_max);
 	Segment *segments[30];
-	st nb_Segments = 0;
-	while (nb_Segments < 30)
+	st nb_segments = 0;
+	while (nb_segments < 30)
 	{
 		Segment *segment = getBestSegment(r_theta, r_max, image);
 		if (segment != NULL)
 		{
-			segments[nb_Segments] = segment;
-			nb_Segments++;
+			segments[nb_segments] = segment;
+			nb_segments++;
 			printf("Segment: (%zu, %zu), (%zu, %zu)\n", segment->x1, segment->y1, segment->x2, segment->y2);
 			printf("Theta: %zu\n", segment->theta);
 			printf("Length: %zu\n", segment->length);
@@ -302,8 +302,65 @@ void detectGrid()
 		}
 	}
 	printf("width = %zu, height = %zu\n", width, height);
-	for (st i_first_segment = 0; i_first_segment < nb_Segments; i_first_segment++)
+	for (st i_first_segment = 0; i_first_segment < nb_segments; i_first_segment++)
 	{
-		
+		Segment *first_segment = segments[i_first_segment];
+		st adj1[30];
+		st i_adj1 = 0;
+		for (st j = 0; j < nb_segments; j++)
+		{
+			if (j == i_first_segment)
+				continue;
+			if (abs(first_segment->length - segments[j]->length) > r_max)
+				continue;
+			int diff_theta = (-90 + first_segment->theta - segments[j]->theta) % 180;
+			if (diff_theta > 5 || diff_theta < 175)
+				continue;
+			int diff_coord1 = pow(first_segment->x1 - segments[j]->x1, 2) +
+							  pow(first_segment->y1 - segments[j]->y1, 2);
+			int diff_coord2 = pow(first_segment->x1 - segments[j]->x2, 2) +
+							  pow(first_segment->y1 - segments[j]->y2, 2);
+			if (diff_coord1 > pow(0.015 * r_max, 2) || diff_coord2 > pow(0.015 * r_max, 2))
+				continue;
+			adj1[i_adj1] = j;
+			i_adj1++;
+		}
+		adj1[i_adj1] = nb_segments;
+
+		st adj2[30];
+		st i_adj2 = 0;
+		for (st j = 0; j < nb_segments; j++)
+		{
+			if (j == i_first_segment)
+				continue;
+			if (abs(first_segment->length - segments[j]->length) > r_max)
+				continue;
+			int diff_theta = (-90 + first_segment->theta - segments[j]->theta) % 180;
+			if (diff_theta > 5 || diff_theta < 175)
+				continue;
+			int diff_coord1 = pow(first_segment->x2 - segments[j]->x1, 2) +
+							  pow(first_segment->y2 - segments[j]->y1, 2);
+			int diff_coord2 = pow(first_segment->x2 - segments[j]->x2, 2) +
+							  pow(first_segment->y2 - segments[j]->y2, 2);
+			if (diff_coord1 > pow(0.015 * r_max, 2) || diff_coord2 > pow(0.015 * r_max, 2))
+				continue;
+			adj2[i_adj2] = j;
+			i_adj2++;
+		}
+		adj2[i_adj2] = nb_segments;
+
+		for (st j = 0; j < nb_segments; j++)
+		{
+			if (j == i_first_segment)
+				continue;
+			st k;
+			for (k = 0; adj1[k] != nb_segments; k++)
+			{
+				if (j == adj1[k])
+					break;
+			}
+			if (adj1[k] == nb_segments)
+				continue;
+		}
 	}
 }
