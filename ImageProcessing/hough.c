@@ -275,6 +275,16 @@ Segment *getBestSegment(uc *r_theta, st r_max, Image *image)
 	return segment;
 }
 
+void swapPoints(Segment *segment)
+{
+	st tmp = segment->x1;
+	segment->x1 = segment->x2;
+	segment->x2 = tmp;
+	tmp = segment->y1;
+	segment->y1 = segment->y2;
+	segment->y2 = tmp;
+}
+
 void detectGrid()
 {
 	Image *image = openImage("Images/image_04.jpeg");
@@ -361,6 +371,19 @@ void detectGrid()
 			}
 			if (adj1[k] == nb_segments)
 				continue;
+			for (k = 0; adj2[k] != nb_segments; k++)
+			{
+				if (j == adj2[k])
+					break;
+			}
+			if (adj2[k] == nb_segments)
+				continue;
+			Segment *segment3 = segments[j];
+			for (st k = 0; adj1[k] != nb_segments; k++)
+			{
+				Segment *segment1 = segments[k];
+
+			}
 		}
 	}
 }
