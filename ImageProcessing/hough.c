@@ -7,7 +7,7 @@
 
 typedef struct
 {
-	st x1, y1, x2, y2;
+	st x1, y1, x2, y2, theta, length;
 } Segment;
 
 int isVertical(st theta)
@@ -182,6 +182,21 @@ void smoothLine(uc *line, st len)
 	}
 }
 
+void deleteBest(uc *r_theta, st r_max, st best_r, st best_theta)
+{
+	st theta_min = (best_theta + 345) % 360;
+	st theta_max = (best_theta + 15) % 360;
+	st r_min = best_r - 15 < 0 ? 0 : best_r - 15;
+	st r_max = best_r + 15 >= r_max ? r_max - 1 : best_r + 15;
+	for (st r = r_min; r <= r_max; r++)
+		for (st theta = theta_min; theta != theta_max; theta++)
+		{
+			if (theta == 360)
+				theta = 0;
+			r_theta[r * 360 + theta] = 0;
+		}
+}
+
 Segment *getBestSegment(uc *r_theta, st r_max, Image *image)
 {
 	st best_value = 0;
@@ -245,9 +260,10 @@ Segment *getBestSegment(uc *r_theta, st r_max, Image *image)
 	segment->y1 = y_start;
 	segment->x2 = x_end;
 	segment->y2 = y_end;
+	segment->theta = best_theta;
+	segment->length = sqrt(pow(x_end - x_start, 2) + pow(y_end - y_start, 2));
+	deleteBest(r_theta, r_max, best_r, best_theta);
 	return segment;
-	// TODO: delete in r_theta
-	// TODO: store theta and length
 }
 
 void detectGrid()
