@@ -86,18 +86,19 @@ void Network_Save(Network *net, char name[]) {
 		fprintf(stderr, "Cannot open file '%s': %s\n", filename, errbuf);
        exit(1);
 	}
-	for(ui i=0; i<net->nbLayers; i++) {
-		ui len = (ui)strlen(net->layers[i].act_name);
-		LayerSave saved = {	net->layers[i].Neurons,
-							net->layers[i].conns,
+
+	for(Layer *l=net->layers; l<net->layers+net->nbLayers; l++) {
+		ui len = (ui)strlen((*l).act_name);
+		LayerSave saved = {	(*l).Neurons,
+							(*l).conns,
 							len};
 		fwrite(&saved, sizeof(saved), 1, fptr);
-		if (net->layers[i].pLayer != NULL) {
-			fwrite(net->layers[i].act_name,sizeof(char), len, fptr);
-			fwrite(&net->layers[i].bias[0], sizeof(ld),
-					net->layers[i].Neurons, fptr);
-			fwrite(&net->layers[i].weights[0], sizeof(ld),
-					net->layers[i].conns, fptr);
+		if ((*l).pLayer != NULL) {
+			fwrite((*l).act_name,sizeof(char), len, fptr);
+			fwrite(&(*l).bias[0], sizeof(ld),
+					(*l).Neurons, fptr);
+			fwrite(&(*l).weights[0], sizeof(ld),
+					(*l).conns, fptr);
 		}
 	}
 	fclose(fptr);
@@ -188,11 +189,21 @@ static ld Network_BackProp(Network *net, NNParam *params, cui nth) {
 	ld (*deriv)(ld*,cui,cui) = get_deriv(L->act_name);
 	ld *expected = params->outputTrain[nth];
 
+	Optimizer *optz = params->optimizer;
 	bool dn1 = params->l1Norm == 0.0L,
          dn2 = params->l2Norm == 0.0L;
     ld l1 = .0L, l2 = .0L;
-    ld b1t = params->optimizer != NULL ? powl(0.9L, params->optimizer->iter) : 0,
-       b2t = params->optimizer != NULL ? powl(0.999L, params->optimizer->iter) : 0;
+
+    ld b1t = 0, b2t = 0, *mwt, *vwt, *mbt, *vbt;
+    if (optz != NULL) {
+        b1t = powl(0.9L, optz->iter);
+        b2t = powl(0.999L, optz->iter);
+        mwt = optz->Mwt[net->nbLayers-2];
+        vwt = optz->Vwt[net->nbLayers-2];
+        mbt = optz->Mbt[net->nbLayers-2];
+        vbt = optz->Vbt[net->nbLayers-2];
+    }
+
 	ld error = get_cost(params->cost_func)(L->output, expected, params->oSize);
 
 	ld CostOut[L->Neurons];
@@ -210,16 +221,41 @@ static ld Network_BackProp(Network *net, NNParam *params, cui nth) {
         pO<L->pLayer->output+L->pLayer->Neurons; pO++, leg++) {
         for(ld *cO=CostOut, *oI=OutIn, *b=L->bias;
             cO<CostOut+L->Neurons; cO++, oI++, w++, b++) {
-            ld ml = (*cO) * (*oI);
+            ld ml = (*cO) * (*oI), pw = (*w);
             *leg += ml * (*w);
             if (!dn1) l1 += absl(*w);
             if (!dn2) l2 += (*w) * (*w);
-            *w -= params->l_rate * ml * (*pO)
-                + params->l_rate * (*w >= .0L ? 1.0L : -1.0L) * params->l1Norm
-                + params->l_rate * 2 * params->l2Norm * (*w);
-            if (!bias_done) *b -= params->l_rate * ml;
+            if (optz != NULL) {
+                ld gd = ml * (*pO);
+                *mwt = 0.9L * (*mwt) + (1-0.9) * gd;
+                *vwt = 0.999L * (*vwt) + (1-0.999L) * gd * gd;
+                ld mwc = (*mwt) / (1-b1t);
+                ld vwc = (*vwt) / (1-b2t);
+                *w -= params->l_rate * mwc / (sqrtl(vwc) + EPS);
+                mwt++;
+                vwt++;
+            }
+            else *w -= params->l_rate * ml * (*pO);
+            *w += params->l_rate * (pw >= .0L ? 1.0L : -1.0L) * params->l1Norm
+                  + params->l_rate * 2 * params->l2Norm * pw;
+            if (!bias_done) {
+                if (optz != NULL) {
+                    *mbt = 0.9 * (*mbt) + (1-0.9L) * ml;
+                    *vbt = 0.999L * (*vbt) + (1-0.999L) * ml * ml;
+                    ld mbc = (*mbt) / (1-b1t);
+                    ld vbc = (*vbt) / (1-b2t);
+                    *b -= params->l_rate * mbc / (sqrtl(vbc));
+                    mbt++;
+                    vbt++;
+                }
+                else *b -= params->l_rate * ml;
+            }
         }
         bias_done = true;
+    }
+
+    if (optz != NULL) {
+
     }
 
 	ld *tempLegacy, *OutIn_i;
