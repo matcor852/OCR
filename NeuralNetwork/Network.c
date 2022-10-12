@@ -187,11 +187,16 @@ static ld Network_BackProp(Network *net, NNParam *params, cui nth) {
 	ld (*cost_deriv)(ld, ld) = get_cost_deriv(params->cost_func);
 	ld (*deriv)(ld*,cui,cui) = get_deriv(L->act_name);
 	ld *expected = params->outputTrain[nth];
-	ld error = get_cost(params->cost_func)(L->output, expected, params->oSize)
-                + Penalty(net, params->optimizer);
+
+	bool dn1 = params->l1Norm == 0.0L,
+         dn2 = params->l2Norm == 0.0L;
+    ld l1 = .0L, l2 = .0L;
+    ld b1t = params->optimizer != NULL ? powl(0.9L, params->optimizer->iter) : 0,
+       b2t = params->optimizer != NULL ? powl(0.999L, params->optimizer->iter) : 0;
+	ld error = get_cost(params->cost_func)(L->output, expected, params->oSize);
+
 	ld CostOut[L->Neurons];
 	ld OutIn[L->Neurons];
-
 	ui i=0;
 	for(ld *cO=CostOut, *oI=OutIn, *o=L->output, *e=expected;
         cO<CostOut+L->Neurons; cO++, oI++, o++, e++, i++) {
@@ -204,12 +209,14 @@ static ld Network_BackProp(Network *net, NNParam *params, cui nth) {
 	for(ld *pO=L->pLayer->output, *leg=Legacy, *w=L->weights;
         pO<L->pLayer->output+L->pLayer->Neurons; pO++, leg++) {
         for(ld *cO=CostOut, *oI=OutIn, *b=L->bias;
-            cO<CostOut+L->Neurons; cO++, oI++, w++) {
+            cO<CostOut+L->Neurons; cO++, oI++, w++, b++) {
             ld ml = (*cO) * (*oI);
             *leg += ml * (*w);
+            if (!dn1) l1 += absl(*w);
+            if (!dn2) l2 += (*w) * (*w);
             *w -= params->l_rate * ml * (*pO)
-                + params->l_rate * (*w >= .0L ? 1.0L : -1.0L) * params->optimizer->l1Norm
-                + params->l_rate * 2 * params->optimizer->l2Norm * (*w);
+                + params->l_rate * (*w >= .0L ? 1.0L : -1.0L) * params->l1Norm
+                + params->l_rate * 2 * params->l2Norm * (*w);
             if (!bias_done) *b -= params->l_rate * ml;
         }
         bias_done = true;
@@ -227,12 +234,14 @@ static ld Network_BackProp(Network *net, NNParam *params, cui nth) {
         for(ld *tL=tempLegacy, *w=L->weights, *pO=L->pLayer->output;
             tL<tempLegacy+L->pLayer->Neurons; tL++, pO++) {
             for(ld *l=Legacy, *oI=OutIn_i, *b=L->bias; l<Legacy+L->Neurons;
-                l++, oI++, b++, w++) {
+                l++, oI++, w++, b++) {
                 ld ml = (*l) * (*oI);
                 *tL += ml * (*w);
+                if (!dn1) l1 += absl(*w);
+                if (!dn2) l2 += (*w) * (*w);
                 *w -= params->l_rate * ml * (*pO)
-                    + params->l_rate * (*w >= .0L ? 1.0L : -1.0L) * params->optimizer->l1Norm
-                    + params->l_rate * 2 * params->optimizer->l2Norm * (*w);
+                    + params->l_rate * (*w >= .0L ? 1.0L : -1.0L) * params->l1Norm
+                    + params->l_rate * 2 * params->l2Norm * (*w);
                 if (!bias_done) *b -= params->l_rate * ml;
             }
             bias_done = true;
@@ -242,8 +251,7 @@ static ld Network_BackProp(Network *net, NNParam *params, cui nth) {
         free(OutIn_i);
 	}
 	free(Legacy);
-
-	return error;
+	return error + params->l1Norm*l1 + params->l2Norm*l2;
 }
 
 static void IntegrityCheck(Network *net) {
@@ -269,7 +277,8 @@ static void IntegrityCheck(Network *net) {
 
 void Optimizer_Init(Network *net, Optimizer *optz)
 {
-    optz->iter = 0;
+    if (optz == NULL) return;
+    optz->iter = 1;
     optz->Mwt = (ld**) malloc(sizeof(ld*) * net->nbLayers-1);
     optz->Mbt = (ld**) malloc(sizeof(ld*) * net->nbLayers-1);
     optz->Vwt = (ld**) malloc(sizeof(ld*) * net->nbLayers-1);
@@ -282,25 +291,9 @@ void Optimizer_Init(Network *net, Optimizer *optz)
     }
 }
 
-ld Penalty(Network *net, Optimizer *optz)
-{
-    bool dn1 = optz->l1Norm == 0.0L;
-    bool dn2 = optz->l2Norm == 0.0L;
-    if (dn1 && dn2) return .0L;
-    ld l1 = .0L, l2 = .0L;
-    Layer *l = NULL;
-    for (ui i=1; i<net->currentLayer; i++) {
-        l = &net->layers[i];
-        for (ld *w=l->weights; w<l->weights+l->conns; w++) {
-            if (!dn1) l1 += absl(*w);
-            if (!dn2) l2 += (*w) * (*w);
-        }
-    }
-    return optz->l1Norm*l1 + optz->l2Norm*l2;
-}
-
 void Optimizer_Dispose(Network *net, Optimizer *optz)
 {
+    if (optz == NULL) return;
     for (ui i=0; i<net->nbLayers-1; i++) {
         free(optz->Mwt[i]);
         free(optz->Mbt[i]);

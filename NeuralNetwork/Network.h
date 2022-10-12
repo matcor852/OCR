@@ -17,7 +17,6 @@ typedef struct Optimizer Optimizer;
 struct Optimizer
 {
     ui iter;
-    ld l1Norm, l2Norm;
     ld **Mwt, **Vwt, **Mbt, **Vbt;
 };
 
@@ -26,7 +25,8 @@ struct NNParam
 {
     ui hiddenN, toLoopTrain, toLoopValidate,
         epoch, epochInterval, iSize, oSize, track;
-    ld l_rate, fscore;
+    ld l_rate, toExceed;
+    ld l1Norm, l2Norm;
     ld **inputTrain, **outputTrain;
     ld **inputTest, **outputTest;
     char *cost_func, *StatsFile, *NNName;
@@ -48,10 +48,7 @@ static ld Network_BackProp(Network *net, NNParam *params, cui nth);
 static void IntegrityCheck(Network *net);
 Layer *lvec_alloc(cui n);
 
-
 void Optimizer_Init(Network *net, Optimizer *optz);
 void Optimizer_Dispose(Network *net, Optimizer *optz);
-ld Penalty(Network *net, Optimizer *optz);
-
 
 #endif // NETWORK_H

@@ -62,8 +62,8 @@ void LoadData(NNParam *param) {
     param->oSize = 10;
 
     ui startI = 0;
-	char pathTrain[] = "D:/Code/C/OCR/NeuralNetwork/curated/hcd_784_60000_training.bin";
-	char pathValidate[] = "D:/Code/C/OCR/NeuralNetwork/curated/hcd_784_10000_validation.bin";
+	char pathTrain[] = "D:/Code/TP/C/OCR/NeuralNetwork/curated/hcd_784_60000_training.bin";
+	char pathValidate[] = "D:/Code/TP/C/OCR/NeuralNetwork/curated/hcd_784_10000_validation.bin";
 
 	ui SamplesTrain = 0, SamplesValidate = 0;
 	if (sscanf_s(pathTrain, "%*[^_]%*[_]%*[^_]%*[_]%u", &SamplesTrain) != 1) {
@@ -197,7 +197,7 @@ void OverfitLoad(NNParam *param)
 }
 
 void PerfSearch(NNParam *origin, Network *net) {
-    float bperf = .0f, curr_perf;
+    float bperf = (float)origin->toExceed, curr_perf = .0f;
     ui c = 0;
     if (net == NULL) net = CSave(origin->hiddenN);
     printf("\nBeginning Neural Network training with following parameters :\n");
@@ -212,7 +212,7 @@ void PerfSearch(NNParam *origin, Network *net) {
             char *s = (char*) malloc(sizeof(char) * 12);
             char *vl = (char*) malloc(sizeof(char) * 6);
             gcvt(bperf, 4, vl);
-            snprintf(s, 10, "OCR_%s", vl);
+            snprintf(s, 10, "%s_%s", origin->NNName, vl);
             Network_Save(net, s);
             free(vl);
             free(s);
@@ -240,79 +240,6 @@ void PerfSearch(NNParam *origin, Network *net) {
     Network_Purge(net);
 }
 
-static DWORD WINAPI Train(LPVOID Param) {
-    NNParam *P = (NNParam*)Param;
-    Network *net = CSave(P->hiddenN);
-    Network_Train(net, P);
-    ui score = 0, all = 0;
-	for (ui i=0; i<P->toLoopValidate; i++) {
-        ld *out = Network_Validate(net, P->inputTest[i], P->iSize, P->oSize == 1);
-        for (ui j=0; j<P->oSize; j++) {
-            //printf("\n%u : %.0LF\t%.0LF", j, out[j], P->outputTest[i][j]);
-            if (out[j] + P->outputTest[i][j] >= 2) score++;
-            all++;
-        }
-	}
-    P->fscore = score/(ld)all;
-    Network_Purge(net);
-    return 0;
-}
-
-void threadedSearch(cui threads, NNParam *origin, ld ldecay) {
-    HANDLE handles[threads];
-    DWORD threads_id[threads];
-    NNParam params[threads];
-    ld bperf = .0L, brate = .0L;
-    ui bhn = 0, c = 0;
-
-    while(c < 100) {
-        ld l_rate = origin->l_rate;
-        while (l_rate > 10E-10) {
-            ld temp_rate = l_rate;
-            c++;
-            NNParam *p=params;
-            DWORD *d=threads_id;
-            HANDLE *h = handles;
-            for(; p<params+threads; p++, d++, h++)
-            {
-                (*p).hiddenN = origin->hiddenN;
-                (*p).toLoopTrain = origin->toLoopTrain;
-                (*p).toLoopValidate = origin->toLoopValidate;
-                (*p).epoch = origin->epoch;
-                (*p).iSize = origin->iSize;
-                (*p).oSize = origin->oSize;
-                (*p).l_rate = l_rate;
-                (*p).inputTrain = origin->inputTrain;
-                (*p).outputTrain = origin->outputTrain;
-                (*p).inputTest = origin->inputTest;
-                (*p).outputTest = origin->outputTest;
-                *h = CreateThread(NULL,0, Train, p, 0, d);
-                if (*h == NULL) {
-                    ExitProcess(*h);
-                    printf("\nFailed thread %p\n", (void*)h);
-                }
-                l_rate *= ldecay;
-            }
-            system("cls");
-            printf("\nAttempt %u/1000 : learning rate [%Lg - %Lg] best : %.2LF%% for %Lg\n", c, temp_rate,
-                   l_rate/ldecay, bperf*100, brate);
-            WaitForMultipleObjects(threads, handles, TRUE, INFINITE);
-            p=params;
-            h=handles;
-            for(; p<params+threads; p++, h++) {
-                if ((*p).fscore > bperf) {
-                    bperf = (*p).fscore;
-                    brate = (*p).l_rate;
-                }
-                CloseHandle(*h);
-            }
-        }
-    }
-
-    system("cls");
-    printf("\nBest F-Score : %.2LF%% for %Lg\n", bperf*100, brate);
-}
-
 void NNParam_Display(NNParam *param) {
     //printf("\nNeural Network Params :\n");
     printf("\n\tHidden neurons : %u", param->hiddenN);
@@ -322,7 +249,9 @@ void NNParam_Display(NNParam *param) {
     printf("\tEpoch : %u", param->epoch);
     printf("\t\t\t\tEpoch interval : %u\n", param->epochInterval);
     printf("\tCost Function : %s", param->cost_func);
-    printf("\t\tTracking : %s\n\n", param->track ? "true" : "false");
+    printf("\t\tTracking : %s\n", param->track ? "true" : "false");
+    printf("\tL1 Regularization : %LF", param->l1Norm);
+    printf("\t\tL2 Regularization : %LF\n\n", param->l2Norm);
 }
 
 
