@@ -263,6 +263,7 @@ Segment *getBestSegment(uc *r_theta, st r_max, Image *image)
 	segment->theta = best_theta;
 	segment->length = sqrt(pow(x_end - x_start, 2) + pow(y_end - y_start, 2));
 	deleteBest(r_theta, r_max, best_r, best_theta);
+	printf("test\n");
 	return segment;
 }
 

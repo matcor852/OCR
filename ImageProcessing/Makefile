@@ -20,4 +20,5 @@ clean:
 
 save:
 	git add --all
-	git commit -m "\"$(git status --porcelain)\""
+	git status --porcelain > COMMIT_MESSAGE
+	git commit -F COMMIT_MESSAGE
