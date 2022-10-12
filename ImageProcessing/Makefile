@@ -22,3 +22,4 @@ save:
 	git add --all
 	git status --porcelain > COMMIT_MESSAGE
 	git commit -F COMMIT_MESSAGE
+	cat COMMIT_MESSAGE

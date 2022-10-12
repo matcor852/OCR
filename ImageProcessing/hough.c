@@ -117,7 +117,6 @@ void getVerticalLine(Image *image, st r, st theta, uc *line)
 		else
 			line[y] = pixels[y * width + x];
 	}
-	return line;
 }
 
 void getHorizontalLine(Image *image, st r, st theta, uc *line)
@@ -135,7 +134,6 @@ void getHorizontalLine(Image *image, st r, st theta, uc *line)
 		else
 			line[x] = pixels[y * width + x];
 	}
-	return line;
 }
 
 void smoothLine(uc *line, st len)
@@ -143,7 +141,7 @@ void smoothLine(uc *line, st len)
 	uc histo[256] = {0};
 	for (st i = 0; i < len; i++)
 		histo[line[i]]++;
-	unsigned int total = 0;
+	st total = 0;
 	uc threshold = 0;
 	while (total < len / 2)
 		total += histo[threshold++];
@@ -163,7 +161,9 @@ void smoothLine(uc *line, st len)
 				sum += line[j];
 				nb++;
 			}
-			newLine[i] = (sum + nb / 2) / nb;
+			printf("nb = %zu, sum = %zu\n", nb, sum);
+			newLine[i] = nb ? (sum + nb / 2) / nb : 0;
+			printf("mean = %u\n", newLine[i]);
 		}
 		st i_start = 0;
 		while (i_start < len && newLine[i_start] == 0)
@@ -171,14 +171,18 @@ void smoothLine(uc *line, st len)
 		st i_end = len - 1;
 		while (i_end >= 0 && newLine[i_end] == 0)
 			i_end--;
+		int is_smooth = 1;
 		for (st i = i_start; i <= i_end; i++)
 		{
 			if (newLine[i] == 0)
 			{
 				line = newLine;
+				is_smooth = 0;
 				break;
 			}
 		}
+		if (is_smooth)
+			return;
 	}
 }
 
@@ -187,14 +191,16 @@ void deleteBest(uc *r_theta, st r_max, st best_r, st best_theta)
 	st theta_min = (best_theta + 345) % 360;
 	st theta_max = (best_theta + 15) % 360;
 	st r_min = best_r - 15 < 0 ? 0 : best_r - 15;
-	st r_max = best_r + 15 >= r_max ? r_max - 1 : best_r + 15;
-	for (st r = r_min; r <= r_max; r++)
+	r_max = best_r + 15 > r_max ? r_max : best_r + 15;
+	for (st r = r_min; r < r_max; r++)
+	{
 		for (st theta = theta_min; theta != theta_max; theta++)
 		{
 			if (theta == 360)
 				theta = 0;
 			r_theta[r * 360 + theta] = 0;
 		}
+	}
 }
 
 Segment *getBestSegment(uc *r_theta, st r_max, Image *image)
@@ -226,7 +232,9 @@ Segment *getBestSegment(uc *r_theta, st r_max, Image *image)
 		getVerticalLine(image, best_r, best_theta, line);
 	else
 		getHorizontalLine(image, best_r, best_theta, line);
+	printf("Smoothing...\n");
 	smoothLine(line, len);
+	printf("Computing Edges...\n");
 	st i_start = 0, i_end = len - 1;
 	while (i_start < len && line[i_start] == 0)
 		i_start++;
@@ -263,7 +271,7 @@ Segment *getBestSegment(uc *r_theta, st r_max, Image *image)
 	segment->theta = best_theta;
 	segment->length = sqrt(pow(x_end - x_start, 2) + pow(y_end - y_start, 2));
 	deleteBest(r_theta, r_max, best_r, best_theta);
-	printf("test\n");
+	printf("Segment: (%zu, %zu), (%zu, %zu)\nLength: %zu\n\n", x_start, y_start, x_end, y_end, segment->length);
 	return segment;
 }
 
