@@ -12,9 +12,9 @@ int main()
     origin->hiddenN = 20;
     origin->toLoopTrain = 60000;
     origin->toLoopValidate = 10000;
-    origin->epoch = 5;
+    origin->epoch = 1;
     origin->epochInterval = 1;
-    origin->l_rate = .01L;
+    origin->l_rate = .012L;
     origin->optimizer = /*NULL*/ (Optimizer*) malloc(sizeof(Optimizer));
     origin->l1Norm = .0L; //0.010L;
     origin->l2Norm = .0L; //0.001L;
@@ -22,14 +22,15 @@ int main()
     origin->track = true;
     origin->StatsFile = "stats.txt";
     origin->NNName = "OCR";
-    origin->toExceed = 85.03;
+    origin->toExceed = 87.15;
 
     //Network *net = (Network*) malloc(sizeof(Network));
     //Network_Load(net, "TrainedNetwork\\NeuralNetData_3layers_OCR_21.25.bin");
 
     LoadData(origin);
     //OverfitLoad(origin);
-    PerfSearch(origin, NULL);
+
+    PerfSearch(origin, NULL, 1000);
 
     Purge_NNParam(origin);
 

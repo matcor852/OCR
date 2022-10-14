@@ -238,10 +238,6 @@ static ld Network_BackProp(Network *net, NNParam *params, cui nth) {
                 *w -= params->l_rate * mwc / (sqrtl(vwc) + OPT_EPS);
                 mwt++;
                 vwt++;
-                if (isnan(*w)) {
-                    printf("Adam weight nan in last\n");
-                    exit(10);
-                }
             }
             else *w -= params->l_rate * ml * (*pO);
             *w += params->l_rate * (pw >= .0L ? 1.0L : -1.0L) * params->l1Norm
@@ -255,10 +251,6 @@ static ld Network_BackProp(Network *net, NNParam *params, cui nth) {
                     *b -= params->l_rate * mbc / (sqrtl(vbc) + OPT_EPS);
                     mbt++;
                     vbt++;
-                    if (isnan(*b)) {
-                    printf("Adam bias nan in last\n");
-                    exit(10);
-                }
                 }
                 else *b -= params->l_rate * ml;
             }
@@ -305,10 +297,6 @@ static ld Network_BackProp(Network *net, NNParam *params, cui nth) {
                     *w -= params->l_rate * mwc / (sqrtl(vwc) + EPS);
                     mwt++;
                     vwt++;
-                    if (isnan(*w)) {
-                        printf("Adam weight nan\n");
-                        exit(10);
-                    }
                 }
                 else *w -= params->l_rate * ml * (*pO);
                 *w += params->l_rate * (pw >= .0L ? 1.0L : -1.0L) * params->l1Norm
@@ -322,10 +310,6 @@ static ld Network_BackProp(Network *net, NNParam *params, cui nth) {
                         *b -= params->l_rate * mbc / (sqrtl(vbc));
                         mbt++;
                         vbt++;
-                        if (isnan(*w)) {
-                            printf("Adam bias nan\n");
-                            exit(10);
-                        }
                     }
                     else *b -= params->l_rate * ml;
                 }
@@ -383,7 +367,7 @@ void Optimizer_Init(Network *net, Optimizer *optz)
     }
 }
 
-void Optimizer_Dispose(Network *net, Optimizer *optz)
+void Optimizer_Dispose(Network *net, Optimizer *optz, bool full)
 {
     if (optz == NULL) return;
     for (ui i=0; i<net->nbLayers-1; i++) {
@@ -396,5 +380,5 @@ void Optimizer_Dispose(Network *net, Optimizer *optz)
     free(optz->Mbt);
     free(optz->Vwt);
     free(optz->Vbt);
-    free(optz);
+    if (full) free(optz);
 }

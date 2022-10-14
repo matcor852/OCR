@@ -98,10 +98,10 @@
 	<time.h>
 	"Activations.h"
 
-1665736515 source:d:\code\tp\c\ocr\neuralnetwork\network.c
+1665747054 source:d:\code\tp\c\ocr\neuralnetwork\network.c
 	"Network.h"
 
-1665737778 d:\code\tp\c\ocr\neuralnetwork\network.h
+1665747054 d:\code\tp\c\ocr\neuralnetwork\network.h
 	<errno.h>
 	<time.h>
 	"Layer.h"
@@ -113,7 +113,7 @@
 1664877865 source:d:\code\tp\c\ocr\neuralnetwork\tools.c
 	"Tools.h"
 
-1665741792 source:d:\code\tp\c\ocr\neuralnetwork\main.c
+1665747072 source:d:\code\tp\c\ocr\neuralnetwork\main.c
 	<stdio.h>
 	<stdlib.h>
 	<time.h>
@@ -145,10 +145,10 @@
 	<stdlib.h>
 	"Network.h"
 
-1665736443 source:d:\code\tp\c\ocr\neuralnetwork\iohelper.c
+1665747715 source:d:\code\tp\c\ocr\neuralnetwork\iohelper.c
 	"IOHelper.h"
 
-1665561577 d:\code\tp\c\ocr\neuralnetwork\iohelper.h
+1665747631 d:\code\tp\c\ocr\neuralnetwork\iohelper.h
 	<stdio.h>
 	<stdlib.h>
 	"Network.h"

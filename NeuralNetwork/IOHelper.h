@@ -9,10 +9,10 @@
 Network* CSave(ui hn);
 void LoadXOR(NNParam *param);
 void LoadData(NNParam* param);
-float Validate(Network *net, const NNParam *P);
+float Validate(Network *net, const NNParam *P, float bperf);
 void OverfitLoad(NNParam *param);
 
-void PerfSearch(NNParam *origin, Network *net);
+void PerfSearch(NNParam *origin, Network *net, int attempt);
 void NNParam_Display(NNParam *param);
 void Purge_NNParam(NNParam *param);
 

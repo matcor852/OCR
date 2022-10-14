@@ -124,7 +124,7 @@ void LoadData(NNParam *param) {
 	fclose(fptr2);
 }
 
-float Validate(Network *net, const NNParam *P)
+float Validate(Network *net, const NNParam *P, float bperf)
 {
     ui score = 0, all = 0, pos = 0;
 	for (ui i=0; i<P->toLoopValidate; i++) {
@@ -139,8 +139,9 @@ float Validate(Network *net, const NNParam *P)
 	}
 	float AScore = 100.0*score/(float)all;
 	float VScore = 100.0*pos/(float)P->toLoopValidate;
-    printf("%.2f%% (%u/%u)\tScore : %.2f%%\tValidated : %u/%u\n",
-           AScore, score, all,
+
+    printf("%.2f%% (%u/%u)\tScore : %s%.2f%%\033[0m\tValidated : %u/%u\n",
+           AScore, score, all, VScore > bperf ? "\033[0;32m" : "\033[0;31m",
            VScore, pos, P->toLoopValidate);
     return min(AScore, VScore);
 }
@@ -196,17 +197,37 @@ void OverfitLoad(NNParam *param)
 	param->outputTest = param->outputTrain;
 }
 
-void PerfSearch(NNParam *origin, Network *net) {
+void PerfSearch(NNParam *origin, Network *net, int attempt) {
     float bperf = (float)origin->toExceed, curr_perf = .0f;
     ui c = 0;
-    if (net == NULL) net = CSave(origin->hiddenN);
     printf("\nBeginning Neural Network training with following parameters :\n");
     NNParam_Display(origin);
-    if (origin->track) fclose(fopen(origin->StatsFile, "w"));
-    Optimizer_Init(net, origin->optimizer);
-    for(int e=0; e < origin->epoch; ) {
-        printf("[ Epoch %u/%u ] Accuracy : ", e, origin->epoch);
-        curr_perf = Validate(net, origin);
+
+    while(attempt >= 0) {
+
+        if (net == NULL) net = CSave(origin->hiddenN);
+        if (origin->track) fclose(fopen(origin->StatsFile, "w"));
+        Optimizer_Init(net, origin->optimizer);
+        for(int e=0; e < origin->epoch; ) {
+            printf("[ Epoch %u/%u ] Accuracy : ", e, origin->epoch);
+            curr_perf = Validate(net, origin, bperf);
+            if (curr_perf > bperf) {
+                bperf = curr_perf;
+                char *s = (char*) malloc(sizeof(char) * 12);
+                char *vl = (char*) malloc(sizeof(char) * 6);
+                gcvt(bperf, 4, vl);
+                snprintf(s, 10, "%s_%s", origin->NNName, vl);
+                Network_Save(net, s);
+                free(vl);
+                free(s);
+            }
+            Network_Train(net, origin);
+            int ne = min((int)origin->epochInterval, (int)(origin->epoch-e));
+            origin->epochInterval = ne;
+            e += ne;
+        }
+        printf("[ Epoch %u/%u ] Accuracy : ",origin->epoch, origin->epoch);
+        curr_perf = Validate(net, origin, bperf);
         if (curr_perf > bperf) {
             bperf = curr_perf;
             char *s = (char*) malloc(sizeof(char) * 12);
@@ -217,27 +238,12 @@ void PerfSearch(NNParam *origin, Network *net) {
             free(vl);
             free(s);
         }
-        Network_Train(net, origin);
-        int ne = min((int)origin->epochInterval, (int)(origin->epoch-e));
-        origin->epochInterval = ne;
-        e += ne;
+        //Network_Display(net, true);
+        Optimizer_Dispose(net, origin->optimizer, !attempt);
+        Network_Purge(net);
+        net = NULL;
+        attempt--;
     }
-    printf("\n[ Epoch %u/%u ] Accuracy : ",origin->epoch, origin->epoch);
-    Validate(net, origin);
-    if (curr_perf > bperf) {
-        bperf = curr_perf;
-        char *s = (char*) malloc(sizeof(char) * 12);
-        char *vl = (char*) malloc(sizeof(char) * 6);
-        gcvt(bperf, 4, vl);
-        snprintf(s, 10, "%s_%s", origin->NNName, vl);
-        Network_Save(net, s);
-        free(vl);
-        free(s);
-    }
-    //Network_Display(net, true);
-    //Network_Save(net, origin->NNName);
-    Optimizer_Dispose(net, origin->optimizer);
-    Network_Purge(net);
 }
 
 void NNParam_Display(NNParam *param) {
