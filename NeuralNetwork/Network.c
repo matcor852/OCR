@@ -184,6 +184,9 @@ static void Network_Forward(Network *net, ld *input, cui iSize) {
 }
 
 static ld Network_BackProp(Network *net, NNParam *params, cui nth) {
+
+    //puts("\nEntering Back prop\n");
+
     Layer *L = &net->layers[net->nbLayers-1];
 	ld (*cost_deriv)(ld, ld) = get_cost_deriv(params->cost_func);
 	ld (*deriv)(ld*,cui,cui) = get_deriv(L->act_name);
@@ -194,7 +197,8 @@ static ld Network_BackProp(Network *net, NNParam *params, cui nth) {
          dn2 = params->l2Norm == 0.0L;
     ld l1 = .0L, l2 = .0L;
 
-    ld b1t = 0, b2t = 0, *mwt, *vwt, *mbt, *vbt;
+    ld b1t = 0, b2t = 0, *mwt = NULL, *vwt = NULL, *mbt = NULL, *vbt = NULL;
+    ld **Gmwt = NULL, **Gvwt = NULL, **Gmbt = NULL, **Gvbt = NULL;
     if (optz != NULL) {
         b1t = powl(0.9L, optz->iter);
         b2t = powl(0.999L, optz->iter);
@@ -231,9 +235,13 @@ static ld Network_BackProp(Network *net, NNParam *params, cui nth) {
                 *vwt = 0.999L * (*vwt) + (1-0.999L) * gd * gd;
                 ld mwc = (*mwt) / (1-b1t);
                 ld vwc = (*vwt) / (1-b2t);
-                *w -= params->l_rate * mwc / (sqrtl(vwc) + EPS);
+                *w -= params->l_rate * mwc / (sqrtl(vwc) + OPT_EPS);
                 mwt++;
                 vwt++;
+                if (isnan(*w)) {
+                    printf("Adam weight nan in last\n");
+                    exit(10);
+                }
             }
             else *w -= params->l_rate * ml * (*pO);
             *w += params->l_rate * (pw >= .0L ? 1.0L : -1.0L) * params->l1Norm
@@ -244,9 +252,13 @@ static ld Network_BackProp(Network *net, NNParam *params, cui nth) {
                     *vbt = 0.999L * (*vbt) + (1-0.999L) * ml * ml;
                     ld mbc = (*mbt) / (1-b1t);
                     ld vbc = (*vbt) / (1-b2t);
-                    *b -= params->l_rate * mbc / (sqrtl(vbc));
+                    *b -= params->l_rate * mbc / (sqrtl(vbc) + OPT_EPS);
                     mbt++;
                     vbt++;
+                    if (isnan(*b)) {
+                    printf("Adam bias nan in last\n");
+                    exit(10);
+                }
                 }
                 else *b -= params->l_rate * ml;
             }
@@ -255,7 +267,10 @@ static ld Network_BackProp(Network *net, NNParam *params, cui nth) {
     }
 
     if (optz != NULL) {
-
+        Gmwt = optz->Mwt + net->nbLayers-3;
+        Gvwt = optz->Vwt + net->nbLayers-3;
+        Gmbt = optz->Mbt + net->nbLayers-3;
+        Gvbt = optz->Vbt + net->nbLayers-3;
     }
 
 	ld *tempLegacy, *OutIn_i;
@@ -266,25 +281,66 @@ static ld Network_BackProp(Network *net, NNParam *params, cui nth) {
         i=0;
         for(ld *oI=OutIn_i; oI<OutIn_i+L->Neurons; oI++, i++)
             *oI = deriv_i(L->input, L->Neurons, i);
+        if (optz != NULL) {
+            mwt = *Gmwt;
+            vwt = *Gvwt;
+            mbt = *Gmbt;
+            vbt = *Gvbt;
+        }
         bias_done = false;
         for(ld *tL=tempLegacy, *w=L->weights, *pO=L->pLayer->output;
             tL<tempLegacy+L->pLayer->Neurons; tL++, pO++) {
             for(ld *l=Legacy, *oI=OutIn_i, *b=L->bias; l<Legacy+L->Neurons;
                 l++, oI++, w++, b++) {
-                ld ml = (*l) * (*oI);
+                ld ml = (*l) * (*oI), pw = (*w);
                 *tL += ml * (*w);
                 if (!dn1) l1 += absl(*w);
                 if (!dn2) l2 += (*w) * (*w);
-                *w -= params->l_rate * ml * (*pO)
-                    + params->l_rate * (*w >= .0L ? 1.0L : -1.0L) * params->l1Norm
-                    + params->l_rate * 2 * params->l2Norm * (*w);
-                if (!bias_done) *b -= params->l_rate * ml;
+                if (optz != NULL) {
+                    ld gd = ml * (*pO);
+                    *mwt = 0.9L * (*mwt) + (1-0.9) * gd;
+                    *vwt = 0.999L * (*vwt) + (1-0.999L) * gd * gd;
+                    ld mwc = (*mwt) / (1-b1t);
+                    ld vwc = (*vwt) / (1-b2t);
+                    *w -= params->l_rate * mwc / (sqrtl(vwc) + EPS);
+                    mwt++;
+                    vwt++;
+                    if (isnan(*w)) {
+                        printf("Adam weight nan\n");
+                        exit(10);
+                    }
+                }
+                else *w -= params->l_rate * ml * (*pO);
+                *w += params->l_rate * (pw >= .0L ? 1.0L : -1.0L) * params->l1Norm
+                    + params->l_rate * 2 * params->l2Norm * pw;
+                if (!bias_done) {
+                    if (optz != NULL) {
+                        *mbt = 0.9 * (*mbt) + (1-0.9L) * ml;
+                        *vbt = 0.999L * (*vbt) + (1-0.999L) * ml * ml;
+                        ld mbc = (*mbt) / (1-b1t);
+                        ld vbc = (*vbt) / (1-b2t);
+                        *b -= params->l_rate * mbc / (sqrtl(vbc));
+                        mbt++;
+                        vbt++;
+                        if (isnan(*w)) {
+                            printf("Adam bias nan\n");
+                            exit(10);
+                        }
+                    }
+                    else *b -= params->l_rate * ml;
+                }
             }
             bias_done = true;
         }
         free(Legacy);
         Legacy = tempLegacy;
         free(OutIn_i);
+        if (optz != NULL) {
+            Gmwt--;
+            Gvwt--;
+            Gmbt--;
+            Gvbt--;
+        }
 	}
 	free(Legacy);
 	return error + params->l1Norm*l1 + params->l2Norm*l2;

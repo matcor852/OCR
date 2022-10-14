@@ -6,6 +6,8 @@
 #include "Layer.h"
 #include "Cost.h"
 
+#define OPT_EPS 10E-8
+
 typedef struct Network Network;
 struct Network
 {

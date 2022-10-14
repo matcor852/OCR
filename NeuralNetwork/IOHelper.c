@@ -13,7 +13,7 @@ Network* CSave(ui hn) {
 	Layer *l2 = (Layer*) malloc(sizeof(Layer));
 	Layer *l3 = (Layer*) malloc(sizeof(Layer));
 	Layer_Init(l1, NULL, l2, 784, NULL, NULL, false, "none");
-	Layer_Init(l2, l1, l3, hn, NULL, NULL, false, "relu");
+	Layer_Init(l2, l1, l3, hn, NULL, NULL, false, "leakyrelu");
 	Layer_Init(l3, l2, NULL, 10, NULL, NULL, false, "softmax");
 
 	Network_AddLayer(net, l1);

@@ -9,20 +9,20 @@ int main()
     srand((ui)time(NULL));
 
     NNParam *origin = (NNParam*) malloc(sizeof(NNParam));
-    origin->hiddenN = 15;
-    origin->toLoopTrain = 500000;
-    origin->toLoopValidate = 500000;
-    origin->epoch = 60000;
-    origin->epochInterval = 10;
+    origin->hiddenN = 20;
+    origin->toLoopTrain = 60000;
+    origin->toLoopValidate = 10000;
+    origin->epoch = 5;
+    origin->epochInterval = 1;
     origin->l_rate = .01L;
-    origin->optimizer = NULL /*(Optimizer*) malloc(sizeof(Optimizer))*/;
+    origin->optimizer = /*NULL*/ (Optimizer*) malloc(sizeof(Optimizer));
     origin->l1Norm = .0L; //0.010L;
     origin->l2Norm = .0L; //0.001L;
     origin->cost_func = "CrossEntropy";
     origin->track = true;
     origin->StatsFile = "stats.txt";
     origin->NNName = "OCR";
-    origin->toExceed = 83.61;
+    origin->toExceed = 85.03;
 
     //Network *net = (Network*) malloc(sizeof(Network));
     //Network_Load(net, "TrainedNetwork\\NeuralNetData_3layers_OCR_21.25.bin");
