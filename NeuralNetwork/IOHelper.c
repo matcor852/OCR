@@ -62,8 +62,8 @@ void LoadData(NNParam *param) {
     param->oSize = 10;
 
     ui startI = 0;
-	char pathTrain[] = "D:/Code/TP/C/OCR/NeuralNetwork/curated/hcd_784_60000_training.bin";
-	char pathValidate[] = "D:/Code/TP/C/OCR/NeuralNetwork/curated/hcd_784_10000_validation.bin";
+	char pathTrain[] = "D:/Code/C/OCR/NeuralNetwork/curated/hcd_784_60000_training.bin";
+	char pathValidate[] = "D:/Code/C/OCR/NeuralNetwork/curated/hcd_784_10000_validation.bin";
 
 	ui SamplesTrain = 0, SamplesValidate = 0;
 	if (sscanf_s(pathTrain, "%*[^_]%*[_]%*[^_]%*[_]%u", &SamplesTrain) != 1) {
@@ -146,6 +146,43 @@ float Validate(Network *net, const NNParam *P, float bperf)
     return min(AScore, VScore);
 }
 
+void ConfusionMatrix(Network *net, const NNParam *P)
+{
+    ui matrix[P->oSize][P->oSize];
+    for (ui i=0; i<P->oSize; i++) {
+        for (ui j=0; j<P->oSize; j++) matrix[i][j] = .0f;
+    }
+
+    ui bufferAct = 0, bufferExp = 0;
+    bool Acted = false, Exped = false;
+    for (ui i=0; i<P->toLoopValidate; i++) {
+        bufferAct = 0;
+        bufferExp = 0;
+        Acted = false;
+        Exped = false;
+        ld *out = Network_Validate(net, P->inputTest[i], P->iSize, P->oSize == 1);
+        for (ui j=0; j<P->oSize; j++) {
+            if (P->outputTest[i][j] >= 1.0L) Exped = true;
+            if (!Exped) bufferExp++;
+            if (out[j] >= 1.0L) Acted = true;
+            if (!Acted) bufferAct++;
+        }
+        matrix[bufferAct][bufferExp]++;
+	}
+
+	printf("\n\t\033[0;31m");
+	for (ui i=0; i<P->oSize; i++) printf("%5d ", i);
+    printf("\033[0m\n");
+	for(ui i=0; i<P->oSize; i++) {
+        printf("\033[0;31m%d\t\033[0m", i);
+	    for(ui j=0; j<P->oSize; j++) {
+            printf("%5d ", matrix[i][j]);
+	    }
+	    printf("\n");
+	}
+    printf("\n");
+}
+
 void OverfitLoad(NNParam *param)
 {
     param->iSize = 784;
@@ -203,8 +240,8 @@ void PerfSearch(NNParam *origin, Network *net, int attempt) {
     printf("\nBeginning Neural Network training with following parameters :\n");
     NNParam_Display(origin);
 
-    while(attempt >= 0) {
-
+    while(attempt > 0) {
+        srand((ui)time(NULL));
         if (net == NULL) net = CSave(origin->hiddenN);
         if (origin->track) fclose(fopen(origin->StatsFile, "w"));
         Optimizer_Init(net, origin->optimizer);
@@ -239,6 +276,7 @@ void PerfSearch(NNParam *origin, Network *net, int attempt) {
             free(s);
         }
         //Network_Display(net, true);
+        //ConfusionMatrix(net, origin);
         Optimizer_Dispose(net, origin->optimizer, !attempt);
         Network_Purge(net);
         net = NULL;

@@ -1,5 +1,5 @@
 # depslib dependency file v1.0
-1665344589 source:d:\code\c\ocr\neuralnetwork\cost.c
+1665831056 source:d:\code\c\ocr\neuralnetwork\cost.c
 	"Cost.h"
 
 1663191235 d:\code\c\ocr\neuralnetwork\cost.h
@@ -23,7 +23,7 @@
 	<unistd.h>
 	<fcntl.h>
 
-1664827727 source:d:\code\c\ocr\neuralnetwork\layer.c
+1665831056 source:d:\code\c\ocr\neuralnetwork\layer.c
 	"Layer.h"
 
 1663966004 d:\code\c\ocr\neuralnetwork\layer.h
@@ -35,19 +35,19 @@
 	<float.h>
 	"Tools.h"
 
-1665601761 source:d:\code\c\ocr\neuralnetwork\main.c
+1665937128 source:d:\code\c\ocr\neuralnetwork\main.c
 	<stdio.h>
 	<stdlib.h>
 	<time.h>
 	"IOHelper.h"
 
-1665585572 d:\code\c\ocr\neuralnetwork\network.h
+1665763119 d:\code\c\ocr\neuralnetwork\network.h
 	<errno.h>
 	<time.h>
 	"Layer.h"
 	"Cost.h"
 
-1665601458 source:d:\code\c\ocr\neuralnetwork\network.c
+1665763119 source:d:\code\c\ocr\neuralnetwork\network.c
 	"Network.h"
 
 1660947709 source:d:\code\c\ocr\neuralnetwork\randuniform.c
@@ -137,10 +137,10 @@
 	<time.h>
 	<math.h>
 
-1665585661 source:d:\code\c\ocr\neuralnetwork\iohelper.c
+1665937128 source:d:\code\c\ocr\neuralnetwork\iohelper.c
 	"IOHelper.h"
 
-1665585572 d:\code\c\ocr\neuralnetwork\iohelper.h
+1665790260 d:\code\c\ocr\neuralnetwork\iohelper.h
 	<stdio.h>
 	<stdlib.h>
 	"Network.h"

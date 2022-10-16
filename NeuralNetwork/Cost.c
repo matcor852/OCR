@@ -7,7 +7,7 @@ ld CrossEntropy(ld *predicted, ld *expected, cui Size) {
         cost += expected[i] * logl(predicted[i]+EPS)
                 + (1-expected[i]) * logl(1-predicted[i]+EPS);
 	}
-	if (isnan(-cost)) {
+	if (isnan(cost)) {
         printf("\nnan in crossentropy\n");
         exit(4);
 	}
