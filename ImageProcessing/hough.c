@@ -3,12 +3,11 @@
 #include "tools.h"
 #include "openImage.h"
 #include "transformImage.h"
-#define PI 3.141592654
+#include "showLines.h"
 
-typedef struct
-{
-	st x1, y1, x2, y2, theta, length;
-} Segment;
+#define PI 3.141592654
+#define FILENAME "Images/image_01.jpeg"
+#define NB_SEGMENTS 50
 
 int isVertical(st theta)
 {
@@ -73,7 +72,7 @@ void fillR_theta(Image *image, uc *r_theta, st r_max)
 		// horizontal: [45, 135[, [270, 315[
 		if (theta == 180)
 		{
-			theta = 270;
+			theta = 271;
 			vertical = 0;
 		}
 		if (theta == 45 || theta == 135 || theta == 315)
@@ -82,7 +81,7 @@ void fillR_theta(Image *image, uc *r_theta, st r_max)
 		(vertical ? fillR_thetaVertical : fillR_thetaHorizontal)(image, r_theta, r_max, theta, _cos, _sin);
 	}
 	for (st r = 0; r < r_max; r++)
-		for (st theta = 180; theta < 270; theta++)
+		for (st theta = 180; theta <= 270; theta++)
 			r_theta[r * 360 + theta] = 0;
 }
 
@@ -140,10 +139,10 @@ void smoothLine(uc *line, st threshold, st len, st *i_start, st *i_end)
 {
 	// Gets the best_value as the threshold
 	for (st i = 0; i < len; i++)
-		line[i] = line[i] > threshold ? 1 : 0;
+		line[i] = line[i] >= threshold ? 1 : 0;
 	// Fills the gaps smaller than min_gap
 	int change = 1;
-	st min_gap = 2.5 / 100 * len;
+	st min_gap = 2.5 / 100 * len; // TODO: change this
 	while (change)
 	{
 		change = 0;
@@ -190,8 +189,8 @@ void smoothLine(uc *line, st threshold, st len, st *i_start, st *i_end)
 
 void deleteBest(uc *r_theta, st r_max, st best_r, st best_theta)
 {
-	st theta_min = (best_theta + 345) % 360;
-	st theta_max = (best_theta + 15) % 360;
+	st theta_min = (best_theta + 360 - 5) % 360;
+	st theta_max = (best_theta + 5) % 360;
 	st r_min = best_r - 15 > best_r ? 0 : best_r - 15;
 	r_max = best_r + 15 > r_max ? r_max : best_r + 15;
 	for (st r = r_min; r < r_max; r++)
@@ -203,6 +202,11 @@ void deleteBest(uc *r_theta, st r_max, st best_r, st best_theta)
 			r_theta[r * 360 + theta] = 0;
 		}
 	}
+}
+
+st st_pow(st a, st b)
+{
+	return a > b ? pow(a - b, 2) : pow(b - a, 2);
 }
 
 Segment *getBestSegment(uc *r_theta, st r_max, Image *image)
@@ -259,19 +263,30 @@ Segment *getBestSegment(uc *r_theta, st r_max, Image *image)
 	st y_start = y1 + ratio_start * (y2 - y1);
 	st x_end = x1 + ratio_end * (x2 - x1);
 	st y_end = y1 + ratio_end * (y2 - y1);
-	deleteBest(r_theta, r_max, best_r, best_theta);
-	if (x_start >= width || x_start >= width || y_start >= height || y_start >= height)
+	r_theta[best_r * 360 + best_theta] = 0;
+	if (x_start >= width || x_end >= width || y_start >= height || y_end >= height)
 		return NULL;
-	st lenth_segment = sqrt(pow(x_end - x_start, 2) + pow(y_end - y_start, 2));
-	if (lenth_segment < length / 10)
+	st lenth_segment = sqrt(st_pow(x_end, x_start) + st_pow(y_end, y_start));
+	if (lenth_segment < length / 4)
 		return NULL;
+	if (best_value == 255)
+	{
+		for (int i = (int)best_r - 15; i < (int)best_r + 15; i++)
+		{
+			if (i < 0)
+				i = 0;
+			r_theta[i * 360 + best_theta] = 0;
+		}
+	}
+	else
+		deleteBest(r_theta, r_max, best_r, best_theta);
 	Segment *segment = malloc(sizeof(Segment));
 	segment->x1 = x_start;
 	segment->y1 = y_start;
 	segment->x2 = x_end;
 	segment->y2 = y_end;
 	segment->theta = best_theta;
-	segment->length = sqrt(pow(x_end - x_start, 2) + pow(y_end - y_start, 2));
+	segment->length = lenth_segment;
 	return segment;
 }
 
@@ -285,20 +300,20 @@ void swapPoints(Segment *segment)
 	segment->y2 = tmp;
 }
 
-void detectGrid()
+Square *detectGrid()
 {
-	Image *image = openImage("Images/image_04.jpeg");
+	Image *image = openImage(FILENAME);
 	invertImage(image);
 	st width = image->width, height = image->height;
 	st r_max = sqrt(width * width + height * height);
 	if (r_max == 0)
-		return;
+		return NULL;
 	uc r_theta[r_max * 360];
 	fillR_theta(image, r_theta, r_max);
 	printR_theta(r_theta, r_max);
-	Segment *segments[30];
+	Segment *segments[NB_SEGMENTS];
 	st nb_segments = 0;
-	while (nb_segments < 30)
+	while (nb_segments < NB_SEGMENTS)
 	{
 		Segment *segment = getBestSegment(r_theta, r_max, image);
 		if (segment != NULL)
@@ -307,93 +322,130 @@ void detectGrid()
 			nb_segments++;
 			printf("Segment: (%zu, %zu), (%zu, %zu)\n", segment->x1, segment->y1, segment->x2, segment->y2);
 			printf("Theta: %zu\n", segment->theta);
-			printf("Length: %zu\n", segment->length);
-			printf("\n");
+			printf("Length: %zu\n\n", segment->length);
 		}
 	}
-	printf("width = %zu, height = %zu\n", width, height);
-	for (st i_segment1 = 0; i_segment1 < nb_segments; i_segment1++)
+	showLines(FILENAME, segments);
+	st min_dist = pow(0.015 * r_max, 2);
+	printf("min_dist: %zu\n", min_dist);
+	for (st i1 = 0; i1 < NB_SEGMENTS; i1++)
 	{
-		Segment *segment1 = segments[i_segment1];
-		st adj1[30];
-		st i_adj1 = 0;
-		for (st j = 0; j < nb_segments; j++)
+		Segment *segment1 = segments[i1];
+		st segments2[NB_SEGMENTS];
+		st j = 0;
+		for (st i2 = 0; i2 < NB_SEGMENTS; i2++)
 		{
-			if (j == i_segment1)
+			if (i2 == i1)
 				continue;
-			if (abs(segment1->length - segments[j]->length) > r_max)
-				continue;
+			Segment *segment2 = segments[i2];
+			/*
 			int diff_theta = (-90 + segment1->theta - segments[j]->theta) % 180;
 			if (diff_theta > 5 || diff_theta < 175)
 				continue;
-			int diff_coord1 = pow(segment1->x1 - segments[j]->x1, 2) +
-							  pow(segment1->y1 - segments[j]->y1, 2);
-			int diff_coord2 = pow(segment1->x1 - segments[j]->x2, 2) +
-							  pow(segment1->y1 - segments[j]->y2, 2);
-			if (diff_coord2 <= pow(0.015 * r_max, 2))
-				swapPoints(segments[j]);
-			else if (diff_coord1 > pow(0.015 * r_max, 2))
+			*/
+			st diff_coord1 = st_pow(segment1->x1, segment2->x1) +
+							  st_pow(segment1->y1, segment2->y1);
+			st diff_coord2 = st_pow(segment1->x1, segment2->x2) +
+							  st_pow(segment1->y1, segment2->y2);
+			if (diff_coord2 <= min_dist)
+				swapPoints(segment2);
+			else if (diff_coord1 > min_dist)
 				continue;
-			adj1[i_adj1] = j;
-			i_adj1++;
+			segments2[j] = i2;
+			j++;
+			printf("cmp1-2 : (%zu, %zu) (%zu, %zu)\n", segment1->x1, segment1->y1, segment2->x1, segment2->y1);
 		}
-		adj1[i_adj1] = nb_segments;
+		segments2[j] = NB_SEGMENTS;
 
-		st adj2[30];
-		st i_adj2 = 0;
-		for (st j = 0; j < nb_segments; j++)
+		j = 0;
+		st segments3[NB_SEGMENTS];
+		for (st i3 = 0; i3 < nb_segments; i3++)
 		{
-			if (j == i_segment1)
+			if (i3 == i1)
 				continue;
-			if (abs(segment1->length - segments[j]->length) > r_max)
-				continue;
+			Segment *segment3 = segments[i3];
+			/*
 			int diff_theta = (-90 + segment1->theta - segments[j]->theta) % 180;
 			if (diff_theta > 5 || diff_theta < 175)
 				continue;
-			int diff_coord1 = pow(segment1->x2 - segments[j]->x1, 2) +
-							  pow(segment1->y2 - segments[j]->y1, 2);
-			int diff_coord2 = pow(segment1->x2 - segments[j]->x2, 2) +
-							  pow(segment1->y2 - segments[j]->y2, 2);
-			if (diff_coord2 <= pow(0.015 * r_max, 2))
-				swapPoints(segments[j]);
-			else if (diff_coord1 > pow(0.015 * r_max, 2))
+			*/
+			st diff_coord1 = st_pow(segment1->x2, segment3->x1) +
+							  st_pow(segment1->y2, segment3->y1);
+			st diff_coord2 = st_pow(segment1->x2, segment3->x2) +
+							  st_pow(segment1->y2, segment3->y2);
+			if (diff_coord2 <= min_dist)
+				swapPoints(segment3);
+			else if (diff_coord1 > min_dist)
 				continue;
-			adj2[i_adj2] = j;
-			i_adj2++;
+			segments3[j] = i3;
+			j++;
+			printf("cmp1-3 : (%zu, %zu) (%zu, %zu)\n", segment1->x2, segment1->y2, segment3->x1, segment3->y1);
 		}
-		adj2[i_adj2] = nb_segments;
+		segments3[j] = NB_SEGMENTS;
 
-		for (st j = 0; j < nb_segments; j++)
+		for (st i4 = 0; i4 < NB_SEGMENTS; i4++)
 		{
-			if (j == i_segment1)
+			if (i4 == i1)
 				continue;
 			st k;
-			for (k = 0; adj1[k] != nb_segments; k++)
+			for (k = 0; segments2[k] != NB_SEGMENTS; k++)
 			{
-				if (j == adj1[k])
+				if (i4 == segments2[k])
 					break;
 			}
-			if (adj1[k] == nb_segments)
+			if (segments2[k] != NB_SEGMENTS)
 				continue;
-			for (k = 0; adj2[k] != nb_segments; k++)
+			for (k = 0; segments3[k] != NB_SEGMENTS; k++)
 			{
-				if (j == adj2[k])
+				if (i4 == segments3[k])
 					break;
 			}
-			if (adj2[k] == nb_segments)
+			if (segments3[k] != NB_SEGMENTS)
 				continue;
-			Segment *segment4 = segments[j];
-			for (st k = 0; adj1[k] != nb_segments; k++)
+			Segment *segment4 = segments[i4];
+			for (st i2 = 0; segments2[i2] != NB_SEGMENTS; i2++)
 			{
-				Segment *segment2 = segments[k];
-				st diff_coord1 = pow(segment2->x1 - segment4->x1, 2) +
-								 pow(segment2->y1 - segment4->y1, 2);
-				st diff_coord2 = pow(segment2->x2 - segment4->x2, 2) +
-								 pow(segment2->y2 - segment4->y2, 2);
-				if (diff_coord1 > pow(0.015 * r_max, 2) &&
-					diff_coord2 > pow(0.015 * r_max, 2))
+				Segment *segment2 = segments[segments2[i2]];
+				st diff_coord1 = st_pow(segment2->x2, segment4->x1) +
+								 st_pow(segment2->y2, segment4->y1);
+				st diff_coord2 = st_pow(segment2->x2, segment4->x2) +
+								 st_pow(segment2->y2, segment4->y2);
+				printf("diff_coord1: %zu\n", diff_coord1);
+				printf("diff_coord2: %zu\n", diff_coord2);
+				if (!diff_coord2)
+					printf("!!!!!!!!!!%zu, %zu, %zu, %zu\n", segment2->x2, segment2->y2, segment4->x2, segment4->y2);
+				printf("-cmp2-4 : (%zu, %zu) (%zu, %zu)\n", segment2->x2, segment2->y2, segment4->x1, segment4->y1);
+				if (diff_coord2 <= min_dist)
+					swapPoints(segment4);
+				else if (diff_coord1 > min_dist)
 					continue;
+				printf("cmp2-4 : (%zu, %zu) (%zu, %zu)\n", segment2->x2, segment2->y2, segment4->x1, segment4->y1);
+				for (st i3 = 0; segments3[i3] != NB_SEGMENTS; i3++)
+				{
+					Segment *segment3 = segments[segments3[i3]];
+					st diff_coord3 = st_pow(segment3->x2, segment4->x2) +
+								 	 st_pow(segment3->y2, segment4->y2);
+					if (diff_coord3 > min_dist)
+						continue;
+					printf("cmp3-4 : (%zu, %zu) (%zu, %zu)\n", segment3->x2, segment3->y2, segment4->x2, segment4->y2);
+					Square *square = (Square *)malloc(sizeof(Square));
+					printf("Square:\n");
+					printf("Segment 1: (%zu, %zu) (%zu, %zu)\n", segment1->x1, segment1->y1, segment1->x2, segment1->y2);
+					printf("Segment 2: (%zu, %zu) (%zu, %zu)\n", segment2->x1, segment2->y1, segment2->x2, segment2->y2);
+					printf("Segment 3: (%zu, %zu) (%zu, %zu)\n", segment3->x1, segment3->y1, segment3->x2, segment3->y2);
+					printf("Segment 4: (%zu, %zu) (%zu, %zu)\n", segment4->x1, segment4->y1, segment4->x2, segment4->y2);
+					square->x1 = segment1->x1;
+					square->y1 = segment1->y1;
+					square->x2 = segment1->x2;
+					square->y2 = segment1->y2;
+					square->x3 = segment4->x2;
+					square->y3 = segment4->y2;
+					square->x4 = segment4->x1;
+					square->y4 = segment4->y1;
+					return square;
+				}
 			}
 		}
 	}
+	return NULL;
 }

@@ -1,3 +1,5 @@
 #pragma once
 
-void detectGrid();
+#include "tools.h"
+
+Square *detectGrid();
