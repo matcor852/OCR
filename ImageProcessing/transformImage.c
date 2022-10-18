@@ -10,6 +10,33 @@ void invertImage(Image *image)
 		pixels[i] = 255 - pixels[i];
 }
 
+void saturateImage (Image *image)
+{
+	uc *pixels = image->pixels;
+	st w = image->width, h = image->height;
+	st histo[256]= {0};
+
+	for (st y = 0; y<h; y++)
+		for (st x = 0; x<w; x++)
+			histo[pixels[y*w+x]]++;
+
+	st median = 0;
+	for (st i = 255; i>=0; i--)
+	{
+		median += histo[i];
+		if (median > w*h*0.875)
+		{
+			median = i;
+			break;
+		}
+	}
+	for (st y = 0; y<h; y++)
+		for (st x = 0; x<w; x++)
+			pixels[y*w+x] = pixels[y*w+x] >= median ? 255 : 0;
+	return;
+}
+
+
 Image *resizeImage(Image *image, st new_w, st new_h)
 {
 	uc *pixels = image->pixels;

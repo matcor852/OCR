@@ -6,9 +6,14 @@
 #include "showLines.h"
 
 #define PI 3.141592654
+
 #define SMOOTH_ERROR 1.5
+
+#define RANGE_DEL_R 15
+#define RANGE_DEL_THETA 3
+
 #define NB_SEGMENTS 50
-#define COORD_ERROR 5.0
+#define COORD_ERROR 3.0
 #define ANGLE_ERROR 30
 #define LENGTH_ERROR 2
 
@@ -192,8 +197,8 @@ void smoothLine(uc *line, st threshold, st len, st *i_start, st *i_end)
 
 void deleteBest(uc *r_theta, st r_max, st best_r, st best_theta)
 {
-	st r_min = best_r - 15 > best_r ? 0 : best_r - 15;
-	r_max = best_r + 15 > r_max ? r_max : best_r + 15;
+	st r_min = best_r - RANGE_DEL_R > best_r ? 0 : best_r - RANGE_DEL_R;
+	r_max = best_r + RANGE_DEL_R > r_max ? r_max : best_r + RANGE_DEL_R;
 	for (st r = r_min; r < r_max; r++)
 		r_theta[r * 360 + best_theta] = 0;
 }
@@ -342,7 +347,7 @@ Square *detectGrid(Image *image)
 				continue;
 			segments2[j] = i2;
 			j++;
-			printf("cmp1-2 : (%zu, %zu) (%zu, %zu)\n", segment1->x1, segment1->y1, segment2->x1, segment2->y1);
+			//printf("cmp1-2 : (%zu, %zu) (%zu, %zu)\n", segment1->x1, segment1->y1, segment2->x1, segment2->y1);
 			printSegment(segment2, 2);
 		}
 		segments2[j] = NB_SEGMENTS;
@@ -364,7 +369,7 @@ Square *detectGrid(Image *image)
 							  st_pow(segment1->y2, segment3->y1);
 			st diff_coord2 = st_pow(segment1->x2, segment3->x2) +
 							  st_pow(segment1->y2, segment3->y2);
-			printf("cmp1-3 : (%zu, %zu) (%zu, %zu)\n", segment1->x2, segment1->y2, segment3->x1, segment3->y1);
+			//printf("cmp1-3 : (%zu, %zu) (%zu, %zu)\n", segment1->x2, segment1->y2, segment3->x1, segment3->y1);
 			if (diff_coord2 <= min_dist)
 				swapPoints(segment3);
 			else if (diff_coord1 > min_dist)
@@ -406,7 +411,7 @@ Square *detectGrid(Image *image)
 					swapPoints(segment4);
 				else if (diff_coord1 > min_dist)
 					continue;
-				printf("cmp2-4 : (%zu, %zu) (%zu, %zu)\n", segment2->x2, segment2->y2, segment4->x1, segment4->y1);
+				//printf("cmp2-4 : (%zu, %zu) (%zu, %zu)\n", segment2->x2, segment2->y2, segment4->x1, segment4->y1);
 				printSegment(segment2, 2);
 				printSegment(segment4, 4);
 				for (st i3 = 0; segments3[i3] != NB_SEGMENTS; i3++)
@@ -416,20 +421,20 @@ Square *detectGrid(Image *image)
 								 	 st_pow(segment3->y2, segment4->y2);
 					if (diff_coord3 > min_dist)
 						continue;
-					printf("cmp3-4 : (%zu, %zu) (%zu, %zu)\n", segment3->x2, segment3->y2, segment4->x2, segment4->y2);
+					//printf("cmp3-4 : (%zu, %zu) (%zu, %zu)\n", segment3->x2, segment3->y2, segment4->x2, segment4->y2);
 					Square *square = (Square *)malloc(sizeof(Square));
 					printf("Square:\n");
-					printf("Segment 1: (%zu, %zu) (%zu, %zu)\n", segment1->x1, segment1->y1, segment1->x2, segment1->y2);
-					printf("Segment 2: (%zu, %zu) (%zu, %zu)\n", segment2->x1, segment2->y1, segment2->x2, segment2->y2);
-					printf("Segment 3: (%zu, %zu) (%zu, %zu)\n", segment3->x1, segment3->y1, segment3->x2, segment3->y2);
-					printf("Segment 4: (%zu, %zu) (%zu, %zu)\n", segment4->x1, segment4->y1, segment4->x2, segment4->y2);
+					printSegment(segment1, 1);
+					printSegment(segment2, 2);
+					printSegment(segment3, 3);
+					printSegment(segment4, 4);
 					square->s1 = segment1;
 					square->s2 = segment2;
 					square->s3 = segment3;
 					square->s4 = segment4;
 					Segment * todraw[]= {segment1,segment2,segment3,segment4};
 					showLines(FILENAME, todraw, 0, 255, 0, 4);
-					return square;
+					// return square;
 				}
 			}
 		}

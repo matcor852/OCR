@@ -2,7 +2,7 @@
 
 #include <stdlib.h>
 
-#define FILENAME "Images/image_01.jpeg"
+#define FILENAME "Images/image_04.jpeg"
 
 typedef unsigned char uc;
 typedef size_t st;

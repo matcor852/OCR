@@ -25,7 +25,7 @@ Image *openImage(const char *filename)
 	{
 		Uint8 r, g, b;
 		SDL_GetRGB(pxls[i], format, &r, &g, &b);
-		Uint8 average = 0.3 * r + 0.59 * g + 0.11 * b;
+		Uint8 average = (r + g + b) / 3;
 		r = g = b = average;
 		pixels[i] = SDL_MapRGB(format, r, g, b);
 	}

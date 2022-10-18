@@ -12,7 +12,9 @@ int main(int argc, char **argv)
 		printf("%s\n", argv[i]);
 	Image *image = openImage(FILENAME);
 	Image *resized = resizeImage(image, image->width / 2, image->height / 2);
-	Square *square = detectGrid(image);
+	saturateImage(resized);
+	Square *square = detectGrid(resized);
+
 	if (square == NULL)
 		printf("No Square found!\n");
 	else
