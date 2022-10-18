@@ -6,15 +6,12 @@
 #include "transformImage.h"
 #include "hough.h"
 
-int main(int argc, char **argv)
+int main()
 {
-	for (int i = 1; i < argc; i++)
-		printf("%s\n", argv[i]);
 	Image *image = openImage(FILENAME);
 	Image *resized = resizeImage(image, image->width / 2, image->height / 2);
 	saturateImage(resized);
 	Square *square = detectGrid(resized);
-
 	if (square == NULL)
 		printf("No Square found!\n");
 	else

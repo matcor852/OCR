@@ -14,7 +14,7 @@
 
 #define NB_SEGMENTS 50
 #define COORD_ERROR 3.0
-#define ANGLE_ERROR 30
+#define ANGLE_ERROR 10
 #define LENGTH_ERROR 2
 
 int isVertical(st theta)
@@ -323,7 +323,6 @@ Square *detectGrid(Image *image)
 	for (st i1 = 0; i1 < NB_SEGMENTS; i1++)
 	{
 		Segment *segment1 = segments[i1];
-		printSegment(segment1, 1);
 		st segments2[NB_SEGMENTS];
 		st j = 0;
 		for (st i2 = 0; i2 < NB_SEGMENTS; i2++)
@@ -348,7 +347,6 @@ Square *detectGrid(Image *image)
 			segments2[j] = i2;
 			j++;
 			//printf("cmp1-2 : (%zu, %zu) (%zu, %zu)\n", segment1->x1, segment1->y1, segment2->x1, segment2->y1);
-			printSegment(segment2, 2);
 		}
 		segments2[j] = NB_SEGMENTS;
 
@@ -376,7 +374,6 @@ Square *detectGrid(Image *image)
 				continue;
 			segments3[j] = i3;
 			j++;
-			printSegment(segment3, 3);
 		}
 		segments3[j] = NB_SEGMENTS;
 
@@ -412,8 +409,6 @@ Square *detectGrid(Image *image)
 				else if (diff_coord1 > min_dist)
 					continue;
 				//printf("cmp2-4 : (%zu, %zu) (%zu, %zu)\n", segment2->x2, segment2->y2, segment4->x1, segment4->y1);
-				printSegment(segment2, 2);
-				printSegment(segment4, 4);
 				for (st i3 = 0; segments3[i3] != NB_SEGMENTS; i3++)
 				{
 					Segment *segment3 = segments[segments3[i3]];
@@ -423,18 +418,11 @@ Square *detectGrid(Image *image)
 						continue;
 					//printf("cmp3-4 : (%zu, %zu) (%zu, %zu)\n", segment3->x2, segment3->y2, segment4->x2, segment4->y2);
 					Square *square = (Square *)malloc(sizeof(Square));
-					printf("Square:\n");
-					printSegment(segment1, 1);
-					printSegment(segment2, 2);
-					printSegment(segment3, 3);
-					printSegment(segment4, 4);
 					square->s1 = segment1;
 					square->s2 = segment2;
 					square->s3 = segment3;
 					square->s4 = segment4;
-					Segment * todraw[]= {segment1,segment2,segment3,segment4};
-					showLines(FILENAME, todraw, 0, 255, 0, 4);
-					// return square;
+					return square;
 				}
 			}
 		}
