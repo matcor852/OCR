@@ -10,10 +10,12 @@ int main(int argc, char **argv)
 {
 	for (int i = 1; i < argc; i++)
 		printf("%s\n", argv[i]);
-	Square *square = detectGrid();
+	Image *image = openImage(FILENAME);
+	Image *resized = resizeImage(image, image->width / 2, image->height / 2);
+	Square *square = detectGrid(image);
 	if (square == NULL)
 		printf("No Square found!\n");
 	else
-		printf("Square:\n(%zu, %zu)\n(%zu, %zu)\n(%zu, %zu)\n(%zu, %zu)\n", square->x1, square->y1, square->x2, square->y2, square->x3, square->y3, square->x4, square->y4);
+		//printf("Square:\n(%zu, %zu)\n(%zu, %zu)\n(%zu, %zu)\n(%zu, %zu)\n", square->x1, square->y1, square->x2, square->y2, square->x3, square->y3, square->x4, square->y4);
 	return 0;
 }

@@ -2,6 +2,8 @@
 
 #include <stdlib.h>
 
+#define FILENAME "Images/image_01.jpeg"
+
 typedef unsigned char uc;
 typedef size_t st;
 
@@ -19,10 +21,7 @@ typedef struct
 
 typedef struct
 {
-    st x1, y1;
-    st x2, y2;
-    st x3, y3;
-    st x4, y4;
+    Segment *s1,*s2,*s3,*s4;
 } Square;
 
 Image *newImage(st width, st height);

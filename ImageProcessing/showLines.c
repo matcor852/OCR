@@ -1,6 +1,6 @@
 #include "showLines.h"
 
-void showLines(const char * filename, Segment ** segments)
+void showLines(const char * filename, Segment ** segments,int r, int g, int b, st nb_segments)
 {
     /// SDL STUFF
     if (SDL_Init(SDL_INIT_VIDEO) != 0)
@@ -56,8 +56,8 @@ void showLines(const char * filename, Segment ** segments)
 	SDL_WaitEvent(&event);
 	SDL_RenderClear(renderer);
 	SDL_RenderCopy(renderer, texture, NULL, &rec_dest);
-	SDL_SetRenderDrawColor(renderer,255,0,0,0);
-	for (st i = 0; i < 30 ; i++)
+	SDL_SetRenderDrawColor(renderer, r, g, b, 0);
+	for (st i = 0; i < nb_segments ; i++)
 	{
 		SDL_RenderDrawLine(renderer,segments[i]->x1,segments[i]->y1,
 		segments[i]->x2,segments[i]->y2);
