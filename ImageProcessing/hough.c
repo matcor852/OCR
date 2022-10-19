@@ -150,7 +150,7 @@ void smoothLine(uc *line, st threshold, st len, st *i_start, st *i_end)
 		line[i] = line[i] >= threshold ? 1 : 0;
 	// Fills the gaps smaller than min_gap
 	int change = 1;
-	st min_gap = SMOOTH_ERROR / 100.0 * len; // TODO: change this
+	st min_gap = SMOOTH_ERROR / 100.0 * len;
 	while (change)
 	{
 		change = 0;
@@ -275,6 +275,7 @@ Segment *getBestSegment(uc *r_theta, st r_max, Image *image)
 	segment->x2 = x_end;
 	segment->y2 = y_end;
 	segment->theta = best_theta;
+	segment->r = best_r;
 	segment->length = lenth_segment;
 	return segment;
 }
@@ -292,6 +293,17 @@ void swapPoints(Segment *segment)
 void printSegment(Segment *segment, st i)
 {
 	printf("Segment%zu: (%zu, %zu) (%zu, %zu)\n", i, segment->x1, segment->y1, segment->x2, segment->y2);
+}
+
+void inersection(Segment *segment1, Segment *segment2, st *x, st *y)
+{
+	float c1 = cos(segment1->theta), s1 = sin(segment1->theta);
+	float c2 = cos(segment2->theta), s2 = sin(segment2->theta);
+	int r1 = segment1->r, r2 = segment2->r;
+	float det = c1 * s2 - c2 * s1;
+	*x = (r1 * s2 - r2 * s1) / det;
+	*y = (r2 * c1 - r1 * c2) / det;
+	// TODO: test and implement
 }
 
 Square *detectGrid(Image *image)

@@ -48,13 +48,13 @@ Image *resizeImage(Image *image, st new_w, st new_h)
 	float ratio_h = (float)h / new_h;
 	for (st new_y = 0; new_y < new_h; new_y++)
 	{
-		float y = new_y * ration_h;
+		float y = new_y * ratio_h;
 		st upper_y = y;
 		st lower_y = upper_y + 1;
 		for (st new_x = 0; new_x < new_w; new_x++)
 		{
 			float x = new_x * ratio_w;
-			st left_x = x
+			st left_x = x;
 			st right_x = left_x + 1;
 			if (left_x < 0 || right_x >= w || upper_y < 0 || lower_y >= h)
 			{

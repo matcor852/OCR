@@ -16,7 +16,7 @@ typedef  struct
 
 typedef struct
 {
-	st x1, y1, x2, y2, theta, length;
+	st x1, y1, x2, y2, theta, r, length;
 } Segment;
 
 typedef struct
