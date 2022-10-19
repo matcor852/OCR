@@ -79,7 +79,7 @@ void Network_Save(Network *net, char name[]) {
         printf("\nNeural Network Name : ");
         scanf_s("%s", NNName, sizeof(NNName));
 	}
-	snprintf(filename, 64, "TrainedNetwork\\NeuralNetData_%ulayers_%s.bin",
+	snprintf(filename, 64, "TrainedNetwork\\NeuralNetData_%ulayers_%s.dnn",
 			net->currentLayer, name == NULL ? NNName : name);
 	if ((err = fopen_s(&fptr, filename, "wb")) != 0){
 		strerror_s(errbuf,sizeof(errbuf), err);
@@ -125,8 +125,17 @@ Layer *lvec_alloc(cui n) {
 	return tmp;
 }
 
-void Network_Predict(Network *net, ld *input, cui Size) {
+ui Network_Predict(Network *net, ld *input, cui Size) {
 	Network_Forward(net, input, Size);
+	Layer *l = &net->layers[net->nbLayers-1];
+	if (l->Neurons == 1) {
+        step(l->output, l->output, l->Neurons);
+        return l->output[0] > 0 ? 1 : 0;
+	}
+    else argmax(l->output, l->output, l->Neurons);
+    ui i=0;
+    for(; i<l->Neurons; i++)
+        if (l->output[i] >= 1.0L) return i;
 }
 
 ld *Network_Validate(Network *net, ld *input, cui Size, bool os1) {
@@ -184,8 +193,6 @@ static void Network_Forward(Network *net, ld *input, cui iSize) {
 }
 
 static ld Network_BackProp(Network *net, NNParam *params, cui nth) {
-
-    //puts("\nEntering Back prop\n");
 
     Layer *L = &net->layers[net->nbLayers-1];
 	ld (*cost_deriv)(ld, ld) = get_cost_deriv(params->cost_func);

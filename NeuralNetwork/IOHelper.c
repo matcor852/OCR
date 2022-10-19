@@ -62,15 +62,15 @@ void LoadData(NNParam *param) {
     param->oSize = 10;
 
     ui startI = 0;
-	char pathTrain[] = "D:/Code/C/OCR/NeuralNetwork/curated/hcd_784_60000_training.bin";
-	char pathValidate[] = "D:/Code/C/OCR/NeuralNetwork/curated/hcd_784_10000_validation.bin";
+	//char pathTrain[] = "D:/Code/C/OCR/NeuralNetwork/curated/hcd_784_60000_training.bin";
+	//char pathValidate[] = "D:/Code/C/OCR/NeuralNetwork/curated/hcd_784_10000_validation.bin";
 
 	ui SamplesTrain = 0, SamplesValidate = 0;
-	if (sscanf_s(pathTrain, "%*[^_]%*[_]%*[^_]%*[_]%u", &SamplesTrain) != 1) {
+	if (sscanf_s(param->trainingFile, "%*[^_]%*[_]%*[^_]%*[_]%u", &SamplesTrain) != 1) {
 		printf("Could not read amount of samples in filename; Exiting...\n");
 		exit(1);
 	}
-	if (sscanf_s(pathValidate, "%*[^_]%*[_]%*[^_]%*[_]%u", &SamplesValidate) != 1) {
+	if (sscanf_s(param->validationFile, "%*[^_]%*[_]%*[^_]%*[_]%u", &SamplesValidate) != 1) {
 		printf("Could not read amount of samples in filename; Exiting...\n");
 		exit(1);
 	}
@@ -79,9 +79,9 @@ void LoadData(NNParam *param) {
 
 	int err;
 	char errbuf[64];
-	if ((err = fopen_s(&fptr1, pathTrain, "rb")) != 0){
+	if ((err = fopen_s(&fptr1, param->trainingFile, "rb")) != 0){
 		strerror_s(errbuf,sizeof(errbuf), err);
-		fprintf(stderr, "Cannot open file '%s': %s\n", pathTrain, errbuf);
+		fprintf(stderr, "Cannot open file '%s': %s\n", param->trainingFile, errbuf);
 		exit(1);
 	}
 	param->toLoopTrain = min(SamplesTrain, param->toLoopTrain);
@@ -102,9 +102,9 @@ void LoadData(NNParam *param) {
 	}
 	fclose(fptr1);
 
-	if ((err = fopen_s(&fptr2, pathValidate, "rb")) != 0){
+	if ((err = fopen_s(&fptr2, param->validationFile, "rb")) != 0){
 		strerror_s(errbuf,sizeof(errbuf), err);
-		fprintf(stderr, "Cannot open file '%s': %s\n", pathValidate, errbuf);
+		fprintf(stderr, "Cannot open file '%s': %s\n", param->validationFile, errbuf);
 		exit(1);
 	}
 	param->toLoopValidate = min(SamplesValidate, param->toLoopValidate);
@@ -195,15 +195,10 @@ void OverfitLoad(NNParam *param)
     param->oSize = 10;
 
     ui startI = 0;
-	char pathTrain[] = "D:/Code/C/OCR/NeuralNetwork/curated/hcd_784_60000_training.bin";
-	char pathValidate[] = "D:/Code/C/OCR/NeuralNetwork/curated/hcd_784_10000_validation.bin";
+	//char pathTrain[] = "D:/Code/C/OCR/NeuralNetwork/curated/hcd_784_60000_training.bin";
 
 	ui SamplesTrain = 0, SamplesValidate = 0;
-	if (sscanf_s(pathTrain, "%*[^_]%*[_]%*[^_]%*[_]%u", &SamplesTrain) != 1) {
-		printf("Could not read amount of samples in filename; Exiting...\n");
-		exit(1);
-	}
-	if (sscanf_s(pathValidate, "%*[^_]%*[_]%*[^_]%*[_]%u", &SamplesValidate) != 1) {
+	if (sscanf_s(param->trainingFile, "%*[^_]%*[_]%*[^_]%*[_]%u", &SamplesTrain) != 1) {
 		printf("Could not read amount of samples in filename; Exiting...\n");
 		exit(1);
 	}
@@ -212,9 +207,9 @@ void OverfitLoad(NNParam *param)
 
 	int err;
 	char errbuf[64];
-	if ((err = fopen_s(&fptr1, pathTrain, "rb")) != 0){
+	if ((err = fopen_s(&fptr1, param->trainingFile, "rb")) != 0){
 		strerror_s(errbuf,sizeof(errbuf), err);
-		fprintf(stderr, "Cannot open file '%s': %s\n", pathTrain, errbuf);
+		fprintf(stderr, "Cannot open file '%s': %s\n", param->trainingFile, errbuf);
 		exit(1);
 	}
 	param->toLoopTrain = min(SamplesTrain, param->toLoopTrain);
@@ -257,11 +252,8 @@ void PerfSearch(NNParam *origin, Network *net, int attempt) {
             if (curr_perf > bperf) {
                 bperf = curr_perf;
                 char *s = (char*) malloc(sizeof(char) * 12);
-                char *vl = (char*) malloc(sizeof(char) * 6);
-                gcvt(bperf, 4, vl);
-                snprintf(s, 10, "%s_%s", origin->NNName, vl);
+                snprintf(s, 10, "%s_%.2LF", origin->NNName, bperf);
                 Network_Save(net, s);
-                free(vl);
                 free(s);
             }
             if (curr_perf >= 100.0f) maxed = 1;
@@ -279,11 +271,8 @@ void PerfSearch(NNParam *origin, Network *net, int attempt) {
         if (curr_perf > bperf) {
             bperf = curr_perf;
             char *s = (char*) malloc(sizeof(char) * 12);
-            char *vl = (char*) malloc(sizeof(char) * 6);
-            gcvt(bperf, 4, vl);
-            snprintf(s, 10, "%s_%s", origin->NNName, vl);
+            snprintf(s, 10, "%s_%.2LF", origin->NNName, bperf);
             Network_Save(net, s);
-            free(vl);
             free(s);
         }
         //Network_Display(net, true);
@@ -293,6 +282,7 @@ void PerfSearch(NNParam *origin, Network *net, int attempt) {
         net = NULL;
         attempt--;
     }
+
 }
 
 void NNParam_Display(NNParam *param) {
@@ -300,17 +290,20 @@ void NNParam_Display(NNParam *param) {
     printf("\n\tHidden neurons : %u", param->hiddenN);
     printf("\t\t\tLearning Rate : %Lg\n", param->l_rate);
     printf("\tTraining samples : %u", param->toLoopTrain);
-    printf("\t\tValidation samples : %u\n", param->toLoopValidate);
+    printf("\t\t\tValidation samples : %u\n", param->toLoopValidate);
     printf("\tEpoch : %u", param->epoch);
     printf("\t\t\t\tEpoch interval : %u\n", param->epochInterval);
     printf("\tCost Function : %s", param->cost_func);
-    printf("\t\tTracking : %s\n", param->track ? "true" : "false");
+    printf("\t\t\tTracking : %s\n", param->track ? "true" : "false");
     printf("\tL1 Regularization : %LF", param->l1Norm);
     printf("\t\tL2 Regularization : %LF\n\n", param->l2Norm);
 }
 
 
 void Purge_NNParam(NNParam *param) {
+    if (param->cost_func) free(param->cost_func);
+    if (param->NNName != NULL) free(param->NNName);
+    if (param->StatsFile != NULL) free(param->StatsFile);
     bool freeOnce = param->toLoopTrain == param->toLoopValidate;
     for (ui i=0; i<param->toLoopTrain; i++) {
         free(param->inputTrain[i]);

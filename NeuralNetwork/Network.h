@@ -32,6 +32,7 @@ struct NNParam
     ld **inputTrain, **outputTrain;
     ld **inputTest, **outputTest;
     char *cost_func, *StatsFile, *NNName;
+    char *trainingFile, *validationFile;
     Optimizer *optimizer;
 };
 
@@ -42,7 +43,7 @@ void Network_Save(Network *net, char name[]);
 void Network_Purge(Network *net);
 void Network_Display(Network *net, bool display_matr);
 void Network_Wire(Network *net);
-void Network_Predict(Network *net, ld *input, cui Size);
+ui Network_Predict(Network *net, ld *input, cui Size);
 ld *Network_Validate(Network *net, ld *input, cui Size, bool os1);
 void Network_Train(Network *net, NNParam *params);
 static void Network_Forward(Network *net, ld *input, cui iSize);
