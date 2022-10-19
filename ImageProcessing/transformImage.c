@@ -47,20 +47,22 @@ Image *resizeImage(Image *image, st new_w, st new_h)
 	float ratio_h = (float)h / new_h;
 	for (st new_y = 0; new_y < new_h; new_y++)
 	{
-		st upper_y = new_y * ratio_h;
-		st lower_y = (new_y + 1) * ratio_h;
+		float y = new_y * ration_h;
+		st upper_y = y;
+		st lower_y = upper_y + 1;
 		for (st new_x = 0; new_x < new_w; new_x++)
 		{
-			st left_x = new_x * ratio_w;
-			st right_x = (new_x + 1) * ratio_w;
+			float x = new_x * ratio_w;
+			st left_x = x
+			st right_x = left_x + 1;
 			if (left_x < 0 || right_x >= w || upper_y < 0 || lower_y >= h)
 			{
 				new_pixels[new_y * new_w + new_x] = 0;
 				continue;
 			}
-			float weight_left = 1 - (new_x * ratio_w - left_x);
+			float weight_left = 1 - (x - left_x);
 			float weight_right = 1 - weight_left;
-			float weight_top = 1 - (new_y * ratio_h - upper_y);
+			float weight_top = 1 - (y - upper_y);
 			float weight_bottom = 1 - weight_top;
 			float value = 0;
 			value += pixels[upper_y * w + left_x] * weight_left * weight_top;
