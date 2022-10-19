@@ -74,3 +74,48 @@ Image *resizeImage(Image *image, st new_w, st new_h)
 	}
 	return new_image;
 }
+
+Image *extractGrid(Image *image, st x1, st y1, st x2, st y2, st x3, st y3, st x4, st y4, st new_w, st new_h)
+{
+	uc *pixels = image->pixels;
+	st w = image->width, h = image->height;
+	Image *new_image = newImage(new_w, new_h);
+	uc *new_pixels = new_image->pixels;
+	float mat[3][3] = {{x1, x2, x3}, {y1, y2, y3}, {1, 1, 1}};
+	float inv_mat[3][3];
+	float mat31[3];
+	float res[3];
+	invMat33(mat, inv_mat);
+	for (st new_y = 0; new_y < new_h; new_y++)
+	{
+		for (st new_x = 0; new_x < new_w; new_x++)
+		{
+			mat31[0] = new_x;
+			mat31[1] = new_y;
+			mat31[2] = 1;
+			matMul33_31(inv_mat, mat31, res);
+			float x = res[0] / res[2];
+			float y = res[1] / res[2];
+			st left_x = x;
+			st right_x = left_x + 1;
+			st upper_y = y;
+			st lower_y = upper_y + 1;
+			if (left_x < 0 || right_x >= w || upper_y < 0 || lower_y >= h)
+			{
+				new_pixels[new_y * new_w + new_x] = 0;
+				continue;
+			}
+			float weight_left = 1 - (x - left_x);
+			float weight_right = 1 - weight_left;
+			float weight_top = 1 - (y - upper_y);
+			float weight_bottom = 1 - weight_top;
+			float value = 0;
+			value += pixels[upper_y * w + left_x] * weight_left * weight_top;
+			value += pixels[upper_y * w + right_x] * weight_right * weight_top;
+			value += pixels[lower_y * w + left_x] * weight_left * weight_bottom;
+			value += pixels[lower_y * w + right_x] * weight_right * weight_bottom;
+			new_pixels[new_y * new_w + new_x] = (uc)(value + 0.5);
+		}
+	}
+	return new_image;
+}

@@ -31,5 +31,7 @@ void matMul33_33(float mat1[3][3], float mat2[3][3], float res[3][3])
 	float j = mat2[0][0], k = mat2[0][1], l = mat2[0][2];
 	float m = mat2[1][0], n = mat2[1][1], o = mat2[1][2];
 	float p = mat2[2][0], q = mat2[2][1], r = mat2[2][2];
-	res[0][0] =
+	res[0][0] = a*j+b*m+c*p, res[0][1] = a*k+b*n+c*q, res[0][2] = a*l+b*o+c*r;
+	res[1][0] = d*j+e*m+f*p, res[1][1] = d*k+e*n+f*q, res[1][2] = d*l+e*o+f*r;
+	res[2][0] = g*j+h*m+i*p, res[2][1] = g*k+h*n+i*q, res[2][2] = g*l+h*o+i*r;
 }

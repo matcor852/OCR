@@ -1,16 +1,5 @@
-#pragma once
+#pragma
 
-typedef struct
-{
-	float _1;
-	float _2;
-	float _3
-} Mat31;
-
-typedef struct
-{
-	float _1_1, _1_2, _1_3;
-	float _2_1, _2_2, _2_3;
-	float _3_1, _3_2, _3_3;
-} Mat33;
-
+void matMul33_31(float mat33[3][3], float mat31[3], float res[3]);
+void invMat33(float mat[3][3], float res[3][3]);
+void matMul33_33(float mat1[3][3], float mat2[3][3], float res[3][3]);
