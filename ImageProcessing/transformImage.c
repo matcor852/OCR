@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "tools.h"
 #include "transformImage.h"
+#include "matrices.h"
 
 void invertImage(Image *image)
 {
@@ -75,25 +76,27 @@ Image *resizeImage(Image *image, st new_w, st new_h)
 	return new_image;
 }
 
-Image *extractGrid(Image *image, st x1, st y1, st x2, st y2, st x3, st y3, st x4, st y4, st new_w, st new_h)
+Image *extractGrid(Image *image, float corners[4][2], st new_w, st new_h)
 {
+	// p1 : ul, p2 : ur,
+	// p3 : dl, p4 : dr
 	uc *pixels = image->pixels;
 	st w = image->width, h = image->height;
 	Image *new_image = newImage(new_w, new_h);
 	uc *new_pixels = new_image->pixels;
-	float mat[3][3] = {{x1, x2, x3}, {y1, y2, y3}, {1, 1, 1}};
-	float inv_mat[3][3];
+	float mat33[3][3];
+	getTransformMatrix(corners, new_w, new_h, mat33);
 	float mat31[3];
+	mat31[2] = 1;
 	float res[3];
-	invMat33(mat, inv_mat);
 	for (st new_y = 0; new_y < new_h; new_y++)
 	{
 		for (st new_x = 0; new_x < new_w; new_x++)
 		{
 			mat31[0] = new_x;
 			mat31[1] = new_y;
-			mat31[2] = 1;
-			matMul33_31(inv_mat, mat31, res);
+			// mat31[2] = 1;
+			matMul33_31(mat33, mat31, res);
 			float x = res[0] / res[2];
 			float y = res[1] / res[2];
 			st left_x = x;
