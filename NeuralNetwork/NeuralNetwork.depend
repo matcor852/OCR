@@ -83,7 +83,7 @@
 	<unistd.h>
 	<fcntl.h>
 
-1665474419 source:d:\code\tp\c\ocr\neuralnetwork\cost.c
+1666016779 source:d:\code\tp\c\ocr\neuralnetwork\cost.c
 	"Cost.h"
 
 1664371002 d:\code\tp\c\ocr\neuralnetwork\cost.h
@@ -91,7 +91,7 @@
 	<float.h>
 	"Tools.h"
 
-1664877865 source:d:\code\tp\c\ocr\neuralnetwork\layer.c
+1666016779 source:d:\code\tp\c\ocr\neuralnetwork\layer.c
 	"Layer.h"
 
 1664371002 d:\code\tp\c\ocr\neuralnetwork\layer.h
@@ -113,7 +113,7 @@
 1664877865 source:d:\code\tp\c\ocr\neuralnetwork\tools.c
 	"Tools.h"
 
-1665747072 source:d:\code\tp\c\ocr\neuralnetwork\main.c
+1666167881 source:d:\code\tp\c\ocr\neuralnetwork\main.c
 	<stdio.h>
 	<stdlib.h>
 	<time.h>
@@ -145,10 +145,10 @@
 	<stdlib.h>
 	"Network.h"
 
-1665747715 source:d:\code\tp\c\ocr\neuralnetwork\iohelper.c
+1666167872 source:d:\code\tp\c\ocr\neuralnetwork\iohelper.c
 	"IOHelper.h"
 
-1665747631 d:\code\tp\c\ocr\neuralnetwork\iohelper.h
+1666016779 d:\code\tp\c\ocr\neuralnetwork\iohelper.h
 	<stdio.h>
 	<stdlib.h>
 	"Network.h"
