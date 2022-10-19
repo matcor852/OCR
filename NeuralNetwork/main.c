@@ -95,7 +95,7 @@ int main(int argc, char *argv[])
     origin->hiddenN = 2;
     origin->toLoopTrain = 4;
     origin->toLoopValidate = 4;
-    origin->epoch = 500;
+    origin->epoch = 250;
     origin->epochInterval = 500;
     origin->l_rate = .1L;
     origin->optimizer = NULL /*(Optimizer*) malloc(sizeof(Optimizer))*/;

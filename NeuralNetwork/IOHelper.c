@@ -264,14 +264,13 @@ void PerfSearch(NNParam *origin, Network *net, int attempt) {
                 free(vl);
                 free(s);
             }
-            if (curr_perf >= 100.0f) {
-                maxed = 1;
-                break;
+            if (curr_perf >= 100.0f) maxed = 1;
+            else {
+                Network_Train(net, origin);
+                int ne = min((int)origin->epochInterval, (int)(origin->epoch-e));
+                origin->epochInterval = ne;
+                e += ne;
             }
-            Network_Train(net, origin);
-            int ne = min((int)origin->epochInterval, (int)(origin->epoch-e));
-            origin->epochInterval = ne;
-            e += ne;
         }
 
         printf("[ Epoch %u/%u ] Accuracy : ", origin->epoch, origin->epoch);
