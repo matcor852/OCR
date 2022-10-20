@@ -3,7 +3,7 @@
 #include "tools.h"
 #include "openImage.h"
 #include "transformImage.h"
-#include "showLines.h"
+#include "display.h"
 
 #define PI 3.141592654
 

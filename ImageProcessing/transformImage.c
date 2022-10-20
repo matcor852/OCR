@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <math.h>
 #include "tools.h"
 #include "transformImage.h"
 #include "matrices.h"
@@ -103,6 +104,48 @@ Image *extractGrid(Image *image, float corners[4][2], st new_w, st new_h)
 			st right_x = left_x + 1;
 			st upper_y = y;
 			st lower_y = upper_y + 1;
+			if (left_x < 0 || right_x >= w || upper_y < 0 || lower_y >= h)
+			{
+				new_pixels[new_y * new_w + new_x] = 0;
+				continue;
+			}
+			float weight_left = 1 - (x - left_x);
+			float weight_right = 1 - weight_left;
+			float weight_top = 1 - (y - upper_y);
+			float weight_bottom = 1 - weight_top;
+			float value = 0;
+			value += pixels[upper_y * w + left_x] * weight_left * weight_top;
+			value += pixels[upper_y * w + right_x] * weight_right * weight_top;
+			value += pixels[lower_y * w + left_x] * weight_left * weight_bottom;
+			value += pixels[lower_y * w + right_x] * weight_right * weight_bottom;
+			new_pixels[new_y * new_w + new_x] = (uc)(value + 0.5);
+		}
+	}
+	return new_image;
+}
+
+Image* rotateImage(Image * image, double angle) 
+{
+    uc *pixels = image->pixels;
+	st w = image->width, h = image->height;
+    st new_w = w, new_h = h;
+    Image *new_image = newImage(new_w, new_h);
+    uc *new_pixels = new_image->pixels;
+
+    float cosa = cos(angle);
+    float sina = sin(angle);
+
+	for (st new_y = 0; new_y < new_h; new_y++)
+	{
+		for (st new_x = 0; new_x < new_w; new_x++)
+		{
+            float x = new_x * cosa - new_y * sina;
+            float y = new_x * sina + new_y * cosa;
+            st upper_y = (st) y;
+		    st lower_y = upper_y + 1;
+
+            st left_x = (st) x;
+			st right_x = left_x + 1;
 			if (left_x < 0 || right_x >= w || upper_y < 0 || lower_y >= h)
 			{
 				new_pixels[new_y * new_w + new_x] = 0;
