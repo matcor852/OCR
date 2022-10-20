@@ -16,14 +16,21 @@ typedef  struct
 
 typedef struct
 {
+	st x, y;
+} Point;
+
+typedef struct
+{
 	st x1, y1, x2, y2, theta, r, length;
 } Segment;
 
 typedef struct
 {
-    Segment *s1,*s2,*s3,*s4;
+	Point *p1, *p2, *p3, *p4;
 } Square;
 
 Image *newImage(st width, st height);
+Point *newPoint(st x, st y);
+Square *newSquare(Point *p1, Point *p2, Point *p3, Point *p4);
 void freeImage(Image *image);
 void printImage(Image *image);

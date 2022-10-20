@@ -12,9 +12,10 @@ int main()
 	Image *resized = resizeImage(image, image->width / 2, image->height / 2);
 	saturateImage(resized);
 	Square *square = detectGrid(resized);
-	if (square == NULL)
-		printf("No Square found!\n");
-	else
-		//printf("Square:\n(%zu, %zu)\n(%zu, %zu)\n(%zu, %zu)\n(%zu, %zu)\n", square->x1, square->y1, square->x2, square->y2, square->x3, square->y3, square->x4, square->y4);
+	printf("Square:\n");
+	printf("p1: (%zu, %zu)\n", square->p1->x, square->p1->y);
+	printf("p2: (%zu, %zu)\n", square->p2->x, square->p2->y);
+	printf("p3: (%zu, %zu)\n", square->p3->x, square->p3->y);
+	printf("p4: (%zu, %zu)\n", square->p4->x, square->p4->y);
 	return 0;
 }

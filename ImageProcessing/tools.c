@@ -10,6 +10,24 @@ Image *newImage(st width, st height)
 	return image;
 }
 
+Point *newPoint(st x, st y)
+{
+	Point *point = malloc(sizeof(Point));
+	point->x = x;
+	point->y = y;
+	return point;
+}
+
+Square *newSquare(Point *p1, Point *p2, Point *p3, Point *p4)
+{
+	Square *square = malloc(sizeof(Square));
+	square->p1 = p1;
+	square->p2 = p2;
+	square->p3 = p3;
+	square->p4 = p4;
+	return square;
+}
+
 void freeImage(Image *image)
 {
 	free(image->pixels);
