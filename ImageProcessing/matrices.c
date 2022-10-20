@@ -36,14 +36,18 @@ void matMul33_33(float mat1[3][3], float mat2[3][3], float res[3][3])
 	res[2][0] = g*j+h*m+i*p, res[2][1] = g*k+h*n+i*q, res[2][2] = g*l+h*o+i*r;
 }
 
-void getMatrixFromCorners(float corners[4][2], float res[3][3])
+void getMatrixFromCorners(Quadri *quadri, float res[3][3])
 {
+	float x1 = quadri->p1->x, y1 = quadri->p1->y;
+	float x2 = quadri->p2->x, y2 = quadri->p2->y;
+	float x3 = quadri->p3->x, y3 = quadri->p3->y;
+	float x4 = quadri->p4->x, y4 = quadri->p4->y;
 	float mat[3][3] = {
-		{corners[0][0], corners[1][0], corners[2][0]},
-		{corners[0][1], corners[1][1], corners[2][1]},
+		{x1, x2, x3},
+		{y1, y2, y3},
 		{1, 1, 1}
 	};
-	float mat_[3] = {corners[3][0], corners[3][1], 1};
+	float mat_[3] = {x4, y4, 1};
 	float inv_mat[3][3];
 	invMat33(mat, inv_mat);
 	float lmt[3];
@@ -53,19 +57,19 @@ void getMatrixFromCorners(float corners[4][2], float res[3][3])
 			res[j][i] = mat[j][i] * lmt[i];
 }
 
-void getTransformMatrix(float corners[4][2], st new_w, st new_h, float res[3][3])
+void getTransformMatrix(Quadri *quadri, st new_w, st new_h, float res[3][3])
 {
-	float new_corners[4][2] = {
-		{0, 0},
-		{new_w, 0},
-		{0, new_h},
-		{new_w, new_h}
-	};
+	Point *p1 = newPoint(0, 0);
+	Point *p2 = newPoint(new_w, 0);
+	Point *p3 = newPoint(0, new_h);
+	Point *p4 = newPoint(new_w, new_h);
+	Quadri *new_quadri = newQuadri(p1, p2, p3, p4);
 	float mat_a[3][3];
-	getMatrixFromCorners(corners, mat_a);
+	getMatrixFromCorners(quadri, mat_a);
 	float mat_b[3][3];
-	getMatrixFromCorners(new_corners, mat_b);
+	getMatrixFromCorners(new_quadri, mat_b);
 	float inv_b[3][3];
 	invMat33(mat_b, inv_b);
 	matMul33_33(mat_a, inv_b, res);
+	freeQuadri(new_quadri);
 }

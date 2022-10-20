@@ -229,14 +229,14 @@ Segment *getBestSegment(uc *r_theta, st r_max, Image *image)
 		return NULL;
 	int vertical = isVertical(best_theta);
 	st height = image->height, width = image->width;
-	st length = vertical ? height : width;
-	uc line[length];
+	st dim = vertical ? height : width;
+	uc line[dim];
 	if (vertical)
 		getVerticalLine(image, best_r, best_theta, line);
 	else
 		getHorizontalLine(image, best_r, best_theta, line);
 	st i_start, i_end;
-	smoothLine(line, best_value, length, &i_start, &i_end);
+	smoothLine(line, best_value, dim, &i_start, &i_end);
 	float _cos = cos(best_theta * PI / 180);
 	float _sin = sin(best_theta * PI / 180);
 	int x1, y1, x2, y2;
@@ -254,8 +254,8 @@ Segment *getBestSegment(uc *r_theta, st r_max, Image *image)
 		x2 = width - 1;
 		y2 = (best_r - x2 * _cos) / _sin;
 	}
-	float ratio_start = (float)i_start / length;
-	float ratio_end = (float)i_end / length;
+	float ratio_start = (float)i_start / dim;
+	float ratio_end = (float)i_end / dim;
 	st x_start = x1 + ratio_start * (x2 - x1);
 	st y_start = y1 + ratio_start * (y2 - y1);
 	st x_end = x1 + ratio_end * (x2 - x1);
@@ -263,18 +263,11 @@ Segment *getBestSegment(uc *r_theta, st r_max, Image *image)
 	r_theta[best_r * 360 + best_theta] = 0;
 	if (x_start >= width || x_end >= width || y_start >= height || y_end >= height)
 		return NULL;
-	st lenth_segment = sqrt(st_pow(x_end, x_start) + st_pow(y_end, y_start));
-	if (lenth_segment < length / 4)
+	st length = sqrt(st_pow(x_end, x_start) + st_pow(y_end, y_start));
+	if (length < dim / 4)
 		return NULL;
 	deleteBest(r_theta, r_max, best_r, best_theta);
-	Segment *segment = malloc(sizeof(Segment));
-	segment->x1 = x_start;
-	segment->y1 = y_start;
-	segment->x2 = x_end;
-	segment->y2 = y_end;
-	segment->theta = best_theta;
-	segment->r = best_r;
-	segment->length = lenth_segment;
+	Segment *segment = newSegment(x_start, y_start, x_end, y_end, best_theta, best_r, length);
 	return segment;
 }
 
@@ -301,16 +294,21 @@ Point *getIntersection(Segment *segment1, Segment *segment2)
 	float det = c1 * s2 - c2 * s1;
 	st x = (r1 * s2 - r2 * s1) / det;
 	st y = (r2 * c1 - r1 * c2) / det;
-	return newPoint(x, y);
+	Point *point = newPoint(x, y);
+	return point;
 }
 
-Square *detectGrid(Image *image)
+void freeSegments(Segment **segments)
+{
+	for (st i = 0; i < NB_SEGMENTS; i++)
+		free(segments[i]);
+}
+
+Quadri *detectGrid(Image *image)
 {
 	invertImage(image);
 	st width = image->width, height = image->height;
 	st r_max = sqrt(width * width + height * height);
-	if (r_max == 0)
-		return NULL;
 	uc r_theta[r_max * 360];
 	fillR_theta(image, r_theta, r_max);
 	Segment *segments[NB_SEGMENTS];
@@ -357,7 +355,6 @@ Square *detectGrid(Image *image)
 			//printf("cmp1-2 : (%zu, %zu) (%zu, %zu)\n", segment1->x1, segment1->y1, segment2->x1, segment2->y1);
 		}
 		segments2[j] = NB_SEGMENTS;
-
 		j = 0;
 		st segments3[NB_SEGMENTS];
 		for (st i3 = 0; i3 < NB_SEGMENTS; i3++)
@@ -433,11 +430,13 @@ Square *detectGrid(Image *image)
 					Point *p2 = getIntersection(segment2, segment4);
 					Point *p3 = getIntersection(segment1, segment3);
 					Point *p4 = getIntersection(segment3, segment4);
-					Square *square = newSquare(p1, p2, p3, p4);
-					return square;
+					Quadri *quadri = newQuadri(p1, p2, p3, p4);
+					freeSegments(segments);
+					return quadri;
 				}
 			}
 		}
 	}
+	freeSegments(segments);
 	return NULL;
 }

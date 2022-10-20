@@ -28,10 +28,12 @@ typedef struct
 typedef struct
 {
 	Point *p1, *p2, *p3, *p4;
-} Square;
+} Quadri;
 
 Image *newImage(st width, st height);
-Point *newPoint(st x, st y);
-Square *newSquare(Point *p1, Point *p2, Point *p3, Point *p4);
 void freeImage(Image *image);
+Point *newPoint(st x, st y);
+Segment *newSegment(st x1, st y1, st x2, st y2, st theta, st r, st length);
+Quadri *newQuadri(Point *p1, Point *p2, Point *p3, Point *p4);
+void freeQuadri(Quadri *quadri);
 void printImage(Image *image);

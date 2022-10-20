@@ -11,12 +11,16 @@ int main()
 {
 	Image *image = openImage(FILENAME);
 	Image *resized = resizeImage(image, image->width / 2, image->height / 2);
+	freeImage(image);
 	saturateImage(resized);
-	Square *square = detectGrid(resized);
-	printf("Square:\n");
-	printf("p1: (%zu, %zu)\n", square->p1->x, square->p1->y);
-	printf("p2: (%zu, %zu)\n", square->p2->x, square->p2->y);
-	printf("p3: (%zu, %zu)\n", square->p3->x, square->p3->y);
-	printf("p4: (%zu, %zu)\n", square->p4->x, square->p4->y);
+	Quadri *quadri = detectGrid(resized);
+	printf("Grid:\n");
+	printf("p1: (%zu, %zu)\n", quadri->p1->x, quadri->p1->y);
+	printf("p2: (%zu, %zu)\n", quadri->p2->x, quadri->p2->y);
+	printf("p3: (%zu, %zu)\n", quadri->p3->x, quadri->p3->y);
+	printf("p4: (%zu, %zu)\n", quadri->p4->x, quadri->p4->y);
+	freeQuadri(quadri);
+	freeImage(resized);
+	rotateWithView(FILENAME);
 	return 0;
 }

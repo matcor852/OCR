@@ -10,7 +10,7 @@ void showLines(Image *background, Segment **segments, int r, int g, int b, st nb
     if (window == NULL)
         errx(EXIT_FAILURE, "%s", SDL_GetError());
     SDL_Renderer *renderer = SDL_CreateRenderer(window, -1,
-                                                SDL_RENDERER_ACCELERATED);
+                                                SDL_RENDERER_SOFTWARE);
     if (renderer == NULL)
         errx(EXIT_FAILURE, "%s", SDL_GetError());
     SDL_Surface *surface = imageToSurface(background);
@@ -123,7 +123,6 @@ int displayImage(Image *image)
 
     // DESTRUCTION
     SDL_DestroyTexture(texture);
-    // SDL_DestroyTexture(grayscale);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     IMG_Quit();
@@ -143,13 +142,14 @@ void event_loop(SDL_Renderer *renderer, Image *image)
     int angle = 0;
     int step = 5;
     Image *rotated = rotateImage(image, angle);
-    while (1)
+	int running = 1;
+    while (running)
     {
         SDL_WaitEvent(&event);
         switch (event.type)
         {
         case SDL_QUIT:
-            return;
+			running = 0;
         case SDL_WINDOWEVENT:
             if (event.window.event == SDL_WINDOWEVENT_RESIZED)
                 draw(renderer, texture);
@@ -161,10 +161,14 @@ void event_loop(SDL_Renderer *renderer, Image *image)
                 event.key.keysym.scancode == SDL_SCANCODE_RIGHT)
             {
                 if (event.key.keysym.scancode == SDL_SCANCODE_LEFT)
-                    angle = angle - step;
+                    angle += step;
                 else
-                    angle = angle + step;
-                rotated = rotateImage(image, angle);
+                    angle -= step;
+				angle %= 360;
+				freeImage(rotated);
+				rotated = rotateImage(image, angle);
+				SDL_DestroyTexture(texture);
+				SDL_FreeSurface(surface);
                 surface = imageToSurface(rotated);
                 texture = SDL_CreateTextureFromSurface(renderer, surface);
                 if (texture == NULL)
@@ -172,10 +176,11 @@ void event_loop(SDL_Renderer *renderer, Image *image)
                 draw(renderer, texture);
             }
             if (event.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
-                return;
+				running = 0;
             break;
         }
     }
+	freeImage(rotated);
     SDL_DestroyTexture(texture);
     SDL_FreeSurface(surface);
 }
@@ -197,7 +202,7 @@ int rotateWithView(const char *filename)
     if (window == NULL)
         errx(EXIT_FAILURE, "%s", SDL_GetError());
     SDL_Renderer *renderer = SDL_CreateRenderer(window, -1,
-                                                SDL_RENDERER_ACCELERATED);
+                                                SDL_RENDERER_SOFTWARE);
     if (renderer == NULL)
         errx(EXIT_FAILURE, "%s", SDL_GetError());
     Image *image = openImage(filename);
@@ -205,6 +210,7 @@ int rotateWithView(const char *filename)
     // MAIN
     event_loop(renderer, image);
     // DESTRUCTION
+	freeImage(image);
     SDL_DestroyRenderer(renderer);
     SDL_DestroyWindow(window);
     IMG_Quit();

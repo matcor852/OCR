@@ -81,7 +81,7 @@ Image *resizeImage(Image *image, st new_w, st new_h)
 	return new_image;
 }
 
-Image *extractGrid(Image *image, float corners[4][2], st new_w, st new_h)
+Image *extractGrid(Image *image, Quadri *quadri, st new_w, st new_h)
 {
 	// p1 : ul, p2 : ur,
 	// p3 : dl, p4 : dr
@@ -90,7 +90,7 @@ Image *extractGrid(Image *image, float corners[4][2], st new_w, st new_h)
 	Image *new_image = newImage(new_w, new_h);
 	uc *new_pixels = new_image->pixels;
 	float mat33[3][3];
-	getTransformMatrix(corners, new_w, new_h, mat33);
+	getTransformMatrix(quadri, new_w, new_h, mat33);
 	float mat31[3];
 	mat31[2] = 1;
 	float res[3];

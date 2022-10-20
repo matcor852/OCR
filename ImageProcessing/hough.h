@@ -2,4 +2,4 @@
 
 #include "tools.h"
 
-Square *detectGrid(Image *image);
+Quadri *detectGrid(Image *image);
