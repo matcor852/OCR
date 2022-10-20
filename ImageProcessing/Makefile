@@ -16,6 +16,7 @@ run:
 
 clean:
 	rm -rf *[.do] main
+	rm -f rotated.png
 	clear
 
 save:

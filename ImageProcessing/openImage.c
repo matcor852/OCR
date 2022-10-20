@@ -33,3 +33,22 @@ Image *openImage(const char *filename)
 	SDL_FreeSurface(surface);
 	return image;
 }
+
+void saveImage(Image *image, const char *filename)
+{
+    SDL_Surface *surface = imageToSurface(image);
+    if (IMG_SavePNG(surface, filename) != 0)
+        errx(1, "Error while saving image");
+    return;
+}
+
+void saveSquare(Image *image, const char *filename, st x, st y, st size)
+{
+    SDL_Surface *surface = imageToSurface(image);
+    SDL_Rect rect = {x, y, size, size};
+    SDL_Surface *cell = SDL_CreateRGBSurface(0, size, size, 32, 0, 0, 0, 0);
+    SDL_BlitSurface(surface, &rect, cell, NULL);
+    if (IMG_SavePNG(cell, filename) != 0)
+        errx(1, "Error while saving image");
+    return;
+}

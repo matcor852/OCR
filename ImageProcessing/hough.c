@@ -5,8 +5,6 @@
 #include "transformImage.h"
 #include "display.h"
 
-#define PI 3.141592654
-
 #define SMOOTH_ERROR 1.5
 
 #define RANGE_DEL_R 15
@@ -330,7 +328,6 @@ Square *detectGrid(Image *image)
 			// printf("Length: %zu\n\n", segment->length);
 		}
 	}
-	showLines(FILENAME, segments, 255, 0, 0, NB_SEGMENTS);
 	st min_dist = pow(COORD_ERROR / 100.0 * r_max, 2);
 	for (st i1 = 0; i1 < NB_SEGMENTS; i1++)
 	{

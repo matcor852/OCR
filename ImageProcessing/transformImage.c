@@ -32,6 +32,10 @@ void saturateImage (Image *image)
 			break;
 		}
 	}
+	if (median == 255)
+		median = 254;
+	if (median == 0)
+		median = 1;
 	for (st y = 0; y<h; y++)
 		for (st x = 0; x<w; x++)
 			pixels[y*w+x] = pixels[y*w+x] >= median ? 255 : 0;
@@ -124,8 +128,9 @@ Image *extractGrid(Image *image, float corners[4][2], st new_w, st new_h)
 	return new_image;
 }
 
-Image* rotateImage(Image * image, double angle) 
+Image* rotateImage(Image * image, int angleD) 
 {
+	double angle = angleD * PI / 180;
     uc *pixels = image->pixels;
 	st w = image->width, h = image->height;
     st new_w = w, new_h = h;
@@ -139,8 +144,8 @@ Image* rotateImage(Image * image, double angle)
 	{
 		for (st new_x = 0; new_x < new_w; new_x++)
 		{
-            float x = new_x * cosa - new_y * sina;
-            float y = new_x * sina + new_y * cosa;
+            float x = new_x * cosa - new_y * sina - w/2 * cosa + h/2 * sina + w/2;
+            float y = new_x * sina + new_y * cosa - w/2 * sina - h/2 * cosa + h/2;; 
             st upper_y = (st) y;
 		    st lower_y = upper_y + 1;
 
@@ -160,7 +165,7 @@ Image* rotateImage(Image * image, double angle)
 			value += pixels[upper_y * w + right_x] * weight_right * weight_top;
 			value += pixels[lower_y * w + left_x] * weight_left * weight_bottom;
 			value += pixels[lower_y * w + right_x] * weight_right * weight_bottom;
-			new_pixels[new_y * new_w + new_x] = (uc)(value + 0.5);
+			new_pixels[new_y * new_w + new_x ] = (uc)(value + 0.5);
 		}
 	}
 	return new_image;
