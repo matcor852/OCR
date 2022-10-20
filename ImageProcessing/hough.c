@@ -293,20 +293,19 @@ void printSegment(Segment *segment, st i)
 	printf("Segment%zu: (%zu, %zu) (%zu, %zu)\n", i, segment->x1, segment->y1, segment->x2, segment->y2);
 }
 
-void inersection(Segment *segment1, Segment *segment2, st *x, st *y)
+Point *getIntersection(Segment *segment1, Segment *segment2)
 {
-	float c1 = cos(segment1->theta), s1 = sin(segment1->theta);
-	float c2 = cos(segment2->theta), s2 = sin(segment2->theta);
+	float c1 = cos(segment1->theta * PI / 180), s1 = sin(segment1->theta * PI / 180);
+	float c2 = cos(segment2->theta * PI / 180), s2 = sin(segment2->theta * PI / 180);
 	int r1 = segment1->r, r2 = segment2->r;
 	float det = c1 * s2 - c2 * s1;
-	*x = (r1 * s2 - r2 * s1) / det;
-	*y = (r2 * c1 - r1 * c2) / det;
-	// TODO: test and implement
+	st x = (r1 * s2 - r2 * s1) / det;
+	st y = (r2 * c1 - r1 * c2) / det;
+	return newPoint(x, y);
 }
 
 Square *detectGrid(Image *image)
 {
-	//Image *image = openImage(FILENAME);
 	invertImage(image);
 	st width = image->width, height = image->height;
 	st r_max = sqrt(width * width + height * height);
@@ -426,11 +425,15 @@ Square *detectGrid(Image *image)
 					if (diff_coord3 > min_dist)
 						continue;
 					//printf("cmp3-4 : (%zu, %zu) (%zu, %zu)\n", segment3->x2, segment3->y2, segment4->x2, segment4->y2);
-					Square *square = (Square *)malloc(sizeof(Square));
-					square->s1 = segment1;
-					square->s2 = segment2;
-					square->s3 = segment3;
-					square->s4 = segment4;
+					// printSegment(segment1, 1);
+					// printSegment(segment2, 2);
+					// printSegment(segment3, 3);
+					// printSegment(segment4, 4);
+					Point *p1 = getIntersection(segment1, segment2);
+					Point *p2 = getIntersection(segment2, segment4);
+					Point *p3 = getIntersection(segment1, segment3);
+					Point *p4 = getIntersection(segment3, segment4);
+					Square *square = newSquare(p1, p2, p3, p4);
 					return square;
 				}
 			}
