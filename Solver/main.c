@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "solver.h"
+#include <string.h>
 
 /*"image_01.jpeg": [5, 3, 0, 0, 7, 0, 0, 0, 0,
 6, 0, 0, 1, 9, 5, 0, 0, 0,
@@ -124,20 +125,63 @@ int array[9][9] =
     };*/
 
 
-int main()
+int **read(const char *filename)
 {
-    int array[9][9] =
+    int **array = malloc(9 * sizeof(int *));
+    for (int i = 0; i < 9; i++)
+        array[i] = (int *)malloc(9 * sizeof(int));
+    if (!array)
+        return NULL;
+    FILE *file = fopen(filename, "r");
+    if (!file)
+        return NULL;
+    size_t count;
+    char buffer = '0';
+    int value;
+    size_t i = 0;
+    size_t j = 0;
+
+    do {
+        count = fread(&buffer, 1, 1, file);
+        if (buffer == '.')
+            value = 0;
+        else if (buffer >= '0' && buffer <= '9')
+            value = atoi(&buffer);
+        else
+        {
+            if (buffer == '\n' && j)
+            {
+                i++;
+                j = 0;
+            }
+            continue; 
+        }
+        array[i][j] = value;
+        j++;
+    } while (count != 0);
+    fclose(file);
+    return array;
+}
+
+
+int main(int argc, char **argv)
+{
+    if (argc != 2)
+        return 0;
+    /*int array2[9][9] =
     {
-        {0,0,0,0,0,0,0,0,0},
-        {6,0,0,0,0,0,0,0,5},
-        {9,0,5,3,0,8,4,0,6},
-        {0,1,0,0,4,0,0,7,0},
-        {0,0,0,1,0,3,0,0,0},
-        {2,0,0,0,0,0,0,0,4},
-        {4,0,0,5,2,9,0,0,1},
-        {0,0,6,0,0,0,5,0,0},
-        {0,2,0,4,0,6,0,3,0}
-    };
+        {5,3,0,0,7,0,0,0,0},
+        {6,0,0,1,9,5,0,0,0},
+        {8,0,0,0,4,0,0,0,0},
+        {0,0,0,0,8,0,0,0,0},
+        {0,0,0,7,0,0,0,0,0},
+        {0,0,0,0,2,6,0,0,9},
+        {2,0,0,3,0,0,0,0,6},
+        {0,0,0,2,0,0,9,0,0},
+        {0,0,1,9,0,4,5,7,0}
+    };*/
+    const char *filename = argv[1];
+    int **array = read(filename);
     printf("Grille entrée\n");
     for (int i=0; i<9; i++)
     {
@@ -163,5 +207,25 @@ int main()
         printf("\n");
         if ((i+1)%3==0) printf("\n");
     }
-    return 0;
-} 
+    free(array);
+    strcat(argv[1],".result");
+    FILE* file = NULL;
+    file = fopen(argv[1],"w");
+    if (!file)
+        return 1;
+    char space = ' ';
+    char nl = '\n';
+    char c;
+    for (int i = 0; i < 9; i++){
+        for (int j = 0; j < 9; j++){
+            if (j == 3 || j == 6)
+                fputs(&space,file);
+            c = array[i][j];
+            fputs(&c,file);
+        }
+        if (i == 3 || i == 6)
+            fputs(&nl,file);
+        fputs(&nl,file);
+    }
+    fclose(file);
+}

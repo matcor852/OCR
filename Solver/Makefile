@@ -8,7 +8,7 @@ run:
 	rm main *.d
 
 clean: 
-	rm -rf [.do] main
+	rm -rf *.[do] main
 	clear
 
 	

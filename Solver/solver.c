@@ -142,7 +142,7 @@ int findBestCell(int x[81],int y[81],int v[81],int nbCell, int* value)
     return bestCell;
 }
 
-int solver (int array[9][9])
+int solver (int **array)
 {
     // Initialise les tableaux
     for (int i=0; i < 9; i++)
