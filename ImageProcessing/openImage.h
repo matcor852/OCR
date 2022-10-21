@@ -4,5 +4,5 @@
 #include "display.h"
 
 Image *openImage(const char *filename);
-void saveSquare(Image *image, const char *filename, st x, st y, st size);
+void saveSquare(Image *image, const char *filename, Point *point, int size);
 void saveImage(Image *image, const char *filename);

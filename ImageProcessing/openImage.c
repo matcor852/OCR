@@ -3,7 +3,6 @@
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include "openImage.h"
-#include "tools.h"
 
 Image *openImage(const char *filename)
 {
@@ -42,13 +41,15 @@ void saveImage(Image *image, const char *filename)
     return;
 }
 
-void saveSquare(Image *image, const char *filename, st x, st y, st size)
+void saveSquare(Image *image, const char *filename, Point *point, int size)
 {
     SDL_Surface *surface = imageToSurface(image);
-    SDL_Rect rect = {x, y, size, size};
+    SDL_Rect rect = {point->x, point->y, size, size};
     SDL_Surface *cell = SDL_CreateRGBSurface(0, size, size, 32, 0, 0, 0, 0);
     SDL_BlitSurface(surface, &rect, cell, NULL);
     if (IMG_SavePNG(cell, filename) != 0)
-        errx(1, "Error while saving image");
+        {errx(1, "Error while saving image");}
+	SDL_FreeSurface(cell);
+	SDL_FreeSurface(surface);
     return;
 }
