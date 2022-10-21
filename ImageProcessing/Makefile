@@ -1,3 +1,4 @@
+#!/bin/sh
 .SILENT: all
 .SILENT: run
 .SILENT: clean
@@ -20,7 +21,10 @@ clean:
 	clear
 
 save:
+	echo "Enter commit message (optional):"; \
+	read var; \
+	echo $$var > COMMIT_MESSAGE
 	git add --all
-	git status --porcelain > COMMIT_MESSAGE
+	git status --porcelain >> COMMIT_MESSAGE
 	git commit -F COMMIT_MESSAGE
-	cat COMMIT_MESSAGE
+
