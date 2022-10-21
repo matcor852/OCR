@@ -1,14 +1,14 @@
 all:
 	clang -Wall -Wextra -std=c99 -O3 -MMD *.c -c
-	clang *.o -o main
+	clang *.o -o solver
 
 run:
 	make
-	./main
-	rm main *.d
+	./solver
+	rm solver *.d
 
 clean: 
-	rm -rf *.[do] main
+	rm -rf *.[do] solver
 	clear
 
 	

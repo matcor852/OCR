@@ -182,7 +182,7 @@ int main(int argc, char **argv)
     };*/
     const char *filename = argv[1];
     int **array = read(filename);
-    printf("Grille entrée\n");
+    /*printf("Grille entrée\n");
     for (int i=0; i<9; i++)
     {
         for (int j=0; j<9; j++)
@@ -192,9 +192,10 @@ int main(int argc, char **argv)
         }
         printf("\n");
         if ((i+1)%3==0) printf("\n");
-    }
-    int countMove = solver(array);
-    printf("\n");
+    }*/
+    solver(array);
+    //int countMove = solver(array);
+    /*printf("\n");
     printf("Grille résolue\n");
     if (countMove>0) printf("Resolu en %d coups\n\n",countMove);
     for (int i=0; i<9; i++)
@@ -206,26 +207,22 @@ int main(int argc, char **argv)
         }
         printf("\n");
         if ((i+1)%3==0) printf("\n");
-    }
+    }*/
     free(array);
     strcat(argv[1],".result");
     FILE* file = NULL;
     file = fopen(argv[1],"w");
     if (!file)
         return 1;
-    char space = ' ';
-    char nl = '\n';
-    char c;
     for (int i = 0; i < 9; i++){
         for (int j = 0; j < 9; j++){
             if (j == 3 || j == 6)
-                fputs(&space,file);
-            c = array[i][j];
-            fputs(&c,file);
+                fputc(' ',file);
+            fputc(array[i][j]+'0',file);
         }
-        if (i == 3 || i == 6)
-            fputs(&nl,file);
-        fputs(&nl,file);
+        if (i == 2 || i == 5)
+            fputc('\n',file);
+        fputc('\n',file);
     }
     fclose(file);
 }
