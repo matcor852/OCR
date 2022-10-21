@@ -3,7 +3,7 @@
 .SILENT: clean
 
 all:
-	clang -Wall -Wextra -std=c99 -O3 -MMD *.c -c
+	clang -fsanitize=address -fsanitize=undefined -Wall -Wextra -std=c99 -O3 -MMD *.c -c -g
 	clang -fsanitize=address *.o -o main -lm -lSDL2 -lSDL2_image
 
 run:

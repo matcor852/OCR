@@ -34,10 +34,10 @@ void fillR_thetaVertical(Image *image, uc *r_theta, st r_max, st theta, float _c
 		nb = 0;
 		for (st y = 0; y < h; y++)
 		{
-			st x = (r - y * _sin) / _cos;
+			float x = (r - y * _sin) / _cos;
 			if (x >= 0 && x < w)
 			{
-				value += pixels[y * w + x];
+				value += pixels[y * w + (st)x];
 				nb++;
 			}
 		}
@@ -57,10 +57,10 @@ void fillR_thetaHorizontal(Image *image, uc *r_theta, st r_max, st theta, float 
 		nb = 0;
 		for (st x = 0; x < w; x++)
 		{
-			st y = (r - x * _cos) / _sin;
+			float y = (r - x * _cos) / _sin;
 			if (y >= 0 && y < h)
 			{
-				value += pixels[y * w + x];
+				value += pixels[(st)y * w + x];
 				nb++;
 			}
 		}
@@ -116,11 +116,11 @@ void getVerticalLine(Image *image, st r, st theta, uc *line)
 	float _sin = sin(theta * PI / 180);
 	for (st y = 0; y < height; y++)
 	{
-		st x = (r - y * _sin) / _cos;
+		float x = (r - y * _sin) / _cos;
 		if (x < 0 || x >= width)
 			line[y] = 0;
 		else
-			line[y] = pixels[y * width + x];
+			line[y] = pixels[y * width + (st)x];
 	}
 }
 
@@ -133,11 +133,11 @@ void getHorizontalLine(Image *image, st r, st theta, uc *line)
 	float _sin = sin(theta * PI / 180);
 	for (st x = 0; x < width; x++)
 	{
-		st y = (r - x * _cos) / _sin;
+		float y = (r - x * _cos) / _sin;
 		if (y < 0 || y >= height)
 			line[x] = 0;
 		else
-			line[x] = pixels[y * width + x];
+			line[x] = pixels[(st)y * width + x];
 	}
 }
 

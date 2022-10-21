@@ -2,7 +2,7 @@
 
 #include <stdlib.h>
 
-#define FILENAME "Images/image_04.jpeg"
+#define FILENAME "Images/image_06.jpeg"
 #define PI 3.141592654
 
 typedef unsigned char uc;

@@ -108,7 +108,7 @@ Image *extractGrid(Image *image, Quadri *quadri, st new_w, st new_h)
 			st right_x = left_x + 1;
 			st upper_y = y;
 			st lower_y = upper_y + 1;
-			if (left_x < 0 || right_x >= w || upper_y < 0 || lower_y >= h)
+			if (x < 0 || right_x >= w || y < 0 || lower_y >= h)
 			{
 				new_pixels[new_y * new_w + new_x] = 0;
 				continue;
@@ -151,7 +151,7 @@ Image* rotateImage(Image * image, int angleD)
 
             st left_x = (st) x;
 			st right_x = left_x + 1;
-			if (left_x < 0 || right_x >= w || upper_y < 0 || lower_y >= h)
+			if (x < 0 || right_x >= w || y < 0 || lower_y >= h)
 			{
 				new_pixels[new_y * new_w + new_x] = 0;
 				continue;
