@@ -156,7 +156,7 @@ void event_loop(SDL_Renderer *renderer, Image *image)
             break;
         case SDL_KEYDOWN:
             if (event.key.keysym.scancode == SDL_SCANCODE_S)
-                saveImage(rotated, "rotated.png");
+                IMG_SavePNG(surface, "rotated.png");
             if (event.key.keysym.scancode == SDL_SCANCODE_LEFT ||
                 event.key.keysym.scancode == SDL_SCANCODE_RIGHT)
             {
