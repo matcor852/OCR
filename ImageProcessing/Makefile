@@ -1,7 +1,7 @@
-#!/bin/sh
 .SILENT: all
 .SILENT: run
 .SILENT: clean
+.SILENT: save
 
 all:
 	clang -fsanitize=address -fsanitize=undefined -Wall -Wextra -std=c99 -O3 -MMD *.c -c -g
