@@ -170,3 +170,24 @@ Image* rotateImage(Image * image, int angleD)
 	}
 	return new_image;
 }
+
+//it integrate the number in the image with the origin : origin.
+//only if the pixel of number is less than 10
+void integrateNumber(Image *image, Image *number, Point *origin)
+{
+	uc *pixels = image->pixels;
+	st w = image->width, h = image->height;
+	uc *integrated_pixels = number->pixels;
+	st integrated_w = number->width, integrated_h = number->height;
+	for (st y = 0; y < integrated_h; y++)
+	{
+		for (st x = 0; x < integrated_w; x++)
+		{
+			st new_x = x + origin->x;
+			st new_y = y + origin->y;
+			if (new_x < 0 || new_x >= w || new_y < 0 || new_y >= h || integrated_pixels[y * integrated_w + x] >20)
+				continue;
+			pixels[new_y * w + new_x] = integrated_pixels[y * integrated_w + x];
+		}
+	}
+}
