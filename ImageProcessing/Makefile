@@ -23,7 +23,7 @@ clean:
 
 save:
 	make clean
-	echo "Enter commit message (optional):"; \
+	echo "Enter commit message (optional):"
 	read var; \
 	echo $$var > COMMIT_MESSAGE
 	git add --all

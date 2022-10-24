@@ -63,5 +63,7 @@ test*
 
 # Commit message
 COMMIT_MESSAGE
+
+# Images
 /ImageProcessing/Images/*
 !/ImageProcessing/Images/images_[0-9]*.jpeg
