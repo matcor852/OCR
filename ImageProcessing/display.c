@@ -1,9 +1,10 @@
 #include "display.h"
 #include <stdio.h>
 
-void showLines(Image *background, Segment **segments, int r, int g, int b,
-			   st nb_segments) {
-	if (SDL_Init(SDL_INIT_VIDEO) != 0) errx(EXIT_FAILURE, "%s", SDL_GetError());
+void showLines(Image *background, Segment **segments, st nb_segments, int r, int g, int b, float thickness)
+{
+	if (SDL_Init(SDL_INIT_VIDEO) != 0)
+		errx(EXIT_FAILURE, "%s", SDL_GetError());
 	SDL_Window *window;
 	window = SDL_CreateWindow("Lines preview", 0, 0, 1, 1, SDL_WINDOW_SHOWN);
 	if (window == NULL) errx(EXIT_FAILURE, "%s", SDL_GetError());
@@ -22,14 +23,21 @@ void showLines(Image *background, Segment **segments, int r, int g, int b,
 	SDL_Rect rec_dest = {0, 0, w, h};
 	SDL_Event event;
 	SDL_WaitEvent(&event);
+	float xscale = 0, yscale = 0;
+	SDL_RenderGetScale(renderer, &xscale, &yscale);
 	SDL_RenderClear(renderer);
 	SDL_RenderCopy(renderer, texture, NULL, &rec_dest);
 	SDL_SetRenderDrawColor(renderer, r, g, b, 0);
-	for (st i = 0; i < nb_segments; i++) {
-		SDL_RenderDrawLine(renderer, segments[i]->x1, segments[i]->y1,
-						   segments[i]->x2, segments[i]->y2);
+	SDL_RenderSetScale(renderer, thickness, thickness);
+	for (st i = 0; i < nb_segments; i++)
+	{
+		SDL_RenderDrawLine(renderer, segments[i]->x1/thickness, 
+		segments[i]->y1/thickness, segments[i]->x2/thickness,
+		segments[i]->y2/thickness);
 	}
+	SDL_RenderSetScale(renderer, xscale, yscale);
 	SDL_RenderPresent(renderer);
+	
 	/// KEEP DISPLAY RESULT
 	int keepDisplay = 1;
 	while (keepDisplay) {
@@ -47,17 +55,18 @@ void showLines(Image *background, Segment **segments, int r, int g, int b,
 	return;
 }
 
-void showQuadri(Image *background, Quadri *quadri, int r, int g, int b) {
-	Segment s1 = {
-		quadri->p1->x, quadri->p1->y, quadri->p3->x, quadri->p3->y, 0, 0, 0};
-	Segment s2 = {
-		quadri->p1->x, quadri->p1->y, quadri->p2->x, quadri->p2->y, 0, 0, 0};
-	Segment s3 = {
-		quadri->p3->x, quadri->p3->y, quadri->p4->x, quadri->p4->y, 0, 0, 0};
-	Segment s4 = {
-		quadri->p2->x, quadri->p2->y, quadri->p4->x, quadri->p4->y, 0, 0, 0};
-	Segment *segments[] = {&s1, &s2, &s3, &s4};
-	showLines(background, segments, r, g, b, 4);
+void showQuadri(Image *background, Quadri *quadri, int r, int g, int b)
+{
+	Point *p1 = quadri->p1;
+	Point *p2 = quadri->p2;
+	Point *p3 = quadri->p3;
+	Point *p4 = quadri->p4;
+	Segment s1 = {p1->x, p1->y, p3->x, p3->y, 0, 0, 0};
+	Segment s2 = {p1->x, p1->y, p2->x, p2->y, 0, 0, 0};
+	Segment s3 = {p3->x, p3->y, p4->x, p4->y, 0, 0, 0};
+	Segment s4 = {p2->x, p2->y, p4->x, p4->y, 0, 0, 0};
+	Segment *segments[] = {&s1, &s2, &s3 , &s4};
+	showLines(background, segments, 4, r, g, b, 4);
 }
 
 SDL_Surface *imageToSurface(Image *image) {

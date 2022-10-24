@@ -6,7 +6,8 @@
 #include "openImage.h"
 #include "tools.h"
 
-void showLines(Image *background, Segment ** segments,int r, int g, int b, st nb_segments);
+void showLines(Image *background, Segment **segments, st nb_segments,
+int r, int g, int b, float thickness);
 void showQuadri(Image *background, Quadri *quadri, int r, int g, int b);
 SDL_Surface* imageToSurface(Image *image) ;
 Image *event_loop(SDL_Renderer* renderer, Image *image);
