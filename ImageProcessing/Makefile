@@ -4,7 +4,7 @@
 .SILENT: save
 
 all:
-	clang -fsanitize=address -fsanitize=undefined -Wall -Wextra -std=c99 -O3 -MMD *.c -c -g
+	clang -fsanitize=address -fsanitize=undefined -Wall -Wextra -std=c99 -O3 -MMD *.c -c -g `pkg-config --cflags sdl2`
 	clang -fsanitize=address *.o -o main -lm -lSDL2 -lSDL2_image
 
 run:
@@ -16,7 +16,7 @@ run:
 	rm main *.d
 
 clean:
-	rm -rf *[.do] main
+	rm -rf *.[do] main
 	rm -f rotated.png
 	clear
 

@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "display.h"
 
 void showLines(Image *background, Segment **segments, int r, int g, int b, st nb_segments)
@@ -55,6 +56,16 @@ void showLines(Image *background, Segment **segments, int r, int g, int b, st nb
 	IMG_Quit();
 	SDL_Quit();
 	return;
+}
+
+void showQuadri(Image *background, Quadri *quadri, int r, int g, int b)
+{
+	Segment s1 = {quadri->p1->x, quadri->p1->y, quadri->p3->x, quadri->p3->y, 0, 0, 0};
+	Segment s2 = {quadri->p1->x, quadri->p1->y, quadri->p2->x, quadri->p2->y, 0, 0, 0};
+	Segment s3 = {quadri->p3->x, quadri->p3->y, quadri->p4->x, quadri->p4->y, 0, 0, 0};
+	Segment s4 = {quadri->p2->x, quadri->p2->y, quadri->p4->x, quadri->p4->y, 0, 0, 0};
+	Segment *segments[] = {&s1, &s2, &s3 , &s4};
+	showLines(background, segments, r, g, b, 4);
 }
 
 SDL_Surface *imageToSurface(Image *image)
@@ -132,7 +143,7 @@ int displayImage(Image *image)
 }
 
 // catch all events in an endless loop
-void event_loop(SDL_Renderer *renderer, Image *image)
+void event_loop(SDL_Window *window, SDL_Renderer *renderer, Image *image)
 {
 	SDL_Surface *surface = imageToSurface(image);
 	SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
@@ -143,6 +154,7 @@ void event_loop(SDL_Renderer *renderer, Image *image)
 	int step = 5;
 	Image *rotated = rotateImage(image, angle);
 	int running = 1;
+	int escape_pressed = 0;
 	while (running)
 	{
 		SDL_WaitEvent(&event);
@@ -150,6 +162,7 @@ void event_loop(SDL_Renderer *renderer, Image *image)
 		{
 		case SDL_QUIT:
 			running = 0;
+			break;
 		case SDL_WINDOWEVENT:
 			if (event.window.event == SDL_WINDOWEVENT_RESIZED)
 				draw(renderer, texture);
@@ -170,11 +183,16 @@ void event_loop(SDL_Renderer *renderer, Image *image)
 				SDL_DestroyTexture(texture);
 				SDL_FreeSurface(surface);
 				surface = imageToSurface(rotated);
+				SDL_SetWindowSize(window, surface->w, surface->h);
 				texture = SDL_CreateTextureFromSurface(renderer, surface);
 				if (texture == NULL)
 					errx(EXIT_FAILURE, "%s", SDL_GetError());
 				draw(renderer, texture);
 			}
+			if (event.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
+				escape_pressed = 1;
+			break;
+		case SDL_KEYUP:
 			if (event.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
 				running = 0;
 			break;
@@ -192,7 +210,7 @@ void draw(SDL_Renderer *renderer, SDL_Texture *texture)
 	SDL_RenderPresent(renderer);
 }
 
-int rotateWithView(const char *filename)
+int rotateWithView(Image *image)
 {
 	if (SDL_Init(SDL_INIT_VIDEO) != 0)
 		errx(EXIT_FAILURE, "%s", SDL_GetError());
@@ -205,12 +223,10 @@ int rotateWithView(const char *filename)
 												SDL_RENDERER_SOFTWARE);
 	if (renderer == NULL)
 		errx(EXIT_FAILURE, "%s", SDL_GetError());
-	Image *image = openImage(filename);
 	SDL_SetWindowSize(window, image->width, image->height);
 	// MAIN
-	event_loop(renderer, image);
+	event_loop(window, renderer, image);
 	// DESTRUCTION
-	freeImage(image);
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
 	IMG_Quit();
