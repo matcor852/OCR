@@ -299,11 +299,6 @@ Point *getIntersection(Segment *segment1, Segment *segment2)
 	return point;
 }
 
-void freeSegments(Segment **segments)
-{
-	for (st i = 0; i < NB_SEGMENTS; i++)
-		free(segments[i]);
-}
 
 Quadri *detectGrid(Image *image)
 {
@@ -326,6 +321,7 @@ Quadri *detectGrid(Image *image)
 			// printf("Length: %zu\n\n", segment->length);
 		}
 	}
+	showLines(image, segments, 255,0,0,NB_SEGMENTS);
 	st min_dist = pow(COORD_ERROR / 100.0 * r_max, 2);
 	for (st i1 = 0; i1 < NB_SEGMENTS; i1++)
 	{
@@ -432,12 +428,12 @@ Quadri *detectGrid(Image *image)
 					Point *p3 = getIntersection(segment1, segment3);
 					Point *p4 = getIntersection(segment3, segment4);
 					Quadri *quadri = newQuadri(p1, p2, p3, p4);
-					freeSegments(segments);
+					freeSegments(segments, NB_SEGMENTS);
 					return quadri;
 				}
 			}
 		}
 	}
-	freeSegments(segments);
+	freeSegments(segments, NB_SEGMENTS);
 	return NULL;
 }

@@ -23,6 +23,11 @@ int main(int argc, char *argv[])
 	displayImage(rotated);
 	
 	Quadri *quadri = detectGrid(rotated);
+	if (quadri == NULL)
+	{
+		printf("No grid detected\n");
+		return 1;
+	}
 	showQuadri(rotated, quadri, 255, 0, 0);
 	rotateWithView(rotated);
 	freeQuadri(quadri);
