@@ -17,13 +17,15 @@ int main(int argc, char *argv[])
 	Image *image = openImage(argv[1]);
 	Image *resized = resizeImage(image, image->width / 4, image->height / 4);
 	freeImage(image);
-	saturateImage(resized);
-	displayImage(resized);
-	
-	Quadri *quadri = detectGrid(resized);
-	showQuadri(resized, quadri, 255, 0, 0);
-	rotateWithView(resized);
-	freeQuadri(quadri);
+	Image *rotated = rotateWithView(resized);
 	freeImage(resized);
+	saturateImage(rotated);
+	displayImage(rotated);
+	
+	Quadri *quadri = detectGrid(rotated);
+	showQuadri(rotated, quadri, 255, 0, 0);
+	rotateWithView(rotated);
+	freeQuadri(quadri);
+	freeImage(rotated);
 return 0;
 }

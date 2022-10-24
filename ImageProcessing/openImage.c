@@ -19,7 +19,7 @@ Image *openImage(const char *filename)
 	st len = surface->w * surface->h;
 	for (st i = 0; i<len; i++)
 	{
-			pixels[i] = pxls[i];
+		pixels[i] = pxls[i];
 	}
 	return image;
 }

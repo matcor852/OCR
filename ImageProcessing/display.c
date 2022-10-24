@@ -212,7 +212,7 @@ void draw(SDL_Renderer *renderer, SDL_Texture *texture)
 	SDL_RenderPresent(renderer);
 }
 
-Image *rotateWithView(const char *filename)
+Image *rotateWithView(Image *image)
 {
 	if (SDL_Init(SDL_INIT_VIDEO) != 0)
 		errx(EXIT_FAILURE, "%s", SDL_GetError());

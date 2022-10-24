@@ -239,7 +239,7 @@ Segment *getBestSegment(uc *r_theta, st r_max, Image *image)
 	smoothLine(line, best_value, dim, &i_start, &i_end);
 	float _cos = cos(best_theta * PI / 180);
 	float _sin = sin(best_theta * PI / 180);
-	int x1, y1, x2, y2;
+	float x1, y1, x2, y2;
 	if (vertical)
 	{
 		y1 = 0;
@@ -256,18 +256,19 @@ Segment *getBestSegment(uc *r_theta, st r_max, Image *image)
 	}
 	float ratio_start = (float)i_start / dim;
 	float ratio_end = (float)i_end / dim;
-	st x_start = x1 + ratio_start * (x2 - x1);
-	st y_start = y1 + ratio_start * (y2 - y1);
-	st x_end = x1 + ratio_end * (x2 - x1);
-	st y_end = y1 + ratio_end * (y2 - y1);
+	float x_start = x1 + ratio_start * (x2 - x1);
+	float y_start = y1 + ratio_start * (y2 - y1);
+	float x_end = x1 + ratio_end * (x2 - x1);
+	float y_end = y1 + ratio_end * (y2 - y1);
 	r_theta[best_r * 360 + best_theta] = 0;
-	if (x_start >= width || x_end >= width || y_start >= height || y_end >= height)
+	if (x_start < 0 || x_end >= width || y_start < 0 || y_end >= height)
 		return NULL;
-	st length = sqrt(st_pow(x_end, x_start) + st_pow(y_end, y_start));
+	st length = sqrt(pow(x_end - x_start, 2) + pow(y_end - y_start, 2));
 	if (length < dim / 4)
 		return NULL;
 	deleteBest(r_theta, r_max, best_r, best_theta);
-	Segment *segment = newSegment(x_start, y_start, x_end, y_end, best_theta, best_r, length);
+	st _x = x_start, _y = y_start, x_ = x_end, y_ = y_end;
+	Segment *segment = newSegment(_x, _y, x_, y_, best_theta, best_r, length);
 	return segment;
 }
 
