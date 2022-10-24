@@ -8,7 +8,14 @@
 typedef unsigned char uc;
 typedef size_t st;
 
-typedef  struct
+typedef struct {
+    uc *data;
+    st width;
+    st height;
+    st channels;
+} Image;
+
+typedef struct
 {
     uc *pixels;
     st width;
@@ -17,17 +24,17 @@ typedef  struct
 
 typedef struct
 {
-	st x, y;
+    st x, y;
 } Point;
 
 typedef struct
 {
-	st x1, y1, x2, y2, theta, r, length;
+    st x1, y1, x2, y2, theta, r, length;
 } Segment;
 
 typedef struct
 {
-	Point *p1, *p2, *p3, *p4;
+    Point *p1, *p2, *p3, *p4;
 } Quadri;
 
 Image *newImage(st width, st height);

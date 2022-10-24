@@ -55,11 +55,15 @@ dkms.conf
 # IDE files
 .vscode/
 
+# Format files
+.clang-format
+
 # Tests
 test*
 
 # Commit message
 COMMIT_MESSAGE
 
-# Output files
-rotated.png
+# Images
+*.png
+*.jpg

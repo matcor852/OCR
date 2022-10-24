@@ -11,12 +11,12 @@ run:
 	make
 	clear
 	echo "========== Running main =========="
-	./main
+	./main Images/image_06.jpeg
 	echo "========== End of output =========="
 	rm main *.d
 
 clean:
-	rm -rf *.[do] main
+	rm -rf *.[do] main *.out
 	rm -f rotated.png
 	clear
 
@@ -28,4 +28,3 @@ save:
 	git add --all
 	git status --porcelain >> COMMIT_MESSAGE
 	git commit -F COMMIT_MESSAGE
-
