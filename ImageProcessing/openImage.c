@@ -14,23 +14,31 @@ Image *openImage(const char *filename)
 		errx(EXIT_FAILURE, "%s", SDL_GetError());
 	SDL_FreeSurface(surface_tmp);
 	Uint32 *pxls = surface->pixels;
-	SDL_PixelFormat *format = surface->format;
 	Image *image = newImage(surface->w, surface->h);
 	uc *pixels = image->pixels;
-	st len = image->width * image->height;
-	if (SDL_LockSurface(surface) != 0)
-		errx(EXIT_FAILURE, "%s", SDL_GetError());
-	for (st i = 0; i < len; i++)
+	st len = surface->w * surface->h;
+	for (st i = 0; i<len; i++)
 	{
-		Uint8 r, g, b;
-		SDL_GetRGB(pxls[i], format, &r, &g, &b);
-		Uint8 average = (r + g + b) / 3;
-		r = g = b = average;
-		pixels[i] = SDL_MapRGB(format, r, g, b);
+			pixels[i] = pxls[i];
 	}
-	SDL_UnlockSurface(surface);
-	SDL_FreeSurface(surface);
 	return image;
+}
+
+void grayscaleImage(Image *image)
+{
+	int w = image->width, h = image->height;
+	uc *pixels = image->pixels;
+	st len = w*h;
+	SDL_Surface *srfc = SDL_CreateRGBSurfaceWithFormat(0,w,h,8,SDL_PIXELFORMAT_RGB888);
+	for (st i = 0; i<len; i++)
+	{
+			Uint8 r, g, b;
+			SDL_GetRGB(pixels[i], srfc->format, &r, &g, &b);
+			Uint8 avg = (r + g + b) / 3;
+			pixels[i] = SDL_MapRGB(srfc->format, avg, avg, avg);;
+	}
+	SDL_FreeSurface(srfc);
+	return;
 }
 
 void saveImage(Image *image, const char *filename)

@@ -145,13 +145,18 @@ Image* rotateImage(Image * image, int angleD)
 		for (st new_x = 0; new_x < new_w; new_x++)
 		{
             float x = new_x * cosa - new_y * sina - w/2 * cosa + h/2 * sina + w/2;
-            float y = new_x * sina + new_y * cosa - w/2 * sina - h/2 * cosa + h/2;; 
+            float y = new_x * sina + new_y * cosa - w/2 * sina - h/2 * cosa + h/2;
+			if (x < 0 || y < 0)
+			{
+				new_pixels[new_y * new_w + new_x] = 0;
+				continue;
+			}
             st upper_y = (st) y;
 		    st lower_y = upper_y + 1;
 
             st left_x = (st) x;
 			st right_x = left_x + 1;
-			if (x < 0 || right_x >= w || y < 0 || lower_y >= h)
+			if (right_x >= w ||lower_y >= h)
 			{
 				new_pixels[new_y * new_w + new_x] = 0;
 				continue;
