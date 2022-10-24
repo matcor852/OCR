@@ -37,6 +37,12 @@ Segment *newSegment(st x1, st y1, st x2, st y2, st theta, st r, st length)
 	return segment;
 }
 
+void freeSegments(Segment **segments, int nb_segments)
+{
+	for (int i = 0; i < nb_segments; i++)
+		free(segments[i]);
+}
+
 Quadri *newQuadri(Point *p1, Point *p2, Point *p3, Point *p4)
 {
 	Quadri *quadri = (Quadri *)malloc(sizeof(Quadri));

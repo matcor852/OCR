@@ -14,16 +14,24 @@ int main(int argc, char *argv[])
 		printf("Usage: %s <image>\n", argv[0]);
 		return 1;
 	}
-	Image *image = openImage(argv[1]);
-	Image *resized = resizeImage(image, image->width / 4, image->height / 4);
-	freeImage(image);
-	saturateImage(resized);
-	displayImage(resized);
-	
-	Quadri *quadri = detectGrid(resized);
-	showQuadri(resized, quadri, 255, 0, 0);
-	rotateWithView(resized);
-	freeQuadri(quadri);
+	Image * image= openImage(argv[1]);
+	Image *resized = resizeImage(image, image->width/2, image->height/2);
+
+	Image *rotated = rotateWithView(resized);
 	freeImage(resized);
+
+	Quadri *quadri = detectGrid(rotated);
+	if (quadri == NULL)
+	{
+		printf("No grid detected\n");
+	}
+	else
+	{
+		showQuadri(rotated, quadri, 0, 255, 0);
+		freeQuadri(quadri);
+	}
+	freeImage(rotated);
+	freeImage(image);
+
 return 0;
 }

@@ -95,7 +95,7 @@ int displayImage(Image *image)
 	if (SDL_Init(SDL_INIT_VIDEO) != 0)
 		errx(EXIT_FAILURE, "%s", SDL_GetError());
 	SDL_Window *window;
-	window = SDL_CreateWindow("Image visualizer", 0, 0, 1, 1,
+	window = SDL_CreateWindow("Image viewer", 0, 0, 1, 1,
 							  SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
 
 	if (window == NULL)
@@ -143,7 +143,7 @@ int displayImage(Image *image)
 }
 
 // catch all events in an endless loop
-Image *event_loop(SDL_Window *window, SDL_Renderer *renderer, Image *image)
+Image *event_loop(SDL_Renderer *renderer, Image *image)
 {
 	SDL_Surface *surface = imageToSurface(image);
 	SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
@@ -154,7 +154,6 @@ Image *event_loop(SDL_Window *window, SDL_Renderer *renderer, Image *image)
 	int step = 5;
 	Image *rotated = rotateImage(image, 0);
 	int running = 1;
-	int escape_pressed = 0;
 	while (running)
 	{
 		SDL_WaitEvent(&event);
@@ -185,14 +184,13 @@ Image *event_loop(SDL_Window *window, SDL_Renderer *renderer, Image *image)
 				SDL_DestroyTexture(texture);
 				SDL_FreeSurface(surface);
 				surface = imageToSurface(rotated);
-				SDL_SetWindowSize(window, surface->w, surface->h);
 				texture = SDL_CreateTextureFromSurface(renderer, surface);
 				if (texture == NULL)
 					errx(EXIT_FAILURE, "%s", SDL_GetError());
 				draw(renderer, texture);
 			}
 			if (event.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
-				escape_pressed = 1;
+				running = 0;
 			break;
 		case SDL_KEYUP:
 			if (event.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
@@ -212,22 +210,23 @@ void draw(SDL_Renderer *renderer, SDL_Texture *texture)
 	SDL_RenderPresent(renderer);
 }
 
-Image *rotateWithView(const char *filename)
+Image *rotateWithView(Image *image)
 {
 	if (SDL_Init(SDL_INIT_VIDEO) != 0)
 		errx(EXIT_FAILURE, "%s", SDL_GetError());
 	SDL_Window *window;
-	window = SDL_CreateWindow("Image visualizer", 0, 0, 1, 1,
-							  SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
+	window = SDL_CreateWindow("Rotate preview", 0, 0, 1, 1,
+							  SDL_WINDOW_SHOWN);
 	if (window == NULL)
 		errx(EXIT_FAILURE, "%s", SDL_GetError());
 	SDL_Renderer *renderer = SDL_CreateRenderer(window, -1,
 												SDL_RENDERER_SOFTWARE);
 	if (renderer == NULL)
 		errx(EXIT_FAILURE, "%s", SDL_GetError());
-	SDL_SetWindowSize(window, image->width, image->height);
+	
+	SDL_SetWindowSize(window, 1000, 1000);
 	// MAIN
-	Image *rotated = event_loop(window, renderer, image);
+	Image *rotated = event_loop(renderer, image);
 	// DESTRUCTION
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
