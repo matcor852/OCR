@@ -8,13 +8,6 @@
 typedef unsigned char uc;
 typedef size_t st;
 
-typedef struct {
-    uc *data;
-    st width;
-    st height;
-    st channels;
-} Image;
-
 typedef struct
 {
     uc *pixels;
