@@ -269,7 +269,7 @@ Quadri *detectGrid(Image *image) {
 			// segment->theta); printf("Length: %zu\n\n", segment->length);
 		}
 	}
-	showLines(image, segments, NB_SEGMENTS, 255, 0, 0, 2);
+	showLines(image, segments, NB_SEGMENTS, 255, 0, 0, 1);
 	st min_dist = pow(COORD_ERROR / 100.0 * r_max, 2);
 	for (st i1 = 0; i1 < NB_SEGMENTS; i1++) {
 		Segment *segment1 = segments[i1];
