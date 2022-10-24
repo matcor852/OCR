@@ -20,7 +20,6 @@ int main(int argc, char *argv[])
 	Image *rotated = rotateWithView(resized);
 	freeImage(resized);
 	saturateImage(rotated);
-	displayImage(rotated);
 	
 	Quadri *quadri = detectGrid(rotated);
 	if (quadri == NULL)
@@ -28,8 +27,7 @@ int main(int argc, char *argv[])
 		printf("No grid detected\n");
 		return 1;
 	}
-	showQuadri(rotated, quadri, 255, 0, 0);
-	rotateWithView(rotated);
+	showQuadri(rotated, quadri, 0, 255, 0);
 	freeQuadri(quadri);
 	freeImage(rotated);
 return 0;

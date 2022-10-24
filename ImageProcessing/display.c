@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include "display.h"
 
-void showLines(Image *background, Segment **segments, int r, int g, int b, st nb_segments)
+void showLines(Image *background, Segment **segments, st nb_segments, int r, int g, int b, float thickness)
 {
 	if (SDL_Init(SDL_INIT_VIDEO) != 0)
 		errx(EXIT_FAILURE, "%s", SDL_GetError());
@@ -28,15 +28,21 @@ void showLines(Image *background, Segment **segments, int r, int g, int b, st nb
 	SDL_Rect rec_dest = {0, 0, w, h};
 	SDL_Event event;
 	SDL_WaitEvent(&event);
+	float xscale = 0, yscale = 0;
+	SDL_RenderGetScale(renderer, &xscale, &yscale);
 	SDL_RenderClear(renderer);
 	SDL_RenderCopy(renderer, texture, NULL, &rec_dest);
 	SDL_SetRenderDrawColor(renderer, r, g, b, 0);
+	SDL_RenderSetScale(renderer, thickness, thickness);
 	for (st i = 0; i < nb_segments; i++)
 	{
-		SDL_RenderDrawLine(renderer, segments[i]->x1, segments[i]->y1,
-						   segments[i]->x2, segments[i]->y2);
+		SDL_RenderDrawLine(renderer, segments[i]->x1/thickness, 
+		segments[i]->y1/thickness, segments[i]->x2/thickness,
+		segments[i]->y2/thickness);
 	}
+	SDL_RenderSetScale(renderer, xscale, yscale);
 	SDL_RenderPresent(renderer);
+	
 	/// KEEP DISPLAY RESULT
 	int keepDisplay = 1;
 	while (keepDisplay)
@@ -65,7 +71,7 @@ void showQuadri(Image *background, Quadri *quadri, int r, int g, int b)
 	Segment s3 = {quadri->p3->x, quadri->p3->y, quadri->p4->x, quadri->p4->y, 0, 0, 0};
 	Segment s4 = {quadri->p2->x, quadri->p2->y, quadri->p4->x, quadri->p4->y, 0, 0, 0};
 	Segment *segments[] = {&s1, &s2, &s3 , &s4};
-	showLines(background, segments, r, g, b, 4);
+	showLines(background, segments, 4, r, g, b, 4);
 }
 
 SDL_Surface *imageToSurface(Image *image)
@@ -189,9 +195,6 @@ Image *event_loop(SDL_Renderer *renderer, Image *image)
 					errx(EXIT_FAILURE, "%s", SDL_GetError());
 				draw(renderer, texture);
 			}
-			if (event.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
-				running = 0;
-			break;
 		case SDL_KEYUP:
 			if (event.key.keysym.scancode == SDL_SCANCODE_ESCAPE)
 				running = 0;
