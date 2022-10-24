@@ -143,7 +143,7 @@ int displayImage(Image *image)
 }
 
 // catch all events in an endless loop
-void event_loop(SDL_Window *window, SDL_Renderer *renderer, Image *image)
+Image *event_loop(SDL_Window *window, SDL_Renderer *renderer, Image *image)
 {
 	SDL_Surface *surface = imageToSurface(image);
 	SDL_Texture *texture = SDL_CreateTextureFromSurface(renderer, surface);
@@ -152,7 +152,7 @@ void event_loop(SDL_Window *window, SDL_Renderer *renderer, Image *image)
 	SDL_Event event;
 	int angle = 0;
 	int step = 5;
-	Image *rotated = rotateImage(image, angle);
+	Image *rotated = rotateImage(image, 0);
 	int running = 1;
 	int escape_pressed = 0;
 	while (running)
@@ -168,6 +168,8 @@ void event_loop(SDL_Window *window, SDL_Renderer *renderer, Image *image)
 				draw(renderer, texture);
 			break;
 		case SDL_KEYDOWN:
+			if (event.key.repeat != 0)
+				break;
 			if (event.key.keysym.scancode == SDL_SCANCODE_S)
 				IMG_SavePNG(surface, "rotated.png");
 			if (event.key.keysym.scancode == SDL_SCANCODE_LEFT ||
@@ -198,9 +200,9 @@ void event_loop(SDL_Window *window, SDL_Renderer *renderer, Image *image)
 			break;
 		}
 	}
-	freeImage(rotated);
 	SDL_DestroyTexture(texture);
 	SDL_FreeSurface(surface);
+	return rotated;
 }
 
 void draw(SDL_Renderer *renderer, SDL_Texture *texture)
@@ -210,7 +212,7 @@ void draw(SDL_Renderer *renderer, SDL_Texture *texture)
 	SDL_RenderPresent(renderer);
 }
 
-int rotateWithView(Image *image)
+Image *rotateWithView(const char *filename)
 {
 	if (SDL_Init(SDL_INIT_VIDEO) != 0)
 		errx(EXIT_FAILURE, "%s", SDL_GetError());
@@ -225,11 +227,11 @@ int rotateWithView(Image *image)
 		errx(EXIT_FAILURE, "%s", SDL_GetError());
 	SDL_SetWindowSize(window, image->width, image->height);
 	// MAIN
-	event_loop(window, renderer, image);
+	Image *rotated = event_loop(window, renderer, image);
 	// DESTRUCTION
 	SDL_DestroyRenderer(renderer);
 	SDL_DestroyWindow(window);
 	IMG_Quit();
 	SDL_Quit();
-	return EXIT_SUCCESS;
+	return rotated;
 }

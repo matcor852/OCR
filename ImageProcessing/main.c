@@ -18,6 +18,8 @@ int main(int argc, char *argv[])
 	Image *resized = resizeImage(image, image->width / 4, image->height / 4);
 	freeImage(image);
 	saturateImage(resized);
+	displayImage(resized);
+	
 	Quadri *quadri = detectGrid(resized);
 	showQuadri(resized, quadri, 255, 0, 0);
 	rotateWithView(resized);
