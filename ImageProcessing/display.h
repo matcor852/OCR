@@ -10,7 +10,7 @@ void showLines(Image *background, Segment **segments, st nb_segments,
 int r, int g, int b, float thickness);
 void showQuadri(Image *background, Quadri *quadri, int r, int g, int b);
 SDL_Surface* imageToSurface(Image *image) ;
-Image *event_loop(SDL_Renderer* renderer, Image *image);
-Image *rotateWithView(Image *image);
+int event_loop(SDL_Renderer* renderer, Image *image);
+int rotateWithView(Image *image);
 void draw(SDL_Renderer* renderer, SDL_Texture * texture);
 int displayImage(Image *image);

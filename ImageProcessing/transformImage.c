@@ -22,6 +22,76 @@ void invertImage(Image *image) {
 	for (size_t i = 0; i < len; i++) pixels[i] = 255 - pixels[i];
 }
 
+void cannyEdgeDetection(Image *image) {
+	// TODO: finish this function
+	// uses 5*5 gaussian kernel
+	// then uses cannys edge detection algorithm
+
+	// 1. gaussian blur
+	int kernel[5][5] = {{2,  4,  5,  4, 2},
+						{4,  9, 12,  9, 4},
+						{5, 12, 15, 12, 5},
+						{4,  9, 12,  9, 4},
+						{2,  4,  5,  4, 2}};
+	int kernelSum = 159;
+	uc *pixels = image->pixels;
+	int w = image->width;
+	int h = image->height;
+	uc *newPixels = malloc(sizeof(uc) * w * h);
+	if (newPixels == NULL) errx(EXIT_FAILURE, "malloc failed");
+	for (int y = 0; y < h; y++) {
+		for (int x = 0; x < w; x++) {
+			int sum = 0;
+			for (int i = -2; i <= 2; i++) {
+				for (int j = -2; j <= 2; j++) {
+					int x2 = x + j;
+					int y2 = y + i;
+					if (x2 < 0 || x2 >= w || y2 < 0 || y2 >= h) continue;
+					sum += pixels[y2 * w + x2] * kernel[i + 2][j + 2];
+				}
+			}
+			newPixels[y * w + x] = sum / kernelSum;
+		}
+	}
+}
+
+void calibrateImage(Image *image, int radius) {
+	// recalibrate the image to have a better contrast using a 10 * 10 grid
+	Image *copy = copyImage(image);
+	int width = image->width;
+	int height = image->height;
+	uc *pixels = image->pixels;
+	uc *copy_pixels = copy->pixels;
+	int min, max;
+	for (int i = 0; i < width; i++) {
+		for (int j = 0; j < height; j++) {
+			min = 255;
+			max = 0;
+			for (int k = i - radius; k < i + radius; k++) {
+				if (k < 0) {
+					k = 0;
+					continue;
+				}
+				if (k >= width) break;
+				for (int l = j - radius; l < j + radius; l++) {
+					if (l < 0) {
+						l = 0;
+						continue;
+					}
+					if (l >= height) break;
+					if (copy_pixels[k + l * width] < min)
+						min = copy_pixels[k + l * width];
+					if (copy_pixels[k + l * width] > max)
+						max = copy_pixels[k + l * width];
+				}
+			}
+			if (min == max) continue;
+			pixels[i + j * width] = (pixels[i + j * width] - min) * 255 / (max - min);
+		}
+	}
+	freeImage(copy);
+}
+
 void saturateImage(Image *image) {
 	uc *pixels = image->pixels;
 	st w = image->width, h = image->height;
@@ -196,3 +266,14 @@ void integrateNumber(Image *image, Image *number, Point *origin) {
 		}
 	}
 }
+
+/*
+void resize(Image *image, st new_w, st new_h) {
+	Image *new_image = resizeImage(image, new_w, new_h);
+	free(image->pixels);
+	image->pixels = new_image->pixels;
+	image->width = new_image->width;
+	image->height = new_image->height;
+	free(new_image);
+}
+*/

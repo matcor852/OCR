@@ -18,12 +18,17 @@ int main(int argc, char *argv[]) {
 	Image *image = openImage(argv[1]);
 	Image *resized = autoResize(image, WINDOW_WIDTH, WINDOW_HEIGHT);
 	freeImage(image);
-	Image *rotated = rotateWithView(resized);
+	int theta = rotateWithView(resized);
+	displayImage(resized);
+	calibrateImage(resized, 25);
+	displayImage(resized);
+	saturateImage(resized);
+	Image *rotated = rotateImage(resized, theta, 255);
 	freeImage(resized);
-	saturateImage(rotated);
 	Quadri *quadri = detectGrid(rotated);
 	if (quadri == NULL) {
 		printf("No grid detected\n");
+		freeImage(rotated);
 		return 1;
 	}
 	showQuadri(rotated, quadri, 0, 255, 0);

@@ -13,7 +13,7 @@
 #define NB_SEGMENTS	 50
 #define COORD_ERROR	 3.0 // percentage of the size of the image
 #define ANGLE_ERROR	 15
-#define LENGTH_ERROR 1.5
+#define LENGTH_ERROR 1.2
 
 int isVertical(st theta) {
 	return (0 <= theta && theta < 45) || (135 <= theta && theta < 225)
@@ -218,6 +218,8 @@ Segment *getBestSegment(uc *r_theta, st r_max, Image *image) {
 		return NULL;
 	st length = sqrt(pow(x_end - x_start, 2) + pow(y_end - y_start, 2));
 	if (length < dim / 4) return NULL;
+	if (length > width * LENGTH_ERROR || length > height * LENGTH_ERROR)
+		return NULL;
 	deleteBest(r_theta, r_max, best_r, best_theta);
 	st _x = x_start, _y = y_start, x_ = x_end, y_ = y_end;
 	Segment *segment = newSegment(_x, _y, x_, y_, best_theta, best_r, length);
