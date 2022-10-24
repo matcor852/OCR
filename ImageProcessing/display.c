@@ -1,10 +1,9 @@
 #include "display.h"
 #include <stdio.h>
 
-void showLines(Image *background, Segment **segments, st nb_segments, int r, int g, int b, float thickness)
-{
-	if (SDL_Init(SDL_INIT_VIDEO) != 0)
-		errx(EXIT_FAILURE, "%s", SDL_GetError());
+void showLines(Image *background, Segment **segments, st nb_segments, int r,
+			   int g, int b, float thickness) {
+	if (SDL_Init(SDL_INIT_VIDEO) != 0) errx(EXIT_FAILURE, "%s", SDL_GetError());
 	SDL_Window *window;
 	window = SDL_CreateWindow("Lines preview", 0, 0, 1, 1, SDL_WINDOW_SHOWN);
 	if (window == NULL) errx(EXIT_FAILURE, "%s", SDL_GetError());
@@ -29,15 +28,14 @@ void showLines(Image *background, Segment **segments, st nb_segments, int r, int
 	SDL_RenderCopy(renderer, texture, NULL, &rec_dest);
 	SDL_SetRenderDrawColor(renderer, r, g, b, 0);
 	SDL_RenderSetScale(renderer, thickness, thickness);
-	for (st i = 0; i < nb_segments; i++)
-	{
-		SDL_RenderDrawLine(renderer, segments[i]->x1/thickness, 
-		segments[i]->y1/thickness, segments[i]->x2/thickness,
-		segments[i]->y2/thickness);
+	for (st i = 0; i < nb_segments; i++) {
+		SDL_RenderDrawLine(
+			renderer, segments[i]->x1 / thickness, segments[i]->y1 / thickness,
+			segments[i]->x2 / thickness, segments[i]->y2 / thickness);
 	}
 	SDL_RenderSetScale(renderer, xscale, yscale);
 	SDL_RenderPresent(renderer);
-	
+
 	/// KEEP DISPLAY RESULT
 	int keepDisplay = 1;
 	while (keepDisplay) {
@@ -55,8 +53,7 @@ void showLines(Image *background, Segment **segments, st nb_segments, int r, int
 	return;
 }
 
-void showQuadri(Image *background, Quadri *quadri, int r, int g, int b)
-{
+void showQuadri(Image *background, Quadri *quadri, int r, int g, int b) {
 	Point *p1 = quadri->p1;
 	Point *p2 = quadri->p2;
 	Point *p3 = quadri->p3;
@@ -65,7 +62,7 @@ void showQuadri(Image *background, Quadri *quadri, int r, int g, int b)
 	Segment s2 = {p1->x, p1->y, p2->x, p2->y, 0, 0, 0};
 	Segment s3 = {p3->x, p3->y, p4->x, p4->y, 0, 0, 0};
 	Segment s4 = {p2->x, p2->y, p4->x, p4->y, 0, 0, 0};
-	Segment *segments[] = {&s1, &s2, &s3 , &s4};
+	Segment *segments[] = {&s1, &s2, &s3, &s4};
 	showLines(background, segments, 4, r, g, b, 4);
 }
 
