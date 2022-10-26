@@ -28,11 +28,11 @@ void cannyEdgeDetection(Image *image) {
 	// then uses cannys edge detection algorithm
 
 	// 1. gaussian blur
-	int kernel[5][5] = {{2,  4,  5,  4, 2},
-						{4,  9, 12,  9, 4},
+	int kernel[5][5] = {{2, 4, 5, 4, 2},
+						{4, 9, 12, 9, 4},
 						{5, 12, 15, 12, 5},
-						{4,  9, 12,  9, 4},
-						{2,  4,  5,  4, 2}};
+						{4, 9, 12, 9, 4},
+						{2, 4, 5, 4, 2}};
 	int kernelSum = 159;
 	uc *pixels = image->pixels;
 	int w = image->width;
@@ -86,7 +86,8 @@ void calibrateImage(Image *image, int radius) {
 				}
 			}
 			if (min == max) continue;
-			pixels[i + j * width] = (pixels[i + j * width] - min) * 255 / (max - min);
+			pixels[i + j * width] =
+				(pixels[i + j * width] - min) * 255 / (max - min);
 		}
 	}
 	freeImage(copy);

@@ -32,6 +32,10 @@ int main(int argc, char *argv[]) {
 		return 1;
 	}
 	showQuadri(rotated, quadri, 0, 255, 0);
+	Image *extracted = extractGrid(rotated, quadri, 900, 900);
+	displayImage(extracted);
+	saveBoard(extracted, "image_06", 100);
+	freeImage(extracted);
 	freeQuadri(quadri);
 	freeImage(rotated);
 	return 0;

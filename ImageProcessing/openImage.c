@@ -3,6 +3,9 @@
 #include <SDL2/SDL_image.h>
 #include <err.h>
 #include <stdio.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 Image *openImage(const char *filename) {
 	SDL_Surface *surface_tmp = IMG_Load(filename);
@@ -36,6 +39,31 @@ void saveSquare(Image *image, const char *filename, Point *point, int size) {
 	SDL_BlitSurface(surface, &rect, cell, NULL);
 	if (IMG_SavePNG(cell, filename) != 0) {
 		errx(1, "Error while saving image");
+	}
+	SDL_FreeSurface(cell);
+	SDL_FreeSurface(surface);
+	return;
+}
+
+void saveBoard(Image *image, const char *filename, int size) {
+	struct stat st = {0};
+	char dirname[40];
+	sprintf(dirname, "board_%s", filename);
+	if (stat(dirname, &st) == -1) {
+    mkdir(dirname, 0700);
+	}
+	SDL_Surface *surface = imageToSurface(image);
+	SDL_Surface *cell = SDL_CreateRGBSurface(0, size, size, 32, 0, 0, 0, 0);
+	for (int i = 0; i < 8; i++) {
+		for (int j = 0; j < 8; j++) {
+			SDL_Rect rect = {j * size, i * size, size, size};
+			SDL_BlitSurface(surface, &rect, cell, NULL);
+			char name[40];
+			sprintf(name, "%s/%s_%d_%d.png",dirname, filename, i+1, j+1);
+			if (IMG_SavePNG(cell, name) != 0) {
+				errx(1, "Error while saving image");
+			}
+		}
 	}
 	SDL_FreeSurface(cell);
 	SDL_FreeSurface(surface);
