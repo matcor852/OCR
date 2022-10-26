@@ -3,7 +3,9 @@
 #include "solver.h"
 #include <string.h>
 
-/*"image_01.jpeg": [5, 3, 0, 0, 7, 0, 0, 0, 0,
+/*examples of arrays
+
+"image_01.jpeg": [5, 3, 0, 0, 7, 0, 0, 0, 0,
 6, 0, 0, 1, 9, 5, 0, 0, 0,
 0, 9, 8, 0, 0, 0, 0, 6, 0,
 8, 0, 0, 0, 6, 0, 0, 0, 3,
@@ -122,7 +124,9 @@ int array[9][9] =
         {2,0,0,3,0,0,0,0,6},
         {0,0,0,2,0,0,9,0,0},
         {0,0,1,9,0,4,5,7,0}
-    };*/
+    };
+
+*/
 
 
 int **read(const char *filename)
@@ -193,12 +197,12 @@ int main(int argc, char **argv)
         printf("\n");
         if ((i+1)%3==0) printf("\n");
     }*/
-    solver(array);
-    //int countMove = solver(array);
+    //solver(array);
+    int countMove = solver(array);
     /*printf("\n");
-    printf("Grille résolue\n");
+    printf("Grille résolue\n");*/
     if (countMove>0) printf("Resolu en %d coups\n\n",countMove);
-    for (int i=0; i<9; i++)
+    /*for (int i=0; i<9; i++)
     {
         for (int j=0; j<9; j++)
         {
