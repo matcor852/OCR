@@ -20,7 +20,7 @@ int main(int argc, char *argv[]) {
 	freeImage(image);
 	int theta = rotateWithView(resized);
 	displayImage(resized);
-	calibrateImage(resized, 25);
+	calibrateImage(resized, 50);
 	displayImage(resized);
 	saturateImage(resized);
 	Image *rotated = rotateImage(resized, theta, 255);

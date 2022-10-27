@@ -18,7 +18,7 @@ run:
 
 clean:
 	rm -rf *.[do] main *.out
-	rm -f rotated.png
+	rm -rf saved_images/
 	rm -rf board_*/
 	clear
 

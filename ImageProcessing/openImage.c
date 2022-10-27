@@ -27,8 +27,14 @@ Image *openImage(const char *filename) {
 
 void saveImage(Image *image, const char *filename) {
 	SDL_Surface *surface = imageToSurface(image);
-	if (IMG_SavePNG(surface, filename) != 0)
+	char path[40];
+	struct stat st = {0};
+	if (stat("saved_images/", &st) == -1)
+    	mkdir("saved_images/", 0700);
+	sprintf(path, "saved_images/%s", filename);
+	if (IMG_SavePNG(surface, path) != 0)
 		errx(1, "Error while saving image");
+	SDL_FreeSurface(surface);
 	return;
 }
 
