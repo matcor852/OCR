@@ -13,4 +13,4 @@ SDL_Surface* imageToSurface(Image *image) ;
 int event_loop(SDL_Renderer* renderer, Image *image);
 int rotateWithView(Image *image);
 void draw(SDL_Renderer* renderer, SDL_Texture * texture);
-int displayImage(Image *image);
+int displayImage(Image *image, char *windowName);
