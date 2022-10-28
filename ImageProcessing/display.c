@@ -5,7 +5,8 @@ void showLines(Image *background, Segment **segments, st nb_segments, int r,
 			   int g, int b, float thickness) {
 	if (SDL_Init(SDL_INIT_VIDEO) != 0) errx(EXIT_FAILURE, "%s", SDL_GetError());
 	SDL_Window *window;
-	window = SDL_CreateWindow("Segments visualizer", 0, 0, 1, 1, SDL_WINDOW_SHOWN);
+	window =
+		SDL_CreateWindow("Segments visualizer", 0, 0, 1, 1, SDL_WINDOW_SHOWN);
 	if (window == NULL) errx(EXIT_FAILURE, "%s", SDL_GetError());
 	SDL_Renderer *renderer =
 		SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);
@@ -187,7 +188,8 @@ void draw(SDL_Renderer *renderer, SDL_Texture *texture) {
 int rotateWithView(Image *image) {
 	if (SDL_Init(SDL_INIT_VIDEO) != 0) errx(EXIT_FAILURE, "%s", SDL_GetError());
 	SDL_Window *window;
-	window = SDL_CreateWindow("Rotate preview", 0, 0, 1, 1, SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
+	window = SDL_CreateWindow("Rotate preview", 0, 0, 1, 1,
+							  SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
 	if (window == NULL) errx(EXIT_FAILURE, "%s", SDL_GetError());
 	SDL_Renderer *renderer =
 		SDL_CreateRenderer(window, -1, SDL_RENDERER_SOFTWARE);

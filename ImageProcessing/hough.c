@@ -407,14 +407,18 @@ Quadri *detectGrid(Image *image) {
 					// printSegment(segment3, 3);
 					// printSegment(segment4, 4);
 					Point *p1 = getIntersection(segment1, segment2); // top left
-					Point *p2 = getIntersection(segment2, segment4); // top right
-					Point *p3 = getIntersection(segment1, segment3); // bottom left
-					Point *p4 = getIntersection(segment3, segment4); // bottom right
+					Point *p2 =
+						getIntersection(segment2, segment4); // top right
+					Point *p3 =
+						getIntersection(segment1, segment3); // bottom left
+					Point *p4 =
+						getIntersection(segment3, segment4); // bottom right
 					Point *top_left = getTopLeft(p1, p2, p3, p4);
 					Point *top_right = getTopRight(p1, p2, p3, p4);
 					Point *bottom_left = getBottomLeft(p1, p2, p3, p4);
 					Point *bottom_right = getBottomRight(p1, p2, p3, p4);
-					Quadri *quadri = newQuadri(top_left, top_right, bottom_left, bottom_right);
+					Quadri *quadri = newQuadri(top_left, top_right, bottom_left,
+											   bottom_right);
 					freeSegments(segments, NB_SEGMENTS);
 					return quadri;
 				}
