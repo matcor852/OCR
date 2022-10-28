@@ -173,6 +173,7 @@ Image *extractGrid(Image *image, Quadri *quadri, st new_w, st new_h) {
 	uc *new_pixels = new_image->pixels;
 	float mat33[3][3];
 	getTransformMatrix(quadri, new_w, new_h, mat33);
+	printf("p1: (%zu, %zu)\np2: (%zu, %zu)\np3: (%zu, %zu)\np4: (%zu, %zu)\n", quadri->p1->x, quadri->p1->y, quadri->p2->x, quadri->p2->y, quadri->p3->x, quadri->p3->y, quadri->p4->x, quadri->p4->y);
 	float mat31[3];
 	mat31[2] = 1;
 	float res[3];
@@ -184,6 +185,16 @@ Image *extractGrid(Image *image, Quadri *quadri, st new_w, st new_h) {
 			matMul33_31(mat33, mat31, res);
 			float x = res[0] / res[2];
 			float y = res[1] / res[2];
+			// debug
+			if (new_x == 0 && new_y == 0)
+				printf("x: %f, y: %f -> (%zu, %zu)\n", x, y, new_x, new_y);
+			else if (new_x == new_w - 1 && new_y == 0)
+				printf("x: %f, y: %f -> (%zu, %zu)\n", x, y, new_x, new_y);
+			else if (new_x == 0 && new_y == new_h - 1)
+				printf("x: %f, y: %f -> (%zu, %zu)\n", x, y, new_x, new_y);
+			else if (new_x == new_w - 1 && new_y == new_h - 1)
+				printf("x: %f, y: %f -> (%zu, %zu)\n", x, y, new_x, new_y);
+			// end debug
 			if (x < 0 || x >= w - 1 || y < 0 || y >= h - 1) {
 				new_pixels[new_y * new_w + new_x] = 0;
 				continue;

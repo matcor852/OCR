@@ -253,6 +253,54 @@ Point *getIntersection(Segment *segment1, Segment *segment2) {
 	return point;
 }
 
+Point *getTopLeft(Point *p1, Point *p2, Point *p3, Point *p4) {
+	int sum1 = p1->x + p1->y;
+	int sum2 = p2->x + p2->y;
+	int sum3 = p3->x + p3->y;
+	int sum4 = p4->x + p4->y;
+	if (sum1 <= sum2 && sum1 <= sum3 && sum1 <= sum4) return p1;
+	if (sum2 <= sum1 && sum2 <= sum3 && sum2 <= sum4) return p2;
+	if (sum3 <= sum1 && sum3 <= sum2 && sum3 <= sum4) return p3;
+	if (sum4 <= sum1 && sum4 <= sum2 && sum4 <= sum3) return p4;
+	return NULL;
+}
+
+Point *getTopRight(Point *p1, Point *p2, Point *p3, Point *p4) {
+	int sum1 = p1->x - p1->y;
+	int sum2 = p2->x - p2->y;
+	int sum3 = p3->x - p3->y;
+	int sum4 = p4->x - p4->y;
+	if (sum2 >= sum1 && sum2 >= sum3 && sum2 >= sum4) return p2;
+	if (sum3 >= sum1 && sum3 >= sum2 && sum3 >= sum4) return p3;
+	if (sum4 >= sum1 && sum4 >= sum2 && sum4 >= sum3) return p4;
+	if (sum1 >= sum2 && sum1 >= sum3 && sum1 >= sum4) return p1;
+	return NULL;
+}
+
+Point *getBottomLeft(Point *p1, Point *p2, Point *p3, Point *p4) {
+	int sum1 = p1->x - p1->y;
+	int sum2 = p2->x - p2->y;
+	int sum3 = p3->x - p3->y;
+	int sum4 = p4->x - p4->y;
+	if (sum3 <= sum1 && sum3 <= sum2 && sum3 <= sum4) return p3;
+	if (sum4 <= sum1 && sum4 <= sum2 && sum4 <= sum3) return p4;
+	if (sum1 <= sum2 && sum1 <= sum3 && sum1 <= sum4) return p1;
+	if (sum2 <= sum1 && sum2 <= sum3 && sum2 <= sum4) return p2;
+	return NULL;
+}
+
+Point *getBottomRight(Point *p1, Point *p2, Point *p3, Point *p4) {
+	int sum1 = p1->x + p1->y;
+	int sum2 = p2->x + p2->y;
+	int sum3 = p3->x + p3->y;
+	int sum4 = p4->x + p4->y;
+	if (sum4 >= sum1 && sum4 >= sum2 && sum4 >= sum3) return p4;
+	if (sum1 >= sum2 && sum1 >= sum3 && sum1 >= sum4) return p1;
+	if (sum2 >= sum1 && sum2 >= sum3 && sum2 >= sum4) return p2;
+	if (sum3 >= sum1 && sum3 >= sum2 && sum3 >= sum4) return p3;
+	return NULL;
+}
+
 Quadri *detectGrid(Image *image) {
 	invertImage(image);
 	st width = image->width, height = image->height;
@@ -358,11 +406,15 @@ Quadri *detectGrid(Image *image) {
 					// printSegment(segment2, 2);
 					// printSegment(segment3, 3);
 					// printSegment(segment4, 4);
-					Point *p1 = getIntersection(segment1, segment2);
-					Point *p2 = getIntersection(segment2, segment4);
-					Point *p3 = getIntersection(segment1, segment3);
-					Point *p4 = getIntersection(segment3, segment4);
-					Quadri *quadri = newQuadri(p1, p2, p3, p4);
+					Point *p1 = getIntersection(segment1, segment2); // top left
+					Point *p2 = getIntersection(segment2, segment4); // top right
+					Point *p3 = getIntersection(segment1, segment3); // bottom left
+					Point *p4 = getIntersection(segment3, segment4); // bottom right
+					Point *top_left = getTopLeft(p1, p2, p3, p4);
+					Point *top_right = getTopRight(p1, p2, p3, p4);
+					Point *bottom_left = getBottomLeft(p1, p2, p3, p4);
+					Point *bottom_right = getBottomRight(p1, p2, p3, p4);
+					Quadri *quadri = newQuadri(top_left, top_right, bottom_left, bottom_right);
 					freeSegments(segments, NB_SEGMENTS);
 					return quadri;
 				}

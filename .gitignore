@@ -69,3 +69,6 @@ COMMIT_MESSAGE
 !/ImageProcessing/Images/images_[0-9]*.jpeg
 /ImageProcessing/board_*/*
 /ImageProcessing/saved_images/*
+
+# Other branches
+/Solver/

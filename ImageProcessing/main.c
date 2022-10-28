@@ -3,6 +3,7 @@
 #include "openImage.h"
 #include "tools.h"
 #include "transformImage.h"
+#include "matrices.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <stdio.h>
@@ -32,6 +33,11 @@ int main(int argc, char *argv[]) {
 		return 1;
 	}
 	showQuadri(rotated, quadri, 0, 255, 0);
+	printf("Grid detected\n");
+	printf("Top left: (%zu, %zu)\n", quadri->p1->x, quadri->p1->y);
+	printf("Top right: (%zu, %zu)\n", quadri->p2->x, quadri->p2->y);
+	printf("Bottom left: (%zu, %zu)\n", quadri->p3->x, quadri->p3->y);
+	printf("Bottom right: (%zu, %zu)\n", quadri->p4->x, quadri->p4->y);
 	Image *extracted = extractGrid(rotated, quadri, 900, 900);
 	displayImage(extracted);
 	saveBoard(extracted, "image_01");

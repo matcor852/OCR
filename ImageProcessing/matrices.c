@@ -44,8 +44,8 @@ void getMatrixFromCorners(Quadri *quadri, float res[3][3]) {
 	float x2 = quadri->p2->x, y2 = quadri->p2->y;
 	float x3 = quadri->p3->x, y3 = quadri->p3->y;
 	float x4 = quadri->p4->x, y4 = quadri->p4->y;
-	float mat[3][3] = {{x1, x2, x3}, {y1, y2, y3}, {1, 1, 1}};
-	float mat_[3] = {x4, y4, 1};
+	float mat[3][3] = {{x1, x2, x4}, {y1, y2, y4}, {1, 1, 1}};
+	float mat_[3] = {x3, y3, 1};
 	float inv_mat[3][3];
 	invMat33(mat, inv_mat);
 	float lmt[3];
