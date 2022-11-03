@@ -27,10 +27,11 @@ char *cleanPath(char *filename, char *dest) {
 }
 
 void printHelp(char *exeName) {
-	printf("%s --rotate <image> <angle>: rotate the image <image> with <angle> angle.\n", exeName);
-	printf("%s --rotateView <image>: rotate the image <image> with a preview (use arrow keys).\n", exeName);
-	printf("%s --demo <image>: see full demo.\n", exeName);
-	printf("%s --test <image> [options]: test the image <image> with the given options.\n", exeName);
+	printf("%s -h, --help: prints this help message", exeName);
+	printf("%s -r, --rotate <image> <angle>: rotate the image <image> with <angle> angle.\n", exeName);
+	printf("%s -R, --rotateView <image>: rotate the image <image> with a preview (use arrow keys).\n", exeName);
+	printf("%s -d, --demo <image>: see full demo.\n", exeName);
+	printf("%s -t, --test <image> [options]: test the image <image> with the given options.\n", exeName);
 }
 
 int missingArg(char *exeName, char *command) {
@@ -67,12 +68,11 @@ void exeRotateView(char *filename) {
 void exeDemo(char *filename) {
 	// open image
 	Image *image = openImage(filename);
-	Image *resized = autoResize(image, WINDOW_WIDTH, WINDOW_HEIGHT);
-	freeImage(image);
+	autoResize(image, WINDOW_WIDTH, WINDOW_HEIGHT);
 	// rotate image
-	int theta = rotateWithView(resized);
-	Image *rotated = rotateImage(resized, theta, 255);
-	freeImage(resized);
+	int theta = rotateWithView(image);
+	Image *rotated = rotateImage(image, theta, 255);
+	freeImage(image);
 	// preprocess image
 	saturateImage(rotated);
 	// detect grid
@@ -96,13 +96,14 @@ void exeDemo(char *filename) {
 
 void exeTest(char *filename, int radius) {
 	Image *image = openImage(filename);
-	Image *resized = autoResize(image, WINDOW_WIDTH, WINDOW_HEIGHT);
+	autoResize(image, WINDOW_WIDTH, WINDOW_HEIGHT);
+	displayImage(image, "Original image");
+	gaussianBlur(image);
+	calibrateImage(image, radius);
+	displayImage(image, "Saturated");
+	sobelFilter(image);
+	displayImage(image, "Sobel");
 	freeImage(image);
-	displayImage(resized, "Original image");
-	gaussianBlur(resized);
-	calibrateImage(resized, radius);
-	displayImage(resized, "Saturated");
-	freeImage(resized);
 }
 
 int main(int argc, char *argv[]) {
@@ -117,23 +118,23 @@ int main(int argc, char *argv[]) {
 			printHelp(exeName);
 			return 0;
 		}
-		else if (!strcmp(command, "--rotate")) {
+		else if (!strcmp(command, "-r") || !strcmp(command, "--rotate")) {
 			if (i + 2 >= argc) return missingArg(exeName, command);
 			char *filename = argv[++i];
 			int angle = atoi(argv[++i]);
 			exeRotate(filename, angle);
 		}
-		else if (!strcmp(command, "--rotateView")) {
+		else if (!strcmp(command, "-R") || !strcmp(command, "--rotateView")) {
 			if (i + 1 >= argc) return missingArg(exeName, command);
 			char *filename = argv[++i];
 			exeRotateView(filename);
 		}
-		else if (!strcmp(command, "--demo")) {
+		else if (!strcmp(command, "-d") || !strcmp(command, "--demo")) {
 			if (i + 1 >= argc) return missingArg(exeName, command);
 			char *filename = argv[++i];
 			exeDemo(filename);
 		}
-		else if (!strcmp(command, "--test")) {
+		else if (!strcmp(command, "-t") || !strcmp(command, "--test")) {
 			if (i + 2 >= argc) return missingArg(exeName, command);
 			char *filename = argv[++i];
 			int radius = atoi(argv[++i]);
