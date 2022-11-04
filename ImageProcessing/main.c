@@ -27,11 +27,17 @@ char *cleanPath(char *filename, char *dest) {
 }
 
 void printHelp(char *exeName) {
-	printf("%s -h, --help: prints this help message", exeName);
-	printf("%s -r, --rotate <image> <angle>: rotate the image <image> with <angle> angle.\n", exeName);
-	printf("%s -R, --rotateView <image>: rotate the image <image> with a preview (use arrow keys).\n", exeName);
-	printf("%s -d, --demo <image>: see full demo.\n", exeName);
-	printf("%s -t, --test <image> [options]: test the image <image> with the given options.\n", exeName);
+	printf("Usage: %s <command> <filename> [options]\n", exeName);
+	printf("\t-h, --help\t\t\t"
+	"prints this help message\n");
+	printf("\t-r, --rotate <image> <angle>\t"
+	"rotate the image <image> with the angle <angle>.\n");
+	printf("\t-R, --rotateView <image>\t"
+	"rotate the image <image> with a preview (use arrow keys).\n");
+	printf("\t-d, --demo <image>\t\t"
+	"see full demo.\n");
+	printf("\t-t, --test <image> [options]\t"
+	"test the image <image> with the given options.\n");
 }
 
 int missingArg(char *exeName, char *command) {

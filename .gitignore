@@ -60,6 +60,7 @@ dkms.conf
 
 # Tests
 test*
+verbose*
 
 # Commit message
 COMMIT_MESSAGE
