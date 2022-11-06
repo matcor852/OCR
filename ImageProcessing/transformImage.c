@@ -10,6 +10,44 @@ void invertImage(Image *image) {
 	for (size_t i = 0; i < len; i++) pixels[i] = 255 - pixels[i];
 }
 
+void thresholdCells(Image *image) {
+	int grid_size = image->width;
+	int cell_size = grid_size / 9;
+	uc *pixels = image->pixels;
+	uc *new_pixels = copyPixels(pixels, grid_size * grid_size);
+	for (int i = 0; i < 9; i++) {
+		for (int j = 0; j < 9; j++) {
+			int x1 = i * cell_size - 10;
+			int x2 = (i + 1) * cell_size + 10;
+			int y1 = j * cell_size - 10;
+			int y2 = (j + 1) * cell_size + 10;
+			if (x1 < 0) x1 = 0;
+			if (x2 > grid_size) x2 = grid_size;
+			if (y1 < 0) y1 = 0;
+			if (y2 > grid_size) y2 = grid_size;
+			int min = 255;
+			int max = 0;
+			for (int x = x1; x < x2; x++) {
+				for (int y = y1; y < y2; y++) {
+					int value = pixels[y * grid_size + x];
+					if (value < min) min = value;
+					if (value > max) max = value;
+				}
+			}
+			int threshold = min * 0.7 + max * 0.3;
+			for (int x = i * cell_size; x < (i + 1) * cell_size; x++) {
+				for (int y = j * cell_size; y < (j + 1) * cell_size; y++) {
+					int value = pixels[y * grid_size + x];
+					if (value < threshold) new_pixels[y * grid_size + x] = 255;
+					else new_pixels[y * grid_size + x] = 0;
+				}
+			}
+		}
+	}
+	free(pixels);
+	image->pixels = new_pixels;
+}
+
 void gaussianBlur(Image *image) {
 	int kernel[5][5] = {{2, 4, 5, 4, 2},
 						{4, 9, 12, 9, 4},

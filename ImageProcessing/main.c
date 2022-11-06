@@ -78,6 +78,7 @@ void exeDemo(char *filename) {
 	// rotate image
 	int theta = rotateWithView(image);
 	Image *rotated = rotateImage(image, theta, 255);
+	Image *copy = copyImage(rotated);
 	freeImage(image);
 	// preprocess image
 	saturateImage(rotated);
@@ -89,9 +90,11 @@ void exeDemo(char *filename) {
 	}
 	// display results
 	showQuadri(rotated, quadri, 0, 255, 0);
-	Image *extracted = extractGrid(rotated, quadri, 900, 900);
+	Image *extracted = extractGrid(copy, quadri, 900, 900);
+	freeImage(copy);
 	freeImage(rotated);
 	freeQuadri(quadri);
+	thresholdCells(extracted);
 	displayImage(extracted, "Extracted grid");
 	// save image
 	char filenameStripped[30];

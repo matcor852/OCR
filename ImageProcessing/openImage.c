@@ -61,7 +61,7 @@ void saveBoard(Image *image, const char *filename) {
 	int effectiveSize = size * percentageOfCell;
 	int gap = (size - effectiveSize) / 2;
 	SDL_Surface *surface = imageToSurface(image);
-	SDL_Surface *cell = SDL_CreateRGBSurface(0, size, size, 32, 0, 0, 0, 0);
+	SDL_Surface *cell = SDL_CreateRGBSurface(0, effectiveSize, effectiveSize, 32, 0, 0, 0, 0);
 
 	for (int i = 0; i < 8; i++) {
 		for (int j = 0; j < 8; j++) {
