@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="NeuralNetwork" />
+		<Option pch_mode="2" />
+		<Option compiler="clang" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin/Debug/NeuralNetwork" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
+				<Option type="1" />
+				<Option compiler="clang" />
+				<Compiler>
+					<Add option="-g" />
+				</Compiler>
+			</Target>
+			<Target title="Release">
+				<Option output="bin/Release/NeuralNetwork" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
+				<Option type="1" />
+				<Option compiler="clang" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Weverything" />
+		</Compiler>
+		<Unit filename="Activations.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="Activations.h" />
+		<Unit filename="Cost.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="Cost.h" />
+		<Unit filename="IOHelper.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="IOHelper.h" />
+		<Unit filename="Layer.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="Layer.h" />
+		<Unit filename="Network.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="Network.h" />
+		<Unit filename="Rand.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="Rand.h" />
+		<Unit filename="Tools.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="Tools.h" />
+		<Unit filename="main.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Extensions>
+			<lib_finder disable_auto="1" />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

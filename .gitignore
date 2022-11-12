@@ -53,7 +53,6 @@ dkms.conf
 
 #saved Code::Blocks copies
 *.save
-*.png
 *.txt
 *.save-failed
 *_validation.bin
