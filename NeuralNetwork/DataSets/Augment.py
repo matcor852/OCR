@@ -47,22 +47,6 @@ for i in range(10):
 
 
 
-"""
-for trsf in transforms:
-    combined = A.Compose([
-        eval("A.ShiftScaleRotate(shift_limit=0.1, scale_limit=0.08, rotate_limit=20, interpolation=1, p=1.0)"),
-        eval(trsf)
-        ])
-    name = trsf[trsf.find('A.')+len('A.'):trsf.find("(")]
-    matplotlib.image.imsave("{0}_{1}.png".format(name, random.randint(1, sys.maxsize)), combined(image=image)['image'])
-
-
-for _ in range(len(transforms)):
-    pckd = random.sample(transforms, random.randint(2,6))
-    combined = A.Compose([eval(trsf) for trsf in pckd])
-    matplotlib.image.imsave("{0}Combined_{1}.png".format(len(pckd), random.randint(1, sys.maxsize)), combined(image=image)['image'])
-"""
-
 
 
 
