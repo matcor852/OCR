@@ -25,38 +25,39 @@ transforms = ["A.Blur(p=1.0)",
               "A.CoarseDropout(max_holes=100, max_height=2, max_width=2, min_holes=50, min_height=1, min_width=1, fill_value=0, p=1.0)"]
 
 
+def Augment(root):
+    for i in range(10):
+        os.chdir(root+str(i))
+        files = glob.glob("*.png");
+        for file in files:
+            image = np.array(Image.open(root+str(i)+"/"+file))
+            for trsf in transforms:
+                combined = A.Compose([
+                    eval("A.ShiftScaleRotate(shift_limit=0.1, scale_limit=0.08, rotate_limit=20, interpolation=1, p=1.0)"),
+                    eval(trsf)
+                    ])
+                name = trsf[trsf.find('A.')+len('A.'):trsf.find("(")]
+                matplotlib.image.imsave("{0}-{1}_{2}.png".format(i, name, random.randint(1, sys.maxsize)), combined(image=image)['image'])
+
+            for _ in range(len(transforms)):
+                pckd = random.sample(transforms, random.randint(2,6))
+                combined = A.Compose([eval(trsf) for trsf in pckd])
+                matplotlib.image.imsave("{0}-{1}Combined_{2}.png".format(i, len(pckd), random.randint(1, sys.maxsize)), combined(image=image)['image'])
+
+def Resize(root):
+    for i in range(2,3):
+        os.chdir(root+str(i))
+        files = glob.glob("*.png");
+        for file in files:
+            image = Image.open(root+str(i)+"/"+file)
+            image = image.resize((28,28), Image.ANTIALIAS)
+            image.save(file)
+
+
+
+
 
 root = "D:/Code/C/OCR/NeuralNetwork/DataSets/"
-for i in range(10):
-    os.chdir(root+str(i))
-    files = glob.glob("*.png");
-    for file in files:
-        image = np.array(Image.open(root+str(i)+"/"+file))
-        for trsf in transforms:
-            combined = A.Compose([
-                eval("A.ShiftScaleRotate(shift_limit=0.1, scale_limit=0.08, rotate_limit=20, interpolation=1, p=1.0)"),
-                eval(trsf)
-                ])
-            name = trsf[trsf.find('A.')+len('A.'):trsf.find("(")]
-            matplotlib.image.imsave("{0}-{1}_{2}.png".format(i, name, random.randint(1, sys.maxsize)), combined(image=image)['image'])
-
-        for _ in range(len(transforms)):
-            pckd = random.sample(transforms, random.randint(2,6))
-            combined = A.Compose([eval(trsf) for trsf in pckd])
-            matplotlib.image.imsave("{0}-{1}Combined_{2}.png".format(i, len(pckd), random.randint(1, sys.maxsize)), combined(image=image)['image'])
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

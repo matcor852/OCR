@@ -1,6 +1,6 @@
 import struct, glob, os, random, math, pandas
 from PIL import Image
-
+import matplotlib.pyplot as plt
 
 
 size = (28,28)
@@ -8,7 +8,7 @@ oSize = size[0]*size[1]+1
 
 print()
 
-root, f1, f2 = "D:/Code/C/OCR/NeuralNetwork/curated/", "hcd_{0}.bin".format(oSize-1), "hcd_{0}_test".format(oSize-1)
+root, f1, f2 = "D:/Code/C/OCR/NeuralNetwork/DataSets/", "hcd_{0}.bin".format(oSize-1), "hcd_{0}_test".format(oSize-1)
 training = open(root + f1, "wb")
 validation = open(root + f2, "wb")
 
@@ -45,7 +45,7 @@ def loadSpec():
         for file in validate:
             print("\rsaving folder {0}/{1}, file {2}              ".format(str(i), str(stop), file), end='')
             path = root + "{0}/{1}".format(str(i), file)
-            im = Image.open(path, 'r')
+            im = Image.open(path, 'r').convert("L")
             data = [2*x/255-1 for x in im.getdata()]
             data.insert(0, i)
             validation.write(struct.pack('%sf' % oSize, *data))
@@ -53,8 +53,7 @@ def loadSpec():
         for file in files:
             print("\rsaving folder {0}/{1}, file {2}              ".format(str(i), str(stop), file), end='')
             path = root + "{0}/{1}".format(str(i), file)
-            im = Image.open(path, 'r')
-            im = im.resize(size)
+            im = Image.open(path, 'r').convert("L")
             data = [2*x/255-1 for x in im.getdata()]
             data.insert(0, i)
             training.write(struct.pack('%sf' % oSize, *data))
@@ -64,7 +63,7 @@ def loadSpec():
 
 
 #c1, c2 = loadSpec()
-c1, c2 = loadMNIST()
+c1, c2 = loadSpec()
 
 
 
