@@ -46,8 +46,8 @@ int main() {
 
 	int argc = 5;
 	char *argv[5] = {"Train", "TrainedNetwork/NN.cfg",
-                    "DataSets/hcd_784_5235_training.bin",
-                    "DataSets/hcd_784_578_validation.bin", "1"};
+                    "DataSets/hcd_784_5939_training.bin",
+                    "DataSets/hcd_784_656_validation.bin", "1"};
 
 
 /*

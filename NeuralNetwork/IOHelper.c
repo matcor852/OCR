@@ -55,23 +55,22 @@ void LoadData(NNParam *param) {
 	ld *tempIn, *tempOut;
 	ui temp;
 	for (ui i = 0; i < param->toLoopTrain; i++) {
+        /*
+        tempIn = malloc(sizeof(double) * param->iSize);
+        tempOut = calloc(param->oSize, sizeof(double));
+        */
+
 		tempIn = fvec_alloc(param->iSize, false);
 		tempOut = fvec_alloc(param->oSize, true);
-        printf("sizeof : %u\n", sizeof(double));
+
 		fread(&temp, sizeof(ui), 1, fptr1);
-		printf("training value : %u\n", temp);
-		puts("c0");
 		tempOut[temp] = 1.0L;
-		puts("c1");
 		fread(tempIn, sizeof(double), param->iSize, fptr1);
-		for(ui i=0; i<784; i++) printf("%f ", tempIn[i]);
 		param->inputTrain[i] = tempIn;
 		param->outputTrain[i] = tempOut;
 	}
 	fclose(fptr1);
 
-
-/*
 	if ((fptr2 = fopen(param->validationFile, "rb")) == NULL) {
 		fprintf(stderr, "Cannot open file '%s'\n", param->validationFile);
 		exit(1);
@@ -82,18 +81,13 @@ void LoadData(NNParam *param) {
 	for (ui i = 0; i < param->toLoopValidate; i++) {
 		tempIn = fvec_alloc(param->iSize, false);
 		tempOut = fvec_alloc(param->oSize, true);
-		temp = fvec_alloc(1, false);
-		fread(temp, sizeof(float), 1, fptr2);
-		//printf("validation value : %u\n", (ui)temp[0]);
-		tempOut[(ui)temp[0]] = 1.0L;
-		free(temp);
-		fread(tempIn, sizeof(float), param->iSize, fptr2);
+		fread(&temp, sizeof(ui), 1, fptr2);
+		tempOut[temp] = 1.0L;
+		fread(tempIn, sizeof(double), param->iSize, fptr2);
 		param->inputTest[i] = tempIn;
 		param->outputTest[i] = tempOut;
 	}
 	fclose(fptr2);
-	*/
-
 }
 
 float Validate(Network *net, const NNParam *P, float bperf) {
@@ -145,13 +139,19 @@ void ConfusionMatrix(Network *net, const NNParam *P) {
 		matrix[bufferAct][bufferExp]++;
 	}
 
+	float bf = 0;
 	printf("\n\t\033[0;31m");
 	for (ui i = 0; i < P->oSize; i++) printf("%5d ", i);
 	printf("\033[0m\n");
 	for (ui i = 0; i < P->oSize; i++) {
 		printf("\033[0;31m%d\t\033[0m", i);
-		for (ui j = 0; j < P->oSize; j++) { printf("%5d ", matrix[i][j]); }
-		printf("\n");
+		bf = 0;
+		for (ui j = 0; j < P->oSize; j++) {
+                if(i==j) printf("\033[0;32m");
+                printf("%5d \033[0m", matrix[j][i]);
+                bf += matrix[j][i];
+        }
+		printf("\t%.2f\n", matrix[i][i]/bf);
 	}
 	printf("\n");
 }
