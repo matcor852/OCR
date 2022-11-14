@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 
 size = (28,28)
-oSize = size[0]*size[1]+1
+oSize = size[0]*size[1]
 
 print()
 
@@ -36,7 +36,7 @@ def loadMNIST():
 
 def loadSpec():
     c1, c2 = 0, 0
-    start, stop = 0, 9
+    start, stop = 1, 9
     for i in range(start, stop+1):
         os.chdir(root+str(i))
         files = glob.glob("*.png");
@@ -47,16 +47,14 @@ def loadSpec():
             path = root + "{0}/{1}".format(str(i), file)
             im = Image.open(path, 'r').convert("L")
             data = [2*x/255-1 for x in im.getdata()]
-            data.insert(0, i)
-            validation.write(struct.pack('%sf' % oSize, *data))
+            validation.write(struct.pack('I%sd' % oSize, i, *data))
             c2 += 1
         for file in files:
             print("\rsaving folder {0}/{1}, file {2}              ".format(str(i), str(stop), file), end='')
             path = root + "{0}/{1}".format(str(i), file)
             im = Image.open(path, 'r').convert("L")
             data = [2*x/255-1 for x in im.getdata()]
-            data.insert(0, i)
-            training.write(struct.pack('%sf' % oSize, *data))
+            training.write(struct.pack('I%sd' % oSize, i, *data))
             c1 += 1
     return c1, c2
 
@@ -69,12 +67,12 @@ c1, c2 = loadSpec()
 
 training.close()
 validation.close()
-if os.path.exists(root + "hcd_{0}_{1}_training.bin".format(oSize-1,c1)):
-    os.remove(root + "hcd_{0}_{1}_training.bin".format(oSize-1,c1))
-if os.path.exists(root + "hcd_{0}_{1}_validation.bin".format(oSize-1,c2)):
-    os.remove(root + "hcd_{0}_{1}_validation.bin".format(oSize-1,c2))
-os.rename(root + f1, root + "hcd_{0}_{1}_training.bin".format(oSize-1,c1))
-os.rename(root + f2, root + "hcd_{0}_{1}_validation.bin".format(oSize-1,c2))
+if os.path.exists(root + "hcd_{0}_{1}_training.bin".format(oSize,c1)):
+    os.remove(root + "hcd_{0}_{1}_training.bin".format(oSize,c1))
+if os.path.exists(root + "hcd_{0}_{1}_validation.bin".format(oSize,c2)):
+    os.remove(root + "hcd_{0}_{1}_validation.bin".format(oSize,c2))
+os.rename(root + f1, root + "hcd_{0}_{1}_training.bin".format(oSize,c1))
+os.rename(root + f2, root + "hcd_{0}_{1}_validation.bin".format(oSize,c2))
 
 
 

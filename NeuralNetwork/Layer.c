@@ -37,7 +37,6 @@ void Layer_Activate(Layer *layer) {
 	for (ld *pI = layer->input, *pB = layer->bias;
 		 pI < layer->input + layer->Neurons; pI++, pB++)
 		*pI = *pB;
-
 	for (ld *lO = layer->pLayer->output, *lW = layer->weights;
 		 lO < layer->pLayer->output + layer->pLayer->Neurons; lO++) {
 		for (ld *lI = layer->input; lI < layer->input + layer->Neurons;

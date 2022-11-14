@@ -41,24 +41,27 @@ static void matchParams(NNParam *origin, char *line) {
 		origin->toExceed = (ld)strtod(value, NULL);
 }
 
-int main(int argc, char *argv[]) {
-
-	/*
-	int argc = 3;
-	char *argv[3] = {"TrainXOR", "TrainedNetwork/NN.cfg",
-	"1000"};
+int main() {
 
 
+	int argc = 5;
+	char *argv[5] = {"Train", "TrainedNetwork/NN.cfg",
+                    "DataSets/hcd_784_5235_training.bin",
+                    "DataSets/hcd_784_578_validation.bin", "1"};
 
+
+/*
 	int argc = 4;
-	char *argv[4] = {"PredictXOR",
+	char *argv[4] = {"Predict",
 					 "TrainedNetwork/NeuralNetData_3layers_XOR_100.0.dnn",
 					 "1",
 					 "0"};
-	*/
 
+*/
 	argc--;
-	argv++;
+	//argv++;
+
+
 	srand((ui)time(NULL));
 
 	if (argc < 1) {
@@ -66,7 +69,7 @@ int main(int argc, char *argv[]) {
 		exit(1);
 	}
 
-	if (!strcmp(argv[0], "PredictXOR")) {
+	if (!strcmp(argv[0], "Predict")) {
 		if (argc < 4) {
 			printf("\nMissing Parameter: Expected 3; Got %d\n", argc - 1);
 			printf("Help:\n\tPredictXOR [Neural Network "
@@ -84,12 +87,11 @@ int main(int argc, char *argv[]) {
 			   Network_Predict(net, input, 2));
 		Network_Purge(net);
 		exit(0);
-	} else if (!strcmp(argv[0], "TrainXOR")) {
-		if (argc < 3) {
-			printf("\nMissing Parameter: Expected 2; Got %d\n", argc - 1);
-			printf("Help:\n\tTrainXOR [config file (.cfg)] ");
-			// printf("[Training data (.bin)] [Validation
-			// data (.bin)]\n");
+	} else if (!strcmp(argv[0], "Train")) {
+		if (argc != 4) {
+			printf("\nParameter Error: Expected 4; Got %d\n", argc - 1);
+			printf("Help:\n\tTrain [config file (.cfg)] ");
+			printf("[Training data (.bin)] [Validation data (.bin)]\n");
 			printf("[number of attempt]\n");
 			exit(1);
 		}
@@ -100,8 +102,8 @@ int main(int argc, char *argv[]) {
 			exit(1);
 		}
 
-		NNParam *origin = (NNParam *)malloc(sizeof(NNParam));
-		char *buffer = (char *)malloc(sizeof(char) * MAX_IN_LINE);
+		NNParam *origin = malloc(sizeof(NNParam));
+		char *buffer = malloc(sizeof(char) * MAX_IN_LINE);
 		while (!feof(configFile)) {
 			fgets(buffer, MAX_IN_LINE, configFile);
 			if (ferror(configFile)) {
@@ -113,8 +115,10 @@ int main(int argc, char *argv[]) {
 		free(buffer);
 		fclose(configFile);
 
-		LoadXOR(origin);
-		PerfSearch(origin, NULL, (int)strtol(argv[2], NULL, 10));
+        origin->trainingFile = argv[2];
+        origin->validationFile = argv[3];
+		LoadData(origin);
+		PerfSearch(origin, NULL, (int)strtol(argv[4], NULL, 10));
 		Purge_NNParam(origin);
 
 	} else {
