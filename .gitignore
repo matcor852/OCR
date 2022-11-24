@@ -55,6 +55,4 @@ dkms.conf
 *.save
 *.txt
 *.save-failed
-*_validation.bin
-*_training.bin
 *.csv

@@ -50,19 +50,13 @@ void LoadData(NNParam *param) {
 		exit(1);
 	}
 	param->toLoopTrain = min(SamplesTrain, param->toLoopTrain);
-	param->inputTrain = malloc(sizeof(float *) * param->toLoopTrain);
-	param->outputTrain = malloc(sizeof(float *) * param->toLoopTrain);
+	param->inputTrain = malloc(sizeof(ld*) * param->toLoopTrain);
+	param->outputTrain = malloc(sizeof(ld*) * param->toLoopTrain);
 	ld *tempIn, *tempOut;
 	ui temp;
 	for (ui i = 0; i < param->toLoopTrain; i++) {
-        /*
-        tempIn = malloc(sizeof(double) * param->iSize);
-        tempOut = calloc(param->oSize, sizeof(double));
-        */
-
 		tempIn = fvec_alloc(param->iSize, false);
 		tempOut = fvec_alloc(param->oSize, true);
-
 		fread(&temp, sizeof(ui), 1, fptr1);
 		tempOut[temp] = 1.0L;
 		fread(tempIn, sizeof(double), param->iSize, fptr1);
@@ -76,8 +70,8 @@ void LoadData(NNParam *param) {
 		exit(1);
 	}
 	param->toLoopValidate = min(SamplesValidate, param->toLoopValidate);
-	param->inputTest = malloc(sizeof(float *) * param->toLoopValidate);
-	param->outputTest = malloc(sizeof(float *) * param->toLoopValidate);
+	param->inputTest = malloc(sizeof(ld*) * param->toLoopValidate);
+	param->outputTest = malloc(sizeof(ld*) * param->toLoopValidate);
 	for (ui i = 0; i < param->toLoopValidate; i++) {
 		tempIn = fvec_alloc(param->iSize, false);
 		tempOut = fvec_alloc(param->oSize, true);
@@ -213,8 +207,9 @@ void PerfSearch(NNParam *origin, Network *net, int attempt) {
 			curr_perf = Validate(net, origin, bperf);
 			if (curr_perf > bperf) {
 				bperf = curr_perf;
-				char *s = malloc(sizeof(char) * 12);
-				snprintf(s, 10, "%s_%.2f", origin->NNName, bperf);
+				ui ns = strlen(origin->NNName);
+				char *s = malloc(sizeof(char) * (ns+1));
+				snprintf(s, ns, "%s_%.2f", origin->NNName, bperf);
 				Network_Save(net, s);
 				free(s);
 			}
@@ -233,8 +228,9 @@ void PerfSearch(NNParam *origin, Network *net, int attempt) {
 		if (curr_perf >= 100.0f) maxed = 1;
 		if (curr_perf > bperf) {
 			bperf = curr_perf;
-			char *s = malloc(sizeof(char) * 12);
-			snprintf(s, 10, "%s_%.2f", origin->NNName, bperf);
+			ui ns = strlen(origin->NNName);
+			char *s = malloc(sizeof(char) * (ns+1));
+			snprintf(s, ns, "%s_%.2f", origin->NNName, bperf);
 			Network_Save(net, s);
 			free(s);
 		}

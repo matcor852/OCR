@@ -21,16 +21,17 @@ def loadMNIST():
         data = list(pict)
         print("\rsaving train picture {0}              ".format(str(data[0])), end='')
         vls = [2*x/255-1 for x in data[2:]]
-        vls.insert(0, data[1])
-        #training.write(struct.pack('%sf' % oSize, *vls))
+        np.array(data[1]).tofile(training, sep='', format='%L')
+        np.array(vls).tofile(training, sep='', format='%d')
         c1 += 1
+    print()
     df = pandas.read_csv(root+"mnist_test.csv")
     for pict in df.itertuples():
         data = list(pict)
         print("\rsaving test picture {0}              ".format(str(data[0])), end='')
         vls = [2*x/255-1 for x in data[2:]]
-        vls.insert(0, data[1])
-        #validation.write(struct.pack('%sf' % oSize, *vls))
+        np.array(data[1]).tofile(validation, sep='', format='%L')
+        np.array(vls).tofile(validation, sep='', format='%d')
         c2 += 1
     return c1, c2
 
@@ -51,6 +52,7 @@ def loadSpec():
             np.array(i).tofile(validation, sep='', format='%L')
             np.array(data).tofile(validation, sep='', format='%d')
             c2 += 1
+        print()
         for file in files:
             print("\rsaving folder {0}/{1}, file {2}              ".format(str(i), str(stop), file), end='')
             path = root + "{0}/{1}".format(str(i), file)
@@ -64,7 +66,7 @@ def loadSpec():
 
 
 #c1, c2 = loadSpec()
-c1, c2 = loadSpec()
+c1, c2 = loadMNIST()
 
 
 
