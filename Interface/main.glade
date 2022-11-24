@@ -4,102 +4,72 @@
   <requires lib="gtk+" version="3.24"/>
   <object class="GtkWindow" id="window">
     <property name="can-focus">False</property>
-    <property name="resizable">False</property>
-    <property name="window-position">center</property>
-    <property name="icon-name">edit-find</property>
-    <property name="gravity">center</property>
     <child>
       <object class="GtkFixed" id="fixed1">
         <property name="visible">True</property>
         <property name="can-focus">False</property>
         <child>
-          <object class="GtkButton" id="upload_button">
-            <property name="label" translatable="yes">Upload image</property>
-            <property name="width-request">197</property>
-            <property name="height-request">132</property>
-            <property name="visible">True</property>
-            <property name="can-focus">True</property>
-            <property name="receives-default">True</property>
-            <property name="tooltip-text" translatable="yes">Click to upload an image</property>
-            <property name="always-show-image">True</property>
-            <signal name="clicked" handler="on_upload_button_clicked" swapped="no"/>
-          </object>
-          <packing>
-            <property name="x">530</property>
-            <property name="y">350</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkImage" id="sudoku_image">
-            <property name="width-request">524</property>
-            <property name="height-request">641</property>
+          <object class="GtkBox" id="box">
+            <property name="width-request">500</property>
+            <property name="height-request">500</property>
             <property name="visible">True</property>
             <property name="can-focus">False</property>
-            <property name="halign">center</property>
-            <property name="valign">center</property>
+            <property name="orientation">vertical</property>
+            <property name="spacing">130</property>
+            <child>
+              <object class="GtkButton" id="back_to_menu">
+                <property name="label" translatable="yes">Back to menu</property>
+                <property name="height-request">49</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">True</property>
+                <property name="tooltip-text" translatable="yes">Back to the menu</property>
+                <property name="halign">center</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkButton" id="upload_button">
+                <property name="label" translatable="yes">Upload image</property>
+                <property name="width-request">197</property>
+                <property name="height-request">78</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="receives-default">True</property>
+                <property name="tooltip-text" translatable="yes">Click to upload an image</property>
+                <property name="halign">center</property>
+                <property name="valign">center</property>
+                <property name="always-show-image">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="padding">64</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkEntry" id="upload_entry">
+                <property name="width-request">400</property>
+                <property name="height-request">34</property>
+                <property name="visible">True</property>
+                <property name="can-focus">True</property>
+                <property name="tooltip-text" translatable="yes">Path of the sudoku to upload</property>
+                <property name="placeholder-text" translatable="yes">Path of the image</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
           </object>
           <packing>
-            <property name="x">362</property>
-            <property name="y">117</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkLabel" id="bas droit">
-            <property name="width-request">110</property>
-            <property name="height-request">80</property>
-            <property name="visible">True</property>
-            <property name="can-focus">False</property>
-            <attributes>
-              <attribute name="size" value="27648"/>
-            </attributes>
-          </object>
-          <packing>
-            <property name="x">1178</property>
-            <property name="y">957</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkEntry" id="upload_entry">
-            <property name="width-request">400</property>
-            <property name="height-request">34</property>
-            <property name="visible">True</property>
-            <property name="can-focus">True</property>
-            <property name="tooltip-text" translatable="yes">Path of the sudoku to upload</property>
-            <property name="placeholder-text" translatable="yes">Path of the image</property>
-            <signal name="activate" handler="on_upload_entry_activate" swapped="no"/>
-          </object>
-          <packing>
-            <property name="x">427</property>
-            <property name="y">670</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkLabel" id="or_label">
-            <property name="width-request">100</property>
-            <property name="height-request">80</property>
-            <property name="visible">True</property>
-            <property name="can-focus">False</property>
-            <property name="label" translatable="yes">or</property>
-          </object>
-          <packing>
-            <property name="x">578</property>
-            <property name="y">530</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkButton" id="reload_button">
-            <property name="label" translatable="yes">Back to menu</property>
-            <property name="width-request">124</property>
-            <property name="height-request">34</property>
-            <property name="visible">True</property>
-            <property name="can-focus">True</property>
-            <property name="receives-default">True</property>
-            <property name="tooltip-text" translatable="yes">Back to the menu</property>
-            <signal name="clicked" handler="on_reload_button_clicked" swapped="no"/>
-          </object>
-          <packing>
-            <property name="x">566</property>
-            <property name="y">21</property>
+            <property name="x">150</property>
           </packing>
         </child>
       </object>

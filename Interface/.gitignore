@@ -1,0 +1,6 @@
+.vscode/
+*.jpg
+*.png
+*.glade?
+*.o
+*.d
