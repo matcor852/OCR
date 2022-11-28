@@ -56,19 +56,20 @@ def Resize(root):
 
 def GenNoise(root, nb):
     plt.gray()
+    os.chdir(root)
     image = np.zeros((28,28), dtype='float')
     for i in range(nb):
-        tmp = A.PixelDropout(dropout_prob=random.uniform(0.002, 0.004), drop_value=1, p=1.0)(image=image)['image']
+        tmp = A.PixelDropout(dropout_prob=random.uniform(0.001, 0.001), drop_value=255, p=1.0)(image=image)['image']
         tmp = A.GlassBlur(sigma=0.5, max_delta=3, p=1.0)(image=tmp)['image']
-        print(tmp)
         plt.imshow(tmp)
         plt.show()
+        #matplotlib.image.imsave("_-{0}.png".format(i), tmp)
 
 
 
-root = "D:/Code/C/OCR/NeuralNetwork/DataSets/"
+root = "D:/Code/C/OCR/NeuralNetwork/DataSets/0/"
 
-GenNoise(root, 100)
+GenNoise(root, 10)
 
 
 
