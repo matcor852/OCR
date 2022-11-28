@@ -207,8 +207,8 @@ void PerfSearch(NNParam *origin, Network *net, int attempt) {
 			curr_perf = Validate(net, origin, bperf);
 			if (curr_perf > bperf) {
 				bperf = curr_perf;
-				ui ns = strlen(origin->NNName);
-				char *s = malloc(sizeof(char) * (ns+1));
+				ui ns = strlen(origin->NNName)+6;
+				char *s = malloc(sizeof(char) * (ns));
 				snprintf(s, ns, "%s_%.2f", origin->NNName, bperf);
 				Network_Save(net, s);
 				free(s);
