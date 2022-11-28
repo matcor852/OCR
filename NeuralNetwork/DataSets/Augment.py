@@ -2,6 +2,7 @@ from PIL import Image
 import random, time, matplotlib, sys, glob, os
 import numpy as np
 import albumentations as A
+import matplotlib.pyplot as plt
 
 random.seed(time.time_ns())
 
@@ -53,13 +54,21 @@ def Resize(root):
             image = image.resize((28,28), Image.ANTIALIAS)
             image.save(file)
 
-
+def GenNoise(root, nb):
+    plt.gray()
+    image = np.zeros((28,28), dtype='float')
+    for i in range(nb):
+        tmp = A.PixelDropout(dropout_prob=random.uniform(0.002, 0.004), drop_value=1, p=1.0)(image=image)['image']
+        tmp = A.GlassBlur(sigma=0.5, max_delta=3, p=1.0)(image=tmp)['image']
+        print(tmp)
+        plt.imshow(tmp)
+        plt.show()
 
 
 
 root = "D:/Code/C/OCR/NeuralNetwork/DataSets/"
 
-
+GenNoise(root, 100)
 
 
 
