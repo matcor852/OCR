@@ -2,6 +2,7 @@ import glob, os, random, math, pandas
 from PIL import Image
 import matplotlib.pyplot as plt
 import numpy as np
+from parse import parse
 
 
 size = (28,28)
@@ -12,8 +13,9 @@ print()
 root, f1, f2 = "D:/Code/C/OCR/NeuralNetwork/DataSets/", "hcd_{0}.bin".format(oSize-1), "hcd_{0}_test".format(oSize-1)
 
 
-def loadMNIST(appendMode = False):
-    mode = "ab" if appendMode else "wb"
+def loadMNIST(file = ""):
+    actTrain = parse()
+    mode = "ab" if file else "wb"
     training = open(root + f1, mode)
     validation = open(root + f2, mode)
     c1, c2 = 0, 0
@@ -44,34 +46,32 @@ def loadMNIST(appendMode = False):
     os.rename(root + f2, root + "hcd_{0}_{1}_validation.bin".format(oSize,c2))
 
 
-def loadSpec(appendMode = False):
-    mode = "ab" if appendMode else "wb"
-    training = open(root + f1, mode)
-    validation = open(root + f2, mode)
+def loadSpec(folder, file = ("", "")):
+    mode = "ab" if file != ("", "") else "wb"
+    training = open(file[0], mode)
+    validation = open(file[1], mode)
     c1, c2 = 0, 0
-    start, stop = 0, 9
-    for i in range(start, stop+1):
-        os.chdir(root+str(i))
-        files = glob.glob("*.png");
-        validate = random.sample(files, math.floor(len(files)/10))
-        files = list(set(files) - set(validate))
-        for file in validate:
-            print("\rsaving folder {0}/{1}, file {2}              ".format(str(i), str(stop), file), end='')
-            path = root + "{0}/{1}".format(str(i), file)
-            im = Image.open(path, 'r').convert("L")
-            data = [2*x/255-1 for x in im.getdata()]
-            np.array(i).tofile(validation, sep='', format='%L')
-            np.array(data).tofile(validation, sep='', format='%d')
-            c2 += 1
-        print()
-        for file in files:
-            print("\rsaving folder {0}/{1}, file {2}              ".format(str(i), str(stop), file), end='')
-            path = root + "{0}/{1}".format(str(i), file)
-            im = Image.open(path, 'r').convert("L")
-            data = [2*x/255-1 for x in im.getdata()]
-            np.array(i).tofile(training, sep='', format='%L')
-            np.array(data).tofile(training, sep='', format='%d')
-            c1 += 1
+    os.chdir(root+str(i))
+    files = glob.glob("*.png");
+    validate = random.sample(files, math.floor(len(files)/10))
+    files = list(set(files) - set(validate))
+    for file in validate:
+        print("\rsaving folder {0}/{1}, file {2}              ".format(str(i), str(stop), file), end='')
+        path = root + "{0}/{1}".format(str(i), file)
+        im = Image.open(path, 'r').convert("L")
+        data = [2*x/255-1 for x in im.getdata()]
+        np.array(i).tofile(validation, sep='', format='%L')
+        np.array(data).tofile(validation, sep='', format='%d')
+        c2 += 1
+    print()
+    for file in files:
+        print("\rsaving folder {0}/{1}, file {2}              ".format(str(i), str(stop), file), end='')
+        path = root + "{0}/{1}".format(str(i), file)
+        im = Image.open(path, 'r').convert("L")
+        data = [2*x/255-1 for x in im.getdata()]
+        np.array(i).tofile(training, sep='', format='%L')
+        np.array(data).tofile(training, sep='', format='%d')
+        c1 += 1
     training.close()
     validation.close()
     if os.path.exists(root + "hcd_{0}_{1}_training.bin".format(oSize,c1)):
@@ -83,7 +83,7 @@ def loadSpec(appendMode = False):
 
 
 
-#loadSpec()
+loadSpec("_", ("DataSets/hcd_784_60000_training.bin", "DataSets/hcd_784_10000_validation.bin"))
 #loadMNIST()
 
 
