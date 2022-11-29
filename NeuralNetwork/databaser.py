@@ -10,9 +10,9 @@ oSize = size[0]*size[1]
 
 print()
 
-root, f1, f2 = "D:/Code/C/OCR/NeuralNetwork/DataSets/", "hcd_{0}.bin".format(oSize-1), "hcd_{0}_test".format(oSize-1)
+root = "D:/Code/C/OCR/NeuralNetwork/DataSets/"
 
-
+"""
 def loadMNIST(file = ""):
     actTrain = parse()
     mode = "ab" if file else "wb"
@@ -44,46 +44,47 @@ def loadMNIST(file = ""):
         os.remove(root + "hcd_{0}_{1}_validation.bin".format(oSize,c2))
     os.rename(root + f1, root + "hcd_{0}_{1}_training.bin".format(oSize,c1))
     os.rename(root + f2, root + "hcd_{0}_{1}_validation.bin".format(oSize,c2))
+"""
 
-
-def loadSpec(folder, file = ("", "")):
-    mode = "ab" if file != ("", "") else "wb"
-    training = open(file[0], mode)
-    validation = open(file[1], mode)
-    c1, c2 = 0, 0
-    os.chdir(root+str(i))
+def loadSpec(folder, hotV, Sfile = ("", "")):
+    os.chdir(root+folder)
     files = glob.glob("*.png");
+    c1, c2 = 0, 0
+    if Sfile != ("", ""):
+        training = open(root + Sfile[0], "ab")
+        validation = open(root + Sfile[1], "ab")
+        c1, c2 = int(parse("hcd_{0}_{1}_training.bin", Sfile[0])[1]), int(parse("hcd_{0}_{1}_validation.bin", Sfile[1])[1])
+    c2 += math.floor(len(files)/10)
+    c1 += len(files) - math.floor(len(files)/10)
+    if Sfile == ("", ""):
+        training = open(root + "hcd_{0}_{1}_training.bin".format(oSize,c1), "wb")
+        validation = open(root + "hcd_{0}_{1}_validation.bin".format(oSize,c2), "wb")
     validate = random.sample(files, math.floor(len(files)/10))
     files = list(set(files) - set(validate))
     for file in validate:
-        print("\rsaving folder {0}/{1}, file {2}              ".format(str(i), str(stop), file), end='')
-        path = root + "{0}/{1}".format(str(i), file)
+        print("\rsaving folder {0}, file {1}              ".format(folder, file), end='')
+        path = root + "{0}/{1}".format(folder, file)
         im = Image.open(path, 'r').convert("L")
         data = [2*x/255-1 for x in im.getdata()]
-        np.array(i).tofile(validation, sep='', format='%L')
+        np.array(hotV).tofile(validation, sep='', format='%L')
         np.array(data).tofile(validation, sep='', format='%d')
-        c2 += 1
+    validation.close()
     print()
     for file in files:
-        print("\rsaving folder {0}/{1}, file {2}              ".format(str(i), str(stop), file), end='')
-        path = root + "{0}/{1}".format(str(i), file)
+        print("\rsaving folder {0}, file {1}              ".format(folder, file), end='')
+        path = root + "{0}/{1}".format(folder, file)
         im = Image.open(path, 'r').convert("L")
         data = [2*x/255-1 for x in im.getdata()]
-        np.array(i).tofile(training, sep='', format='%L')
+        np.array(hotV).tofile(training, sep='', format='%L')
         np.array(data).tofile(training, sep='', format='%d')
-        c1 += 1
     training.close()
-    validation.close()
-    if os.path.exists(root + "hcd_{0}_{1}_training.bin".format(oSize,c1)):
-        os.remove(root + "hcd_{0}_{1}_training.bin".format(oSize,c1))
-    if os.path.exists(root + "hcd_{0}_{1}_validation.bin".format(oSize,c2)):
-        os.remove(root + "hcd_{0}_{1}_validation.bin".format(oSize,c2))
-    os.rename(root + f1, root + "hcd_{0}_{1}_training.bin".format(oSize,c1))
-    os.rename(root + f2, root + "hcd_{0}_{1}_validation.bin".format(oSize,c2))
+    if Sfile != ("", ""):
+        os.rename(root + Sfile[0], root + "hcd_{0}_{1}_training.bin".format(oSize,c1))
+        os.rename(root + Sfile[1], root + "hcd_{0}_{1}_validation.bin".format(oSize,c2))
 
 
-
-loadSpec("_", ("DataSets/hcd_784_60000_training.bin", "DataSets/hcd_784_10000_validation.bin"))
+#loadSpec("_", 16)
+loadSpec("_", 16, ("hcd_784_60000_training.bin", "hcd_784_10000_validation.bin"))
 #loadMNIST()
 
 

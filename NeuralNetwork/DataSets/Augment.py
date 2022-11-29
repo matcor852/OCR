@@ -58,18 +58,22 @@ def GenNoise(root, nb):
     plt.gray()
     os.chdir(root)
     image = np.zeros((28,28), dtype='float')
-    for i in range(nb):
+    matplotlib.image.imsave("_-0.png", image)
+    i = 1
+    while i < nb:
         tmp = A.PixelDropout(dropout_prob=random.uniform(0.001, 0.001), drop_value=255, p=1.0)(image=image)['image']
         tmp = A.GlassBlur(sigma=0.5, max_delta=3, p=1.0)(image=tmp)['image']
-        plt.imshow(tmp)
-        plt.show()
-        #matplotlib.image.imsave("_-{0}.png".format(i), tmp)
+        #plt.imshow(tmp)
+        #plt.show()
+        if set(map(tuple, image)).symmetric_difference(set(map(tuple, tmp))) != set():
+            matplotlib.image.imsave("_-{0}.png".format(i), tmp)
+            i += 1
 
 
 
-root = "D:/Code/C/OCR/NeuralNetwork/DataSets/0/"
+root = "D:/Code/C/OCR/NeuralNetwork/DataSets/_/"
 
-GenNoise(root, 10)
+GenNoise(root, 20000)
 
 
 
