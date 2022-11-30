@@ -10,7 +10,7 @@ oSize = size[0]*size[1]
 
 print()
 
-root = "D:/Code/TP/C/OCR/NeuralNetwork/DataSets/"
+root = "D:/Code/C/OCR/NeuralNetwork/DataSets/"
 ratio = 7
 
 
@@ -91,8 +91,8 @@ def loadSpec(folder, hotV, Sfile = ("", "")):
 
 #loadSpec("_", 16)
 
-#loadEMNIST(("emnist-balanced-train.csv", "emnist-balanced-test.csv"))
-loadSpec("_", 16, ("hcd_784_38400_training.bin", "hcd_784_6400_validation.bin"))
+#loadEMNIST(("emnist-byclass-train.csv", "emnist-byclass-test.csv"))
+#loadSpec("_", 16, ("hcd_784_384092_training.bin", "hcd_784_64437_validation.bin"))
 
 
 

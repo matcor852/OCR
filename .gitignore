@@ -57,3 +57,5 @@ dkms.conf
 *.save-failed
 *.csv
 *.png
+NeuralNetwork/DataSets/hcd_784_401235_training.bin
+NeuralNetwork/DataSets/hcd_784_67294_validation.bin
