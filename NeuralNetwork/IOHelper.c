@@ -7,14 +7,14 @@ Network *NetCreate(NNParam *param) {
 		printf("Error: Out of memory ...\n");
 		exit(1);
 	}
-	Network_Init(net, 3);
+	Network_Init(net, param->nbLayer);
 
 	Layer *l1 = malloc(sizeof(Layer));
 	Layer *l2 = malloc(sizeof(Layer));
 	Layer *l3 = malloc(sizeof(Layer));
-	Layer_Init(l1, NULL, l2, 784, NULL, NULL, false, "none");
-	Layer_Init(l2, l1, l3, param->hiddenN, NULL, NULL, false, "leakyrelu");
-	Layer_Init(l3, l2, NULL, 10, NULL, NULL, false, "softmax");
+	Layer_Init(l1, NULL, l2, param->iSize, NULL, NULL, false, "none");
+	Layer_Init(l2, l1, l3, param->hNeurons[0], NULL, NULL, false, param->act_funcs[0]);
+	Layer_Init(l3, l2, NULL, param->oSize, NULL, NULL, false, param->endLayerAct);
 
 	Network_AddLayer(net, l1);
 	Network_AddLayer(net, l2);
@@ -24,10 +24,6 @@ Network *NetCreate(NNParam *param) {
 }
 
 void LoadData(NNParam *param) {
-
-	param->iSize = 784;
-	param->oSize = 10;
-
 	ui SamplesTrain = 0, SamplesValidate = 0;
 	if (sscanf(param->trainingFile, "%*[^_]%*[_]%*[^_]%*[_]%u", &SamplesTrain)
 		!= 1) {
@@ -42,7 +38,6 @@ void LoadData(NNParam *param) {
 			   "filename; Exiting...\n");
 		exit(1);
 	}
-
 	FILE *fptr1, *fptr2;
 
 	if ((fptr1 = fopen(param->trainingFile, "rb")) == NULL) {
@@ -64,7 +59,6 @@ void LoadData(NNParam *param) {
 		param->outputTrain[i] = tempOut;
 	}
 	fclose(fptr1);
-
 	if ((fptr2 = fopen(param->validationFile, "rb")) == NULL) {
 		fprintf(stderr, "Cannot open file '%s'\n", param->validationFile);
 		exit(1);
@@ -151,9 +145,6 @@ void ConfusionMatrix(Network *net, const NNParam *P) {
 }
 
 void OverfitLoad(NNParam *param) {
-	param->iSize = 784;
-	param->oSize = 10;
-
 	ui SamplesTrain = 0;
 	if (sscanf(param->trainingFile, "%*[^_]%*[_]%*[^_]%*[_]%u", &SamplesTrain)
 		!= 1) {
@@ -245,7 +236,6 @@ void PerfSearch(NNParam *origin, Network *net, int attempt) {
 
 void NNParam_Display(NNParam *param) {
 	// printf("\nNeural Network Params :\n");
-	printf("\n\tHidden neurons : %u", param->hiddenN);
 	printf("\t\t\tLearning Rate : %Lg\n", param->l_rate);
 	printf("\tTraining samples : %u", param->toLoopTrain);
 	printf("\t\t\tValidation samples : %u\n", param->toLoopValidate);
@@ -259,8 +249,12 @@ void NNParam_Display(NNParam *param) {
 
 void Purge_NNParam(NNParam *param) {
 	if (param->cost_func) free(param->cost_func);
+	if (param->endLayerAct) free(param->endLayerAct);
 	if (param->NNName != NULL) free(param->NNName);
 	if (param->StatsFile != NULL) free(param->StatsFile);
+	free(param->hNeurons);
+	for (ui i = 0; i < param->nbLayer-2; i++) free(param->act_funcs[i]);
+	free(param->act_funcs);
 	bool freeOnce = param->toLoopTrain == param->toLoopValidate;
 	for (ui i = 0; i < param->toLoopTrain; i++) {
 		free(param->inputTrain[i]);

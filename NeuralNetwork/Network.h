@@ -26,14 +26,16 @@ struct Optimizer
 typedef struct NNParam NNParam;
 struct NNParam
 {
-    ui hiddenN, toLoopTrain, toLoopValidate,
-        epoch, epochInterval, iSize, oSize, track;
+    ui nbLayer, toLoopTrain, toLoopValidate, epoch,
+    epochInterval, iSize, oSize, track, currH;
     ld l_rate, toExceed;
     ld l1Norm, l2Norm;
     ld **inputTrain, **outputTrain;
     ld **inputTest, **outputTest;
-    char *cost_func, *StatsFile, *NNName;
+    char *cost_func, *StatsFile, *NNName, *endLayerAct;
     char *trainingFile, *validationFile;
+    char **act_funcs;
+    ui *hNeurons;
     Optimizer *optimizer;
 };
 
