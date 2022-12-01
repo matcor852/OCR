@@ -108,6 +108,16 @@ void Network_Purge(Network *net) {
 	free(net);
 }
 
+Network *Network_DeepCopy(Network *net) {
+    Network *copy = malloc(sizeof(Network));
+    copy->nbLayers = net->nbLayers;
+    copy->currentLayer = net->currentLayer;
+    copy->layers = malloc(sizeof(Layer) * net->nbLayers);
+    for (ui i=0; i<net->nbLayers; i++)
+        copy->layers[i] = *Layer_DeepCopy(&net->layers[i]);
+    return copy;
+}
+
 void Network_Display(Network *net, bool display_matr) {
 	for (ui i = 0; i < net->nbLayers; i++) {
 		Layer_Display(&net->layers[i], i, display_matr);

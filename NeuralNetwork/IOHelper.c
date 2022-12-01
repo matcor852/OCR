@@ -9,17 +9,28 @@ Network *NetCreate(NNParam *param) {
 	}
 	Network_Init(net, param->nbLayer);
 
-	Layer *l1 = malloc(sizeof(Layer));
-	Layer *l2 = malloc(sizeof(Layer));
-	Layer *l3 = malloc(sizeof(Layer));
-	Layer_Init(l1, NULL, l2, param->iSize, NULL, NULL, false, "none");
-	Layer_Init(l2, l1, l3, param->hNeurons[0], NULL, NULL, false, param->act_funcs[0]);
-	Layer_Init(l3, l2, NULL, param->oSize, NULL, NULL, false, param->endLayerAct);
+	Layer *lS = malloc(sizeof(Layer)), *lE = malloc(sizeof(Layer));
+	Layer **hidden_L = malloc(sizeof(Layer*) * (param->nbLayer-2));
+	for (ui i=0; i < param->nbLayer-2; i++) {
+        Layer *l = malloc(sizeof(Layer));
+        if (i==0) Layer_Init(lS, NULL, l, param->iSize, NULL, NULL, false, "none");
+        hidden_L[i] = l;
+	}
 
-	Network_AddLayer(net, l1);
-	Network_AddLayer(net, l2);
-	Network_AddLayer(net, l3);
+	Layer *l_prev = lS;
+	for (ui i=0; i < param->nbLayer-2; i++) {
+        Layer_Init(hidden_L[i], l_prev, i < param->nbLayer-3 ?
+                   hidden_L[i+1] : lE, param->hNeurons[i], NULL, NULL,
+                   false, param->act_funcs[i]);
+        l_prev = hidden_L[i];
+	}
+	Layer_Init(lE, l_prev, NULL, param->oSize, NULL, NULL, false, param->endLayerAct);
+
+	Network_AddLayer(net, lS);
+	for (ui i=0; i < param->nbLayer-2; i++) Network_AddLayer(net, hidden_L[i]);
+	Network_AddLayer(net, lE);
 	Network_Wire(net);
+    free(hidden_L);
 	return net;
 }
 
@@ -135,11 +146,13 @@ void ConfusionMatrix(Network *net, const NNParam *P) {
 		printf("\033[0;31m%d\t\033[0m", i);
 		bf = 0;
 		for (ui j = 0; j < P->oSize; j++) {
-                if(i==j) printf("\033[0;32m");
+                if(i==j) printf("\033[0;34m");
                 printf("%5d \033[0m", matrix[j][i]);
                 bf += matrix[j][i];
         }
-		printf("\t%.2f\n", matrix[i][i]/bf);
+        float v = matrix[i][i]/bf;
+		printf("\t%s%.2f%s\n", v < 0.6f ? "\033[0;31m" : v < 0.9 ?
+                "\033[0;33m" : "\033[0;32m", v, "\033[0m");
 	}
 	printf("\n");
 }
@@ -181,16 +194,16 @@ void OverfitLoad(NNParam *param) {
 	param->outputTest = param->outputTrain;
 }
 
-void PerfSearch(NNParam *origin, Network *net, int attempt) {
+void PerfSearch(NNParam *origin, Network *netOrg, int attempt) {
 	float bperf = (float)origin->toExceed, curr_perf = .0f;
-	ui eSize = floor(log10(origin->epoch)) + 1;
+	ui eSize = floor(log10(origin->epoch == 0 ? 1 : origin->epoch)) + 1;
 	printf("\nBeginning Neural Network training with "
 		   "following parameters :\n");
 	NNParam_Display(origin);
 	bool maxed = false;
 	while (attempt > 0 && !maxed) {
 		srand((ui)time(NULL));
-		if (net == NULL) net = NetCreate(origin);
+		Network *net = netOrg == NULL ? NetCreate(origin) : Network_DeepCopy(netOrg);
 		if (origin->track) fclose(fopen(origin->StatsFile, "w"));
 		Optimizer_Init(net, origin->optimizer);
 		for (ui e = 0; e < origin->epoch && !maxed;) {

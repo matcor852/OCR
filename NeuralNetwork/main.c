@@ -64,10 +64,11 @@ static void matchParams(NNParam *origin, char *line) {
 int main() {
 
 
-	int argc = 5;
-	char *argv[5] = {"Train", "TrainedNetwork/NN.cfg",
+	int argc = 6;
+	char *argv[6] = {"Train", "TrainedNetwork/NN.cfg",
                     "DataSets/hcd_784_401235_training.bin",
-                    "DataSets/hcd_784_67294_validation.bin", "1"};
+                    "DataSets/hcd_784_67294_validation.bin", "1",
+                    "TrainedNetwork/NeuralNetData_3layers_OCR-MEXA_91.5.dnn"};
 
 
 /*
@@ -108,11 +109,11 @@ int main() {
 		Network_Purge(net);
 		exit(0);
 	} else if (!strcmp(argv[0], "Train")) {
-		if (argc != 4) {
+		if (argc < 4) {
 			printf("\nParameter Error: Expected 4; Got %d\n", argc - 1);
 			printf("Help:\n\tTrain [config file (.cfg)] ");
 			printf("[Training data (.bin)] [Validation data (.bin)]\n");
-			printf("[number of attempt]\n");
+			printf("[number of attempt] [Transfer Network (.dnn)]\n");
 			exit(1);
 		}
 
@@ -137,8 +138,14 @@ int main() {
 		fclose(configFile);
         origin->trainingFile = argv[2];
         origin->validationFile = argv[3];
+        Network *net = NULL;
+        if (argc > 4) {
+            net = malloc(sizeof(Network));
+            Network_Load(net, argv[5]);
+        }
 		LoadData(origin);
-		PerfSearch(origin, NULL, (int)strtol(argv[4], NULL, 10));
+		PerfSearch(origin, net, (int)strtol(argv[4], NULL, 10));
+		if (argc > 4) Network_Purge(net);
 		Purge_NNParam(origin);
 
 	} else {

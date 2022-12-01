@@ -44,6 +44,7 @@ void Network_Init(Network *net, cui nbLayers);
 void Network_AddLayer(Network *net, Layer *layer);
 void Network_Save(Network *net, char name[]);
 void Network_Purge(Network *net);
+Network *Network_DeepCopy(Network *net);
 void Network_Display(Network *net, bool display_matr);
 void Network_Wire(Network *net);
 ui Network_Predict(Network *net, ld *input, cui Size);

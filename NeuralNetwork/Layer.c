@@ -46,6 +46,26 @@ void Layer_Activate(Layer *layer) {
 	layer->activation(layer->input, layer->output, layer->Neurons);
 }
 
+Layer* Layer_DeepCopy(Layer *layer) {
+    Layer *copy = malloc(sizeof(Layer));
+    copy->Neurons = layer->Neurons;
+    copy->conns = layer->conns;
+    copy->loaded = false;
+    copy->pLayer = layer->pLayer;
+    copy->nLayer = layer->nLayer;
+    copy->act_name = layer->act_name;
+    copy->activation = layer->activation;
+    copy->bias = malloc(sizeof(ld) * layer->Neurons);
+    copy->weights = malloc(sizeof(ld) * layer->conns);
+    if (layer->pLayer != NULL) {
+        copy->input = fvec_alloc(layer->Neurons, false);
+		copy->output = fvec_alloc(layer->Neurons, false);
+    }
+    for(ui i=0; i<layer->Neurons; i++) copy->bias[i] = layer->bias[i];
+    for(ui i=0; i<layer->conns; i++) copy->weights[i] = layer->weights[i];
+    return copy;
+}
+
 void Layer_Display(Layer *layer, const ui ieme, bool display_matr) {
 	printf("Layer %u (%p) :\n", ieme, (void *)layer);
 	printf("\t%u neurons", layer->Neurons);

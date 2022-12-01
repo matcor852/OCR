@@ -12,7 +12,7 @@ float Validate(Network *net, const NNParam *P, float bperf);
 void ConfusionMatrix(Network *net, const NNParam *P);
 void OverfitLoad(NNParam *param);
 
-void PerfSearch(NNParam *origin, Network *net, int attempt);
+void PerfSearch(NNParam *origin, Network *netOrg, int attempt);
 void NNParam_Display(NNParam *param);
 void Purge_NNParam(NNParam *param);
 
