@@ -20,6 +20,24 @@ void widgetHider(GtkWidget **widgets, size_t widget_number)
 			gtk_widget_hide(GTK_WIDGET(widgets[i]));
 	return;
 }
+
+gboolean waitForHideWarning(gpointer data)
+{
+	GtkLabel *label = (GtkLabel *)data;
+	gtk_widget_hide(GTK_WIDGET(label));
+	return FALSE;
+}
+
+void displayWarning(GtkLabel *label, char * message)
+{
+	gtk_label_set_text(label, message);
+	gtk_widget_show(GTK_WIDGET(label));
+	g_timeout_add_seconds(1, waitForHideWarning, label);
+	return;
+}
+
+
+
 /*
 WidgetMover *newWidgetMover(GtkFixed *fixed1, GtkWindow *window)
 {

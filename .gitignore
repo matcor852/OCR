@@ -42,6 +42,10 @@
 *.idb
 *.pdb
 
+#Glade
+\#*
+main.glade~
+
 # Kernel Module Compile Results
 *.mod*
 *.cmd

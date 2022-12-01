@@ -14,7 +14,7 @@ void saveImage(Image *image, const char *filename)
 	SDL_Surface *surface = imageToSurface(image);
 	if (IMG_SavePNG(surface, filename) != 0)
 		errx(1, "Error while saving image");
-	printf("Image saved in %s\n", filename);
+	printf("Successfully saved %s\n", filename);
 	SDL_FreeSurface(surface);
 	return;
 }

@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <gtk/gtk.h>
+
 #include "ImageProcessing.h"
 
 #define WINDOW_WIDTH 1000
@@ -15,10 +16,8 @@ typedef struct
     GtkWidget *fixed1;
     GtkBox *box;
     GtkWidget *back_to_menu;
-    GtkWidget *upload_button;
-    GtkWidget *upload_entry;
+    GtkWidget *file_select_grid;
     GtkWidget *sudoku_image;
-
     
     GtkButton *grayscale_button;
     GtkButton *gaussian_button;
@@ -29,11 +28,15 @@ typedef struct
     GtkButton *solve_button;
     GtkButton *save_button;
 
-    GtkGrid *allButtons;
+    GtkWidget *filters_grid;
 
     char *actualPath;
     char *originPath;
+    GtkLabel *upload_warn_label;
 } Menu;
 
 int rmDir(const char *dir);
-void startMenu();
+
+void initUserInterface();
+
+

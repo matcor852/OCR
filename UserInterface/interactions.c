@@ -1,5 +1,7 @@
 #include "interactions.h"
 
+gint slider_handler_id;
+
 void on_upload_button_clicked(GtkWidget *widget, gpointer data)
 {
 	Menu *menu = (Menu *)data;
@@ -20,9 +22,9 @@ void on_upload_button_clicked(GtkWidget *widget, gpointer data)
 		char *filename = gtk_file_chooser_get_filename (chooser);
 		newSudokuImage(menu, filename, "init.png");
 
-		GtkWidget *to_hide[2] = {menu->upload_entry, widget};
-		GtkWidget *to_show[2] = {(GtkWidget *)menu->allButtons, menu->back_to_menu};
-		widgetCleanup(to_hide, 2, to_show, 2);
+		GtkWidget *to_hide[1] = {menu->file_select_grid};
+		GtkWidget *to_show[2] = {menu->filters_grid, menu->back_to_menu};
+		widgetCleanup(to_hide, 1, to_show, 2);
   	}
 	gtk_widget_destroy(dialog);
 }
@@ -37,15 +39,13 @@ void on_upload_entry_activate(GtkWidget *widget, gpointer data)
   	{
 		newSudokuImage(menu, filename, "init.png");
 
-		GtkWidget *to_hide[2] = {menu->upload_button, widget};
-		GtkWidget *to_show[2] = {(GtkWidget *)menu->allButtons, menu->back_to_menu};
-		widgetCleanup(to_hide, 2, to_show, 2);
+		GtkWidget *to_hide[1] = {menu->file_select_grid};
+		GtkWidget *to_show[2] = {menu->filters_grid, menu->back_to_menu};
+		widgetCleanup(to_hide, 1, to_show, 2);
   	}
 	else
 	{
-		char * message;
-		asprintf(&message, "%s not found :/", path);
-		gtk_entry_set_text(GTK_ENTRY(widget), message);
+		displayWarning(menu->upload_warn_label, "File not found");
 	}
 	return;
 }
@@ -53,8 +53,8 @@ void on_upload_entry_activate(GtkWidget *widget, gpointer data)
 void on_back_to_menu_button_clicked(GtkWidget *widget, gpointer data)
 {
 	Menu *menu = (Menu *)data;
-	GtkWidget* to_revive[2] =  {menu->upload_button, menu->upload_entry};
-	GtkWidget* to_destroy[3] =  {menu->sudoku_image, widget, (GtkWidget *)menu->allButtons};
+	GtkWidget* to_revive[2] =  {menu->file_select_grid};
+	GtkWidget* to_destroy[3] =  {menu->sudoku_image, widget, menu->filters_grid};
 	widgetCleanup(to_destroy, 3, to_revive, 2);
 	set_untoggledFilters(menu);
 	destroySudokuImage(menu);
@@ -62,54 +62,19 @@ void on_back_to_menu_button_clicked(GtkWidget *widget, gpointer data)
 	return;
 }
 
-void refreshImage(GtkWidget *widget, gpointer data)
+void connect_slider_handler(GtkWidget *widget, gpointer data)
 {
-	gtk_widget_show(widget);
-	// avoid warning about unused parameter
-	
 	Menu *menu = (Menu *)data;
-	char *location = menu->originPath;
-	Image *toPrint;
-	char *imName;
-	int gr = 0;
-	int ga = 0;
-	int s = 0;
-	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(menu->grayscale_button))){
-		gr = 1;
-		toPrint = openImage(location, 1);
-	}
-	else{toPrint = openImage(location, 4);}
-	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(menu->gaussian_button))){
-		ga = 1;
-		gaussianBlur(toPrint);
-	}
-	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(menu->sobel_button))){
-		s = 1;
-		sobelFilter(toPrint);
-	}
-	int angle = (int)(gtk_range_get_value(GTK_RANGE(menu->angle_slider)) * 400);
-	asprintf(&imName, "gr%dga%ds%d%d.png", gr, ga, s, angle);
-	/*
-	if(angle!=0)
-	{
-		Image *rotated = rotateImage(toPrint, angle, 0);
-		SudokuImageFromImage(menu, rotated, imName);
-		freeImage(rotated);
-		freeImage(toPrint);
-	}
-	else
-	{ */
-		SudokuImageFromImage(menu, toPrint, imName);
-		freeImage(toPrint);
-	//}
+	slider_handler_id = g_signal_connect(G_OBJECT(widget), "value-changed", G_CALLBACK(on_angle_slider_value_changed), menu);
 }
 
 void on_angle_slider_value_changed(GtkWidget *widget, gpointer data)
 {
-	gtk_widget_hide(widget);
+	//Menu *menu = (Menu *)data;
+	//disconnect signal while already rotating the image to avoid spamming
+	g_signal_handler_disconnect(G_OBJECT(widget), slider_handler_id);
 	printf("TODOangle%d\n", (int)(gtk_range_get_value(GTK_RANGE(widget)) * 400));
-	refreshImage(widget, data);
-	gtk_widget_show(widget);
+	connect_slider_handler(widget, data);
 }
 
 void on_save_clicked(GtkWidget *widget, gpointer data)
@@ -153,10 +118,8 @@ void on_save_clicked(GtkWidget *widget, gpointer data)
 void on_autoDetect_clicked(GtkWidget *widget, gpointer data)
 {
 	gtk_widget_show(widget);
-	// avoid warning about unused parameter
 	Menu *menu = (Menu *)data;
-	printf("Automatic detection\n");
-	//TODO: extract grid
+	printf("TODO auto detect %p\n", menu);
 }
 
 void set_untoggledFilters(Menu *menu)
@@ -169,24 +132,16 @@ void set_untoggledFilters(Menu *menu)
 
 void on_resetFilters_clicked(GtkWidget *widget, gpointer data)
 {
-	gtk_widget_show(widget);
-	// avoid warning about unused parameter
-	Menu *menu = (Menu *)data;
-	set_untoggledFilters(menu);
+	set_untoggledFilters((Menu *)data);
 	refreshImage(widget, data);
 }
 
 void on_solve_clicked(GtkWidget *widget, gpointer data)
 {
 	gtk_widget_show(widget);
-	// avoid warning about unused parameter
 	Menu *menu = (Menu *)data;
-	printf("TODO: solve\n");
+	printf("TODO solve %p\n", menu);
 }
-/*
-These 2 function are a try to make 4 points dragable to make a square
-of the sudoku grid. It's not working yet.
-
 
 gboolean on_button_press_event(GtkWidget *widget, GdkEventButton *event, gpointer data)
 {
@@ -232,4 +187,3 @@ gboolean on_motion_notify_event(GtkWidget *widget, GdkEventMotion *event, gpoint
 	}
 	return TRUE;
 }
-*/

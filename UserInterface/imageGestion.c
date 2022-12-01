@@ -47,3 +47,45 @@ void destroySudokuImage(Menu *menu)
 	}
 	return;
 }
+
+void refreshImage(GtkWidget *widget, gpointer data)
+{
+	gtk_widget_show(widget);
+	// avoid warning about unused parameter
+	
+	Menu *menu = (Menu *)data;
+	char *location = menu->originPath;
+	Image *toPrint;
+	char *imName;
+	int gr = 0;
+	int ga = 0;
+	int s = 0;
+	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(menu->grayscale_button))){
+		gr = 1;
+		toPrint = openImage(location, 1);
+	}
+	else{toPrint = openImage(location, 4);}
+	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(menu->gaussian_button))){
+		ga = 1;
+		gaussianBlur(toPrint);
+	}
+	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(menu->sobel_button))){
+		s = 1;
+		sobelFilter(toPrint);
+	}
+	int angle = (int)(gtk_range_get_value(GTK_RANGE(menu->angle_slider)) * 400);
+	asprintf(&imName, "gr%dga%ds%d%d.png", gr, ga, s, angle);
+	/*
+	if(angle!=0)
+	{
+		Image *rotated = rotateImage(toPrint, angle, 0);
+		SudokuImageFromImage(menu, rotated, imName);
+		freeImage(rotated);
+		freeImage(toPrint);
+	}
+	else
+	{ */
+		SudokuImageFromImage(menu, toPrint, imName);
+		freeImage(toPrint);
+	//}
+}
