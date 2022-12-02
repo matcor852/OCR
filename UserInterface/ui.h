@@ -31,7 +31,9 @@ typedef struct
 
     char *actualPath;
     char *originPath;
+
     GtkLabel *upload_warn_label;
+    GtkLabel *filters_warn_label;
 } Menu;
 
 int rmDir(const char *dir);

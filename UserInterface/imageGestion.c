@@ -54,17 +54,30 @@ void refreshImage(GtkWidget *widget, gpointer data)
 	// avoid warning about unused parameter
 	
 	Menu *menu = (Menu *)data;
-	char *location = menu->actualPath;
+	
 	Image *toPrint;
 	char *imName;
+	char *location;
 	int gr = 0;
 	int ga = 0;
 	int s = 0;
+	if (gtk_widget_get_sensitive(GTK_WIDGET(menu->autoDetect_button)) == FALSE)
+	{
+		on_autoDetect_clicked(GTK_WIDGET(menu->autoDetect_button), menu);
+		location = menu->actualPath;
+	}
+	else
+	{
+		location = menu->originPath;
+	}
 	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(menu->grayscale_button))){
 		gr = 1;
 		toPrint = openImage(location, 1);
 	}
-	else{toPrint = openImage(location, 4);}
+	else
+	{
+		toPrint = openImage(location, 4);
+	}
 	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(menu->gaussian_button))){
 		ga = 1;
 		gaussianBlur(toPrint);

@@ -24,6 +24,7 @@ void initUserInterface()
 	GtkButton *solve_button = GTK_BUTTON(gtk_builder_get_object(builder, "solve"));
 
 	GtkLabel *upload_warn_label = GTK_LABEL(gtk_builder_get_object(builder, "upload_warn_label"));
+	GtkLabel *filters_warn_label = GTK_LABEL(gtk_builder_get_object(builder, "filters_warn_label"));
 
 	//---------MENU STRUCT INITIALIZATION---------//
 	char actP[100];
@@ -37,7 +38,7 @@ void initUserInterface()
 		.autoDetect_button = autoDetect_button, .save_button = save_button, .solve_button = solve_button,
 		.filters_grid = filters_grid,
 		.actualPath = actP, .originPath = orP,
-		.upload_warn_label = upload_warn_label
+		.upload_warn_label = upload_warn_label, .filters_warn_label = filters_warn_label
 	};
 	//---------WIDGET MOVER INITIALIZATION---------//
 /*
@@ -66,7 +67,7 @@ void initUserInterface()
 
 	//---------WINDOW  INITIALIZATION---------//
 	gtk_widget_show(GTK_WIDGET (window));
-	gtk_window_set_title(window, "Optical Sudoku Solver");
+	gtk_window_set_title(window, "OCR Project");
 	gtk_window_set_position(window, GTK_WIN_POS_CENTER);
 	gtk_window_set_default_size(window, WINDOW_WIDTH, WINDOW_HEIGHT);
 	gtk_window_set_resizable(window, FALSE);

@@ -28,10 +28,10 @@
           </packing>
         </child>
         <child>
-          <!-- n-columns=2 n-rows=9 -->
+          <!-- n-columns=2 n-rows=10 -->
           <object class="GtkGrid" id="filters_grid">
             <property name="name">filters_grid</property>
-            <property name="width-request">275</property>
+            <property name="width-request">253</property>
             <property name="height-request">346</property>
             <property name="can-focus">False</property>
             <property name="halign">start</property>
@@ -42,7 +42,7 @@
               <object class="GtkButton" id="auto_detect">
                 <property name="label" translatable="yes">Auto detect</property>
                 <property name="name">auto_detect</property>
-                <property name="width-request">114</property>
+                <property name="width-request">112</property>
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
                 <property name="receives-default">True</property>
@@ -72,7 +72,6 @@
               <object class="GtkButton" id="solve">
                 <property name="label" translatable="yes">Solve</property>
                 <property name="name">solve</property>
-                <property name="width-request">220</property>
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
                 <property name="receives-default">True</property>
@@ -172,7 +171,7 @@
               <object class="GtkButton" id="manu_detect">
                 <property name="label" translatable="yes">Manual crop</property>
                 <property name="name">manu_detect</property>
-                <property name="width-request">142</property>
+                <property name="width-request">135</property>
                 <property name="visible">True</property>
                 <property name="can-focus">True</property>
                 <property name="receives-default">True</property>
@@ -181,6 +180,27 @@
               <packing>
                 <property name="left-attach">1</property>
                 <property name="top-attach">5</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="filters_warn_label">
+                <property name="name">filters_warn_label</property>
+                <property name="width-request">105</property>
+                <property name="height-request">28</property>
+                <property name="sensitive">False</property>
+                <property name="can-focus">False</property>
+                <property name="halign">center</property>
+                <property name="valign">start</property>
+                <property name="label" translatable="yes">File not found</property>
+                <attributes>
+                  <attribute name="font-desc" value="Sans Bold 10"/>
+                  <attribute name="foreground" value="#c0c01c1c2828"/>
+                </attributes>
+              </object>
+              <packing>
+                <property name="left-attach">0</property>
+                <property name="top-attach">9</property>
+                <property name="width">2</property>
               </packing>
             </child>
             <child>
@@ -200,8 +220,8 @@
             </child>
           </object>
           <packing>
-            <property name="x">721</property>
-            <property name="y">227</property>
+            <property name="x">741</property>
+            <property name="y">230</property>
           </packing>
         </child>
         <child>
@@ -327,7 +347,24 @@
               </packing>
             </child>
             <child>
-              <placeholder/>
+              <object class="GtkLabel" id="upload_warn_label">
+                <property name="name">upload_warn_label</property>
+                <property name="width-request">105</property>
+                <property name="height-request">28</property>
+                <property name="sensitive">False</property>
+                <property name="can-focus">False</property>
+                <property name="halign">center</property>
+                <property name="valign">start</property>
+                <property name="label" translatable="yes">File not found</property>
+                <attributes>
+                  <attribute name="font-desc" value="Sans Bold 10"/>
+                  <attribute name="foreground" value="#c0c01c1c2828"/>
+                </attributes>
+              </object>
+              <packing>
+                <property name="left-attach">0</property>
+                <property name="top-attach">7</property>
+              </packing>
             </child>
             <child>
               <placeholder/>
@@ -358,26 +395,6 @@
           <packing>
             <property name="x">420</property>
             <property name="y">15</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkLabel" id="upload_warn_label">
-            <property name="name">upload_warn_label</property>
-            <property name="width-request">105</property>
-            <property name="height-request">28</property>
-            <property name="sensitive">False</property>
-            <property name="can-focus">False</property>
-            <property name="halign">center</property>
-            <property name="valign">start</property>
-            <property name="label" translatable="yes">File not found</property>
-            <attributes>
-              <attribute name="font-desc" value="Sans Bold 10"/>
-              <attribute name="foreground" value="#c0c01c1c2828"/>
-            </attributes>
-          </object>
-          <packing>
-            <property name="x">450</property>
-            <property name="y">500</property>
           </packing>
         </child>
       </object>

@@ -4,6 +4,9 @@ gint slider_handler_id;
 
 void on_upload_button_clicked(GtkWidget *widget, gpointer data)
 {
+	gtk_widget_show(widget);
+	//AVOID WARNING
+
 	Menu *menu = (Menu *)data;
 	GtkWidget *dialog;
 	gint res;
@@ -20,11 +23,13 @@ void on_upload_button_clicked(GtkWidget *widget, gpointer data)
   	{
 		GtkFileChooser *chooser = GTK_FILE_CHOOSER (dialog);
 		char *filename = gtk_file_chooser_get_filename (chooser);
+		gtk_window_set_title(menu->window, filename);
+
 		newSudokuImage(menu, filename, "init.png");
 
-		GtkWidget *to_hide[1] = {menu->file_select_grid};
-		GtkWidget *to_show[2] = {menu->filters_grid, menu->back_to_menu};
-		widgetCleanup(to_hide, 1, to_show, 2);
+		GtkWidget *to_hide[] = {menu->file_select_grid, NULL};
+		GtkWidget *to_show[] = {menu->filters_grid, menu->back_to_menu, NULL};
+		widgetCleanup(to_hide, to_show);
   	}
 	gtk_widget_destroy(dialog);
 }
@@ -37,15 +42,14 @@ void on_upload_entry_activate(GtkWidget *widget, gpointer data)
 	char *filename = (char *)path;
 	if (access(filename,F_OK) == 0)
   	{
+		gtk_window_set_title(menu->window, filename);
 		newSudokuImage(menu, filename, "init.png");
-
-		GtkWidget *to_hide[1] = {menu->file_select_grid};
-		GtkWidget *to_show[2] = {menu->filters_grid, menu->back_to_menu};
-		widgetCleanup(to_hide, 1, to_show, 2);
+		GtkWidget *to_hide[] = {menu->file_select_grid, NULL};
+		GtkWidget *to_show[] = {menu->filters_grid, menu->back_to_menu, NULL};
+		widgetCleanup(to_hide, to_show);
   	}
 	else
 	{
-		gtk_fixed_move(GTK_FIXED(menu->fixed1), GTK_WIDGET(menu->upload_warn_label), 450, 500);
 		displayWarning(menu->upload_warn_label, "File not found");
 	}
 	return;
@@ -54,9 +58,10 @@ void on_upload_entry_activate(GtkWidget *widget, gpointer data)
 void on_back_to_menu_button_clicked(GtkWidget *widget, gpointer data)
 {
 	Menu *menu = (Menu *)data;
-	GtkWidget* to_revive[2] =  {menu->file_select_grid};
-	GtkWidget* to_destroy[3] =  {menu->sudoku_image, widget, menu->filters_grid};
-	widgetCleanup(to_destroy, 3, to_revive, 1);
+	gtk_window_set_title(menu->window, "OCR Project");
+	GtkWidget* to_revive[] =  {menu->file_select_grid, NULL};
+	GtkWidget* to_destroy[] =  {menu->sudoku_image, widget, menu->filters_grid, NULL};
+	widgetCleanup(to_destroy, to_revive);
 	resetFilters(menu);
 	destroySudokuImage(menu);
 
@@ -115,9 +120,7 @@ void on_autoDetect_clicked(GtkWidget *widget, gpointer data)
 	Quad *quad = detectGrid(toExtract);
 	if (quad == NULL)
 	{
-		displayWarning(menu->upload_warn_label, "No sudoku found");
-		gtk_fixed_move(GTK_FIXED(menu->fixed1), GTK_WIDGET(menu->upload_warn_label), 800, 600);
-
+		displayWarning(menu->filters_warn_label, "No sudoku found");
 		freeImage(toExtract);
 		freeImage(cp);
 		return;
@@ -132,7 +135,7 @@ void on_autoDetect_clicked(GtkWidget *widget, gpointer data)
 		freeImage(extracted);
 		freeImage(toExtract);
 		freeImage(cp);
-		GtkWidget *toNoSens[] = {(GtkWidget*)menu->autoDetect_button, NULL};
+		GtkWidget *toNoSens[] = {widget, NULL};
 		changeSensivityWidgets(toNoSens, 0);
 	}
 }

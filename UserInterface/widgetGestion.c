@@ -1,15 +1,15 @@
 #include "widgetGestion.h"
 
-void widgetCleanup(GtkWidget ** to_hide, size_t to_hide_number, GtkWidget ** to_show, size_t to_show_number)
+void widgetCleanup(GtkWidget ** to_hide, GtkWidget ** to_show)
 {
-	widgetHider(to_hide, to_hide_number);
-	widgetDisplayer(to_show, to_show_number);
+	widgetHider(to_hide);
+	widgetDisplayer(to_show);
 	return;
 }
 
-void widgetDisplayer(GtkWidget **widgets, size_t widget_number)
+void widgetDisplayer(GtkWidget **widgets)
 {
-	for(size_t i = 0; i < widget_number; i++)
+	for(size_t i = 0; widgets[i] != NULL; i++)
 	{
 		gtk_widget_show(GTK_WIDGET(widgets[i]));
 		//printf("Widget %s displayed\n", gtk_widget_get_name(widgets[i]));
@@ -35,9 +35,9 @@ void changeSensivityWidgets(GtkWidget **widget, int true)
 	}
 }
 
-void widgetHider(GtkWidget **widgets, size_t widget_number)
+void widgetHider(GtkWidget **widgets)
 {
-	for(size_t i = 0; i < widget_number; i++)
+	for(size_t i = 0; widgets[i] != NULL; i++)
 			gtk_widget_hide(GTK_WIDGET(widgets[i]));
 	return;
 }
