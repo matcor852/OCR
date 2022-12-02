@@ -26,6 +26,8 @@ void initUserInterface()
 	GtkLabel *upload_warn_label = GTK_LABEL(gtk_builder_get_object(builder, "upload_warn_label"));
 	GtkLabel *filters_warn_label = GTK_LABEL(gtk_builder_get_object(builder, "filters_warn_label"));
 
+	GtkEventBox *crop_corner1 = GTK_EVENT_BOX(gtk_builder_get_object(builder, "eventBox"));
+
 	//---------MENU STRUCT INITIALIZATION---------//
 	char actP[100];
 	char orP[100];
@@ -64,6 +66,8 @@ void initUserInterface()
 	g_signal_connect(autoDetect_button, "clicked", G_CALLBACK(on_autoDetect_clicked), &menu);
 	g_signal_connect(solve_button, "clicked", G_CALLBACK(on_solve_clicked), &menu);
 	g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit),NULL);
+	
+	g_signal_connect(GTK_WIDGET(crop_corner1), "motion-notify-event", G_CALLBACK(on_crop_corner_move), &menu);
 
 	//---------WINDOW  INITIALIZATION---------//
 	gtk_widget_show(GTK_WIDGET (window));
@@ -97,8 +101,7 @@ int rmDir(const char *dir)
         case FTS_NS:
         case FTS_DNR:
         case FTS_ERR:
-            fprintf(stderr, "%s: fts_read error: %s\n",
-                    curr->fts_accpath, strerror(curr->fts_errno));
+			ret = -1;
             break;
         case FTS_DC:
         case FTS_DOT:

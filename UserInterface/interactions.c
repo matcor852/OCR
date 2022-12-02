@@ -171,6 +171,22 @@ void on_solve_clicked(GtkWidget *widget, gpointer data)
 	printf("TODO solve %p\n", menu);
 }
 
+gboolean on_crop_corner_move(GtkWidget *widget, GdkEvent *event, gpointer data)
+{
+	Menu *menu = (Menu *)data;
+
+	gint actualX, actualY;
+	gtk_widget_translate_coordinates(widget, gtk_widget_get_toplevel(widget), 0, 0, &actualX, &actualY);
+
+	gint mouseX = event->button.x, mouseY = event->button.y;
+	gtk_fixed_move(GTK_FIXED(menu->fixed1), widget, actualX + mouseX, actualY + mouseY);
+
+	//printf("x: %d, y: %d\n", actualX + mouseX, actualY + mouseY);
+
+	return TRUE;
+	
+}
+
 gboolean on_button_press_event(GtkWidget *widget, GdkEventButton *event, gpointer data)
 {
 	WidgetMover *mover = (WidgetMover *)data;
@@ -178,16 +194,11 @@ gboolean on_button_press_event(GtkWidget *widget, GdkEventButton *event, gpointe
 	{
 		if (event->button == 1)
 		{
-			// offset == distance of parent widget from edge of screen ...
 			int winW, winH;
 			gtk_window_get_size (mover->window, &winW, &winH);
 			printf("winW: %d, winH: %d\n", winW, winH);
 			int widgetW, widgetH;
 			gtk_widget_get_size_request(widget, &widgetW, &widgetH);
-			// plus distance from pointer to edge of widget
-			// maxx, maxy both relative to the parent
-			// note that we're rounding down now so that these max values don't get
-			// rounded upward later and push the widget off the edge of its parent.
 			*mover->maxX = winW;
 			*mover->maxY = winH;
 		}
@@ -197,16 +208,10 @@ gboolean on_button_press_event(GtkWidget *widget, GdkEventButton *event, gpointe
 
 gboolean on_motion_notify_event(GtkWidget *widget, GdkEventMotion *event, gpointer data)
 {
-	// x_root,x_root relative to screen
-	// x,y relative to parent (fixed widget)
-	// px,py stores previous values of x,y
 	WidgetMover *mover = (WidgetMover *)data;
 	// get starting values for x,y
 	int x = event->x;
 	int y = event->y;
-	// make sure the potential coordinates x,y:
-	//   1) will not push any part of the widget outside of its parent container
-	//   2) is a multiple of Sensitivity
 	if (x != *mover->posX || y != *mover->posY)
 	{
 		*mover->posX = x;

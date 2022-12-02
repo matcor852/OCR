@@ -56,37 +56,3 @@ void displayWarning(GtkLabel *label, char * message)
 	g_timeout_add_seconds(1, waitForHideWarning, label);
 	return;
 }
-
-
-
-/*
-WidgetMover *newWidgetMover(GtkFixed *fixed1, GtkWindow *window)
-{
-	WidgetMover *widgetMover = malloc(sizeof(WidgetMover));
-	widgetMover->fixed1 = fixed1;
-	widgetMover->window = window;
-	widgetMover->posX = malloc(sizeof(int));
-	widgetMover->posY = malloc(sizeof(int));
-	widgetMover->offsetX = malloc(sizeof(int));
-	widgetMover->offsetY = malloc(sizeof(int));
-	widgetMover->maxX = malloc(sizeof(int));
-	widgetMover->maxY = malloc(sizeof(int));
-	*(widgetMover->offsetX) = 0;
-	*(widgetMover->offsetY) = 0;
-	*(widgetMover->maxX) = 0;
-	*(widgetMover->maxY) = 0;
-	return widgetMover;
-}
-
-void destroyWidgetMover(WidgetMover *widgetMover)
-{
-	free(widgetMover->posX);
-	free(widgetMover->posY);
-	free(widgetMover->offsetX);
-	free(widgetMover->offsetY);
-	free(widgetMover->maxX);
-	free(widgetMover->maxY);
-	free(widgetMover);
-	return;
-}
-*/
