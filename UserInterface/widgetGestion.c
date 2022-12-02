@@ -10,8 +10,29 @@ void widgetCleanup(GtkWidget ** to_hide, size_t to_hide_number, GtkWidget ** to_
 void widgetDisplayer(GtkWidget **widgets, size_t widget_number)
 {
 	for(size_t i = 0; i < widget_number; i++)
+	{
 		gtk_widget_show(GTK_WIDGET(widgets[i]));
+		//printf("Widget %s displayed\n", gtk_widget_get_name(widgets[i]));
+	}
 	return;
+}
+
+void changeSensivityWidgets(GtkWidget **widget, int true)
+{
+	if (true)
+	{
+		for (int i = 0; widget[i] != NULL; i++)
+		{
+			gtk_widget_set_sensitive(widget[i], TRUE);
+		}
+	}
+	else
+	{
+		for (int i = 0; widget[i] != NULL; i++)
+		{
+			gtk_widget_set_sensitive(widget[i], FALSE);
+		}
+	}
 }
 
 void widgetHider(GtkWidget **widgets, size_t widget_number)

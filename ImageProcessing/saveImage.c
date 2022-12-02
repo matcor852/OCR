@@ -19,20 +19,6 @@ void saveImage(Image *image, const char *filename)
 	return;
 }
 
-void tmpSaveImage(Image *image, char *destname)
-{
-	SDL_Surface *surface = imageToSurface(image);
-	char path[40];
-	struct stat st_ = {0};
-	if (stat("tmp/", &st_) == -1)
-		mkdir("tmp/", 0700);
-	sprintf(path, "%s", destname);
-	if (IMG_SavePNG(surface, path) != 0)
-		errx(1, "Error while saving temp image");
-	SDL_FreeSurface(surface);
-	return;
-}
-
 Image *getCell(Image *image, int i, int j)
 {
 	int cell_size = 38;

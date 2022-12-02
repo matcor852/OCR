@@ -16,18 +16,20 @@ void on_back_to_menu_button_clicked(GtkWidget *widget, gpointer data);
 
 void on_save_clicked(GtkWidget *widget, gpointer data);
 
-void set_untoggledFilters(Menu *menu);
+void resetFilters(Menu *menu);
 
 void on_resetFilters_clicked(GtkWidget *widget, gpointer data);
 
 void on_autoDetect_clicked(GtkWidget *widget, gpointer data);
-
-void connect_slider_handler(GtkWidget *widget, gpointer data);
-
-void on_angle_slider_value_changed(GtkWidget *widget, gpointer data);
 
 void on_solve_clicked(GtkWidget *widget, gpointer data);
 
 gboolean on_button_press_event(GtkWidget *w, GdkEventButton *event, gpointer data);
 
 gboolean on_motion_notify_event(GtkWidget *widget, GdkEventMotion *event, gpointer data);
+
+/*
+void connect_slider_handler(GtkWidget *widget, gpointer data);
+
+void on_angle_slider_value_changed(GtkWidget *widget, gpointer data);
+*/

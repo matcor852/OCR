@@ -540,7 +540,6 @@ Quad *detectGrid(Image *image)
 		if (quad)
 			break;
 	}
-	showLines(image, segments, nb_segments, 255, 0, 0, 1);
 	freeSegments(segments, nb_segments);
 	return quad;
 }

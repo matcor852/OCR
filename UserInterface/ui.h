@@ -22,7 +22,6 @@ typedef struct
     GtkButton *grayscale_button;
     GtkButton *gaussian_button;
     GtkButton *sobel_button;
-    GtkScale *angle_slider;
 
     GtkButton *autoDetect_button;
     GtkButton *solve_button;

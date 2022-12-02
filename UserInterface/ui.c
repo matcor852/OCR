@@ -18,7 +18,6 @@ void initUserInterface()
 	GtkButton *grayscale_button = GTK_BUTTON(gtk_builder_get_object(builder, "grayscale"));
 	GtkButton *gaussian_button = GTK_BUTTON(gtk_builder_get_object(builder, "gaussian"));
 	GtkButton *sobel_button = GTK_BUTTON(gtk_builder_get_object(builder, "sobel"));
-	GtkScale* angle_slider = GTK_SCALE(gtk_builder_get_object(builder, "angle_slider"));
 	GtkButton *resetFilters_button = GTK_BUTTON(gtk_builder_get_object(builder, "resetFilters"));
 	GtkButton *autoDetect_button = GTK_BUTTON(gtk_builder_get_object(builder, "auto_detect"));
 	GtkButton *save_button = GTK_BUTTON(gtk_builder_get_object(builder, "save"));
@@ -35,14 +34,15 @@ void initUserInterface()
         .back_to_menu = back_to_menu, .file_select_grid = file_select_grid,
         .sudoku_image = sudoku_image,
 		.grayscale_button = grayscale_button, .gaussian_button = gaussian_button, .sobel_button = sobel_button,
-		.angle_slider = angle_slider,
 		.autoDetect_button = autoDetect_button, .save_button = save_button, .solve_button = solve_button,
 		.filters_grid = filters_grid,
 		.actualPath = actP, .originPath = orP,
 		.upload_warn_label = upload_warn_label
 	};
 	//---------WIDGET MOVER INITIALIZATION---------//
+/*
 	int posX = 0, posY = 0, offsetX = 0, offsetY = 0, maxX = 0, maxY = 0;
+
 	WidgetMover mover =
 	{
 		.fixed1 = GTK_FIXED(fixed1), .window = window,
@@ -50,7 +50,7 @@ void initUserInterface()
 		.offsetX = &offsetX, .offsetY = &offsetY,
 		.maxX = &maxX, .maxY = &maxY
 	};
-
+*/
 	//-----------------SIGNALS CONNECTION-----------------//
 	g_signal_connect(back_to_menu, "clicked", G_CALLBACK(on_back_to_menu_button_clicked), &menu);
 	g_signal_connect(upload_button, "clicked", G_CALLBACK(on_upload_button_clicked), &menu);
@@ -58,7 +58,6 @@ void initUserInterface()
 	g_signal_connect(grayscale_button, "toggled", G_CALLBACK(refreshImage), &menu);
 	g_signal_connect(gaussian_button, "toggled", G_CALLBACK(refreshImage), &menu);
 	g_signal_connect(sobel_button, "toggled", G_CALLBACK(refreshImage), &menu);
-	connect_slider_handler(GTK_WIDGET(angle_slider), &menu);
 	g_signal_connect(save_button, "clicked", G_CALLBACK(on_save_clicked), &menu);
 	g_signal_connect(resetFilters_button, "clicked", G_CALLBACK(on_resetFilters_clicked), &menu);
 	g_signal_connect(autoDetect_button, "clicked", G_CALLBACK(on_autoDetect_clicked), &menu);
@@ -89,7 +88,6 @@ int rmDir(const char *dir)
     char *files[] = { (char *) dir, NULL };
     ftsp = fts_open(files, FTS_NOCHDIR | FTS_PHYSICAL | FTS_XDEV, NULL);
     if (!ftsp) {
-        fprintf(stderr, "%s: fts_open failed: %s\n", dir, strerror(errno));
         ret = -1;
         goto finish;
     }

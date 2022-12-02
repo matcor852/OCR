@@ -6,7 +6,7 @@ void newSudokuImage(Menu *menu, char *filename, char *destname)
 	if (menu->sudoku_image != NULL)
 		gtk_widget_destroy(GTK_WIDGET(menu->sudoku_image));
 	Image *image = openImage(filename, 4);
-	resizeImage(image, 500, 500);
+	autoResize(image, WINDOW_WIDTH*0.6, WINDOW_HEIGHT*0.6);
 	char * s;
 	asprintf(&s, "tmp/%s",destname);
 
@@ -14,7 +14,7 @@ void newSudokuImage(Menu *menu, char *filename, char *destname)
 	menu->sudoku_image = gtk_image_new_from_file(s);
 	gtk_widget_show(menu->sudoku_image);
 	gtk_container_add (GTK_CONTAINER (menu->fixed1), menu->sudoku_image);
-	gtk_fixed_move (GTK_FIXED(menu->fixed1), menu->sudoku_image, (WINDOW_WIDTH - 500) / 3, (WINDOW_HEIGHT - 500 + 50) / 2);
+	gtk_fixed_move (GTK_FIXED(menu->fixed1), menu->sudoku_image, (WINDOW_WIDTH - 245 - image->width) / 2, (WINDOW_HEIGHT - 500 + 50) / 2);
 	menu->actualPath = s;
 	menu->originPath = s;
 	freeImage(image);
@@ -22,7 +22,7 @@ void newSudokuImage(Menu *menu, char *filename, char *destname)
 
 void SudokuImageFromImage(Menu *menu, Image *image, char *destname)
 {
-	resizeImage(image, 500, 500);
+	autoResize(image, WINDOW_WIDTH*0.6, WINDOW_HEIGHT*0.6);
 	char * s;
 	asprintf(&s, "tmp/%s",destname);
 	tmpSaveImage(image, s);
@@ -33,7 +33,7 @@ void SudokuImageFromImage(Menu *menu, Image *image, char *destname)
 	gtk_widget_show(menu->sudoku_image);
 
 	gtk_container_add (GTK_CONTAINER (menu->fixed1), menu->sudoku_image);
-	gtk_fixed_move (GTK_FIXED(menu->fixed1), menu->sudoku_image, (WINDOW_WIDTH - 500) / 3, (WINDOW_HEIGHT - 500 + 50) / 2);
+	gtk_fixed_move (GTK_FIXED(menu->fixed1), menu->sudoku_image, (WINDOW_WIDTH - 245 - image->width) / 2, (WINDOW_HEIGHT - 500 + 50) / 2);
 	menu->actualPath = s;
 }
 
@@ -54,7 +54,7 @@ void refreshImage(GtkWidget *widget, gpointer data)
 	// avoid warning about unused parameter
 	
 	Menu *menu = (Menu *)data;
-	char *location = menu->originPath;
+	char *location = menu->actualPath;
 	Image *toPrint;
 	char *imName;
 	int gr = 0;
@@ -73,19 +73,22 @@ void refreshImage(GtkWidget *widget, gpointer data)
 		s = 1;
 		sobelFilter(toPrint);
 	}
-	int angle = (int)(gtk_range_get_value(GTK_RANGE(menu->angle_slider)) * 400);
-	asprintf(&imName, "gr%dga%ds%d%d.png", gr, ga, s, angle);
-	/*
-	if(angle!=0)
-	{
-		Image *rotated = rotateImage(toPrint, angle, 0);
-		SudokuImageFromImage(menu, rotated, imName);
-		freeImage(rotated);
-		freeImage(toPrint);
-	}
-	else
-	{ */
-		SudokuImageFromImage(menu, toPrint, imName);
-		freeImage(toPrint);
-	//}
+	asprintf(&imName, "gr%dga%ds%d.png", gr, ga, s);
+	SudokuImageFromImage(menu, toPrint, imName);
+	freeImage(toPrint);
+
+}
+
+void tmpSaveImage(Image *image, char *destname)
+{
+	SDL_Surface *surface = imageToSurface(image);
+	char path[40];
+	struct stat st_ = {0};
+	if (stat("tmp/", &st_) == -1)
+		mkdir("tmp/", 0700);
+	sprintf(path, "%s", destname);
+	if (IMG_SavePNG(surface, path) != 0)
+		errx(1, "Error while saving temp image");
+	SDL_FreeSurface(surface);
+	return;
 }

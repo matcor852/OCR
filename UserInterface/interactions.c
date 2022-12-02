@@ -45,6 +45,7 @@ void on_upload_entry_activate(GtkWidget *widget, gpointer data)
   	}
 	else
 	{
+		gtk_fixed_move(GTK_FIXED(menu->fixed1), GTK_WIDGET(menu->upload_warn_label), 450, 500);
 		displayWarning(menu->upload_warn_label, "File not found");
 	}
 	return;
@@ -55,26 +56,11 @@ void on_back_to_menu_button_clicked(GtkWidget *widget, gpointer data)
 	Menu *menu = (Menu *)data;
 	GtkWidget* to_revive[2] =  {menu->file_select_grid};
 	GtkWidget* to_destroy[3] =  {menu->sudoku_image, widget, menu->filters_grid};
-	widgetCleanup(to_destroy, 3, to_revive, 2);
-	set_untoggledFilters(menu);
+	widgetCleanup(to_destroy, 3, to_revive, 1);
+	resetFilters(menu);
 	destroySudokuImage(menu);
 
 	return;
-}
-
-void connect_slider_handler(GtkWidget *widget, gpointer data)
-{
-	Menu *menu = (Menu *)data;
-	slider_handler_id = g_signal_connect(G_OBJECT(widget), "value-changed", G_CALLBACK(on_angle_slider_value_changed), menu);
-}
-
-void on_angle_slider_value_changed(GtkWidget *widget, gpointer data)
-{
-	//Menu *menu = (Menu *)data;
-	//disconnect signal while already rotating the image to avoid spamming
-	g_signal_handler_disconnect(G_OBJECT(widget), slider_handler_id);
-	printf("TODOangle%d\n", (int)(gtk_range_get_value(GTK_RANGE(widget)) * 400));
-	connect_slider_handler(widget, data);
 }
 
 void on_save_clicked(GtkWidget *widget, gpointer data)
@@ -117,22 +103,61 @@ void on_save_clicked(GtkWidget *widget, gpointer data)
 
 void on_autoDetect_clicked(GtkWidget *widget, gpointer data)
 {
-	gtk_widget_show(widget);
 	Menu *menu = (Menu *)data;
-	printf("TODO auto detect %p\n", menu);
+	resetFilters(menu);
+	Image *toExtract = openImage(menu->originPath, 1);
+	Image *cp = copyImage(toExtract);
+	autoResize(toExtract, WINDOW_WIDTH*0.6, WINDOW_HEIGHT*0.6);
+	initTrig();
+	gaussianBlur(toExtract);
+	sobelFilter(toExtract);
+	thresholdToUpper(toExtract, 16);
+	Quad *quad = detectGrid(toExtract);
+	if (quad == NULL)
+	{
+		displayWarning(menu->upload_warn_label, "No sudoku found");
+		gtk_fixed_move(GTK_FIXED(menu->fixed1), GTK_WIDGET(menu->upload_warn_label), 800, 600);
+
+		freeImage(toExtract);
+		freeImage(cp);
+		return;
+	}
+	else
+	{
+		Image *extracted = extractGrid(cp, quad, toExtract->width, toExtract->height);
+		char *path;
+		asprintf(&path, "%d%s", rand() % 20, "extracted.png");
+		SudokuImageFromImage(menu, extracted, path);
+		freeQuad(quad);
+		freeImage(extracted);
+		freeImage(toExtract);
+		freeImage(cp);
+		GtkWidget *toNoSens[] = {(GtkWidget*)menu->autoDetect_button, NULL};
+		changeSensivityWidgets(toNoSens, 0);
+	}
 }
 
-void set_untoggledFilters(Menu *menu)
+void resetFilters(Menu *menu)
 {
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(menu->grayscale_button), FALSE);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(menu->gaussian_button), FALSE);
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(menu->sobel_button), FALSE);
-	gtk_range_set_value (GTK_RANGE(menu->angle_slider), 0);
+	GtkWidget *toSens[] = {(GtkWidget*)menu->autoDetect_button, 
+							(GtkWidget*)menu->grayscale_button,
+							(GtkWidget*)menu->gaussian_button,
+							(GtkWidget*)menu->sobel_button, NULL};
+	changeSensivityWidgets(toSens, 1);
 }
 
 void on_resetFilters_clicked(GtkWidget *widget, gpointer data)
 {
-	set_untoggledFilters((Menu *)data);
+	Menu *menu = (Menu *)data;
+	resetFilters(menu);
+	GtkWidget *toSens[] = {(GtkWidget*)menu->autoDetect_button, 
+							(GtkWidget*)menu->grayscale_button,
+							(GtkWidget*)menu->gaussian_button,
+							(GtkWidget*)menu->sobel_button, NULL};
+	changeSensivityWidgets(toSens, 1);
 	refreshImage(widget, data);
 }
 
@@ -187,3 +212,20 @@ gboolean on_motion_notify_event(GtkWidget *widget, GdkEventMotion *event, gpoint
 	}
 	return TRUE;
 }
+
+/*
+void connect_slider_handler(GtkWidget *widget, gpointer data)
+{
+	Menu *menu = (Menu *)data;
+	slider_handler_id = g_signal_connect(G_OBJECT(widget), "value-changed", G_CALLBACK(on_angle_slider_value_changed), menu);
+}
+
+void on_angle_slider_value_changed(GtkWidget *widget, gpointer data)
+{
+	//Menu *menu = (Menu *)data;
+	//disconnect signal while already rotating the image to avoid spamming
+	g_signal_handler_disconnect(G_OBJECT(widget), slider_handler_id);
+	printf("TODOangle%d\n", (int)(gtk_range_get_value(GTK_RANGE(widget)) * 400));
+	connect_slider_handler(widget, data);
+}
+*/
