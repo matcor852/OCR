@@ -228,6 +228,7 @@ void PerfSearch(NNParam *origin, Network *netOrg, int attempt) {
 		}
 
 		printf("[ Epoch %u/%u ] Accuracy : ", origin->epoch, origin->epoch);
+		//Network_Display(net, false);
 		curr_perf = Validate(net, origin, bperf);
 		if (curr_perf >= 100.0f) maxed = 1;
 		if (curr_perf > bperf) {
@@ -238,7 +239,6 @@ void PerfSearch(NNParam *origin, Network *netOrg, int attempt) {
 			Network_Save(net, s);
 			free(s);
 		}
-		// Network_Display(net, true);
 		ConfusionMatrix(net, origin);
 		Optimizer_Dispose(net, origin->optimizer, !attempt);
 		Network_Purge(net);

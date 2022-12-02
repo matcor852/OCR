@@ -57,7 +57,6 @@ void Network_Load(Network *net, char path[]) {
 			strcpy(act_name, "none");
 			Layer_Init(&layer, NULL, NULL, saved.Neurons, NULL, NULL, true,
 					   act_name);
-			free(act_name);
 		}
 		Network_AddLayer(net, &layer);
 		lSave = &layer;
@@ -115,6 +114,7 @@ Network *Network_DeepCopy(Network *net) {
     copy->layers = malloc(sizeof(Layer) * net->nbLayers);
     for (ui i=0; i<net->nbLayers; i++)
         copy->layers[i] = *Layer_DeepCopy(&net->layers[i]);
+    Network_Wire(copy);
     return copy;
 }
 
