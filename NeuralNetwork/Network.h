@@ -47,7 +47,7 @@ void Network_Purge(Network *net);
 Network *Network_DeepCopy(Network *net);
 void Network_Display(Network *net, bool display_matr);
 void Network_Wire(Network *net);
-ui Network_Predict(Network *net, ld *input, cui Size);
+float *Network_Predict(Network *net, ld *input, cui Size);
 ld *Network_Validate(Network *net, ld *input, cui Size, bool os1);
 void Network_Train(Network *net, NNParam *params);
 static void Network_Forward(Network *net, ld *input, cui iSize);

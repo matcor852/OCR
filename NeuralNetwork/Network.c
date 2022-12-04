@@ -133,17 +133,12 @@ Layer *lvec_alloc(cui n) {
 	return tmp;
 }
 
-ui Network_Predict(Network *net, ld *input, cui Size) {
+float *Network_Predict(Network *net, ld *input, cui Size) {
 	Network_Forward(net, input, Size);
 	Layer *l = &net->layers[net->nbLayers - 1];
-	if (l->Neurons == 1) {
-		step(l->output, l->output, l->Neurons);
-		return l->output[0] > 0 ? 1 : 0;
-	} else argmax(l->output, l->output, l->Neurons);
-	ui i = 0;
-	for (; i < l->Neurons; i++)
-		if (l->output[i] >= 1.0L) return i;
-	return i;
+	float *rtn = malloc(sizeof(float)*l->Neurons);
+	for(ui i=0; i<l->Neurons; i++) rtn[i] = (float)l->output[i];
+	return rtn;
 }
 
 ld *Network_Validate(Network *net, ld *input, cui Size, bool os1) {

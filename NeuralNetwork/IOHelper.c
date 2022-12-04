@@ -204,6 +204,7 @@ void PerfSearch(NNParam *origin, Network *netOrg, int attempt) {
 	while (attempt > 0 && !maxed) {
 		srand((ui)time(NULL));
 		Network *net = netOrg == NULL ? NetCreate(origin) : Network_DeepCopy(netOrg);
+		Network_Display(net, false);
 		if (origin->track) fclose(fopen(origin->StatsFile, "w"));
 		Optimizer_Init(net, origin->optimizer);
 		for (ui e = 0; e < origin->epoch && !maxed;) {
