@@ -66,9 +66,9 @@ int main() {
 
 	int argc = 6;
 	char *argv[6] = {"Train", "TrainedNetwork/NN.cfg",
-                    "DataSets/hcd_784_40972_training.bin",
-                    "DataSets/hcd_784_6828_validation.bin", "1",
-                    "TrainedNetwork/NeuralNetData_3layers_OCR-MEXA_91.5.dnn"};
+                    "DataSets/hcd_784_400038_training.bin",
+                    "DataSets/hcd_784_67143_validation.bin", "1",
+                    "TrainedNetwork/NeuralNetData_3layers_OCR-MEXA_92.55.dnn"};
 
 
 /*

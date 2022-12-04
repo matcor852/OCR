@@ -211,7 +211,7 @@ void PerfSearch(NNParam *origin, Network *netOrg, int attempt) {
 			curr_perf = Validate(net, origin, bperf);
 			if (curr_perf > bperf) {
 				bperf = curr_perf;
-				ui ns = strlen(origin->NNName)+6;
+				ui ns = strlen(origin->NNName)+7;
 				char *s = malloc(sizeof(char) * (ns));
 				snprintf(s, ns, "%s_%.2f", origin->NNName, bperf);
 				Network_Save(net, s);
@@ -228,13 +228,12 @@ void PerfSearch(NNParam *origin, Network *netOrg, int attempt) {
 		}
 
 		printf("[ Epoch %u/%u ] Accuracy : ", origin->epoch, origin->epoch);
-		//Network_Display(net, false);
 		curr_perf = Validate(net, origin, bperf);
 		if (curr_perf >= 100.0f) maxed = 1;
 		if (curr_perf > bperf) {
 			bperf = curr_perf;
-			ui ns = strlen(origin->NNName);
-			char *s = malloc(sizeof(char) * (ns+1));
+			ui ns = strlen(origin->NNName)+7;
+			char *s = malloc(sizeof(char) * (ns));
 			snprintf(s, ns, "%s_%.2f", origin->NNName, bperf);
 			Network_Save(net, s);
 			free(s);
