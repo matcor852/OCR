@@ -6,10 +6,13 @@
 #include "widgetGestion.h"
 #include "interactions.h"
 
-void newSudokuImage(Menu *menu, char *filename, char *destname);
-void SudokuImageFromImage(Menu *menu, Image *image, char *destname);
+void newSudokuImage(Menu *menu, char *filename);
+
+void SudokuImageFromImage(Menu *menu, Image *image);
 
 void destroySudokuImage(Menu *menu);
+
+Image *actualImage(Menu *menu);
 
 void refreshImage(GtkWidget *widget, gpointer data);
 

@@ -23,13 +23,21 @@ void initUserInterface()
 	GtkButton *save_button = GTK_BUTTON(gtk_builder_get_object(builder, "save"));
 	GtkButton *solve_button = GTK_BUTTON(gtk_builder_get_object(builder, "solve"));
 
+	GtkButton *manuDetect_button = GTK_BUTTON(gtk_builder_get_object(builder, "manu_detect"));
+	GtkButton *rotate_left_button = GTK_BUTTON(gtk_builder_get_object(builder, "rotate_left"));
+	GtkButton *rotate_right_button = GTK_BUTTON(gtk_builder_get_object(builder, "rotate_right"));
+
 	GtkLabel *upload_warn_label = GTK_LABEL(gtk_builder_get_object(builder, "upload_warn_label"));
 	GtkLabel *filters_warn_label = GTK_LABEL(gtk_builder_get_object(builder, "filters_warn_label"));
 
-	GtkEventBox *crop_corner1 = GTK_EVENT_BOX(gtk_builder_get_object(builder, "eventBox"));
+	GtkEventBox *crop_corner1 = GTK_EVENT_BOX(gtk_builder_get_object(builder, "crop_corner1"));
+	GtkEventBox *crop_corner2 = GTK_EVENT_BOX(gtk_builder_get_object(builder, "crop_corner2"));
+	GtkEventBox *crop_corner3 = GTK_EVENT_BOX(gtk_builder_get_object(builder, "crop_corner3"));
+	GtkEventBox *crop_corner4 = GTK_EVENT_BOX(gtk_builder_get_object(builder, "crop_corner4"));
+	GtkWidget *to_hide[] = {GTK_WIDGET(crop_corner1), GTK_WIDGET(crop_corner2), GTK_WIDGET(crop_corner3), GTK_WIDGET(crop_corner4), NULL};
+	widgetHider(to_hide);
 
 	//---------MENU STRUCT INITIALIZATION---------//
-	char actP[100];
 	char orP[100];
 	Menu menu =
     {
@@ -39,7 +47,7 @@ void initUserInterface()
 		.grayscale_button = grayscale_button, .gaussian_button = gaussian_button, .sobel_button = sobel_button,
 		.autoDetect_button = autoDetect_button, .save_button = save_button, .solve_button = solve_button,
 		.filters_grid = filters_grid,
-		.actualPath = actP, .originPath = orP,
+		.originPath = orP, .originImage = NULL,
 		.upload_warn_label = upload_warn_label, .filters_warn_label = filters_warn_label
 	};
 	//---------WIDGET MOVER INITIALIZATION---------//
@@ -58,16 +66,27 @@ void initUserInterface()
 	g_signal_connect(back_to_menu, "clicked", G_CALLBACK(on_back_to_menu_button_clicked), &menu);
 	g_signal_connect(upload_button, "clicked", G_CALLBACK(on_upload_button_clicked), &menu);
 	g_signal_connect(upload_entry, "activate", G_CALLBACK(on_upload_entry_activate), &menu);
-	g_signal_connect(grayscale_button, "toggled", G_CALLBACK(refreshImage), &menu);
+	g_signal_connect(grayscale_button, "toggled", G_CALLBACK(on_grayscale_toggled), &menu);
 	g_signal_connect(gaussian_button, "toggled", G_CALLBACK(refreshImage), &menu);
 	g_signal_connect(sobel_button, "toggled", G_CALLBACK(refreshImage), &menu);
 	g_signal_connect(save_button, "clicked", G_CALLBACK(on_save_clicked), &menu);
 	g_signal_connect(resetFilters_button, "clicked", G_CALLBACK(on_resetFilters_clicked), &menu);
+
+	g_signal_connect(manuDetect_button, "clicked", G_CALLBACK(on_manuDetect_clicked), &menu);
+	g_signal_connect(rotate_left_button, "clicked", G_CALLBACK(on_rotate_left_clicked), &menu);
+	g_signal_connect(rotate_right_button, "clicked", G_CALLBACK(on_rotate_right_clicked), &menu);
+
 	g_signal_connect(autoDetect_button, "clicked", G_CALLBACK(on_autoDetect_clicked), &menu);
 	g_signal_connect(solve_button, "clicked", G_CALLBACK(on_solve_clicked), &menu);
 	g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit),NULL);
 	
+	//g_signal_connect(GTK_WIDGET(crop_corner1), "motion-notify-event", G_CALLBACK(on_crop_corner_move), &menu);
 	g_signal_connect(GTK_WIDGET(crop_corner1), "motion-notify-event", G_CALLBACK(on_crop_corner_move), &menu);
+	g_signal_connect(GTK_WIDGET(crop_corner2), "motion-notify-event", G_CALLBACK(on_crop_corner_move), &menu);
+	g_signal_connect(GTK_WIDGET(crop_corner3), "motion-notify-event", G_CALLBACK(on_crop_corner_move), &menu);
+	g_signal_connect(GTK_WIDGET(crop_corner4), "motion-notify-event", G_CALLBACK(on_crop_corner_move), &menu);
+	g_signal_connect(GTK_WIDGET(crop_corner1), "key-press-event", G_CALLBACK(leave_manual_crop), &menu);
+
 
 	//---------WINDOW  INITIALIZATION---------//
 	gtk_widget_show(GTK_WIDGET (window));
@@ -81,6 +100,10 @@ void initUserInterface()
 	
 	//---------BEFORE END OF PROGRAM---------//
 	gtk_widget_destroy(GTK_WIDGET(window));
+	if (menu.originImage != NULL)
+	{
+		freeImage(menu.originImage);
+	}
 	rmDir("tmp/");
 	return;
 }

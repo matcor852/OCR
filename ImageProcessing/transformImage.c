@@ -4,7 +4,7 @@ void toGrey(Image *image)
 {
 	uc nb_channels = image->nb_channels;
 	if (nb_channels == 1)
-		errx(EXIT_FAILURE, "image already in grey");
+		return;
 	st width = image->width, height = image->height;
 	Image *new_image = newImage(1, width, height);
 	st len = width * height;

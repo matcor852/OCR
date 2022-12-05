@@ -29,7 +29,7 @@ typedef struct
 
     GtkWidget *filters_grid;
 
-    char *actualPath;
+    Image *originImage;
     char *originPath;
 
     GtkLabel *upload_warn_label;
