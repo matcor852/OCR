@@ -423,7 +423,6 @@
         <child>
           <object class="GtkEventBox" id="crop_corner4">
             <property name="name">crop_corner4</property>
-            <property name="visible">True</property>
             <property name="can-focus">False</property>
             <property name="halign">center</property>
             <property name="valign">center</property>
@@ -444,7 +443,6 @@
         <child>
           <object class="GtkEventBox" id="crop_corner3">
             <property name="name">crop_corner3</property>
-            <property name="visible">True</property>
             <property name="can-focus">False</property>
             <property name="halign">center</property>
             <property name="valign">center</property>
@@ -465,7 +463,6 @@
         <child>
           <object class="GtkEventBox" id="crop_corner2">
             <property name="name">crop_corner2</property>
-            <property name="visible">True</property>
             <property name="can-focus">False</property>
             <property name="halign">center</property>
             <property name="valign">center</property>
@@ -486,7 +483,6 @@
         <child>
           <object class="GtkEventBox" id="crop_corner1">
             <property name="name">crop_corner1</property>
-            <property name="visible">True</property>
             <property name="can-focus">False</property>
             <property name="halign">center</property>
             <property name="valign">center</property>

@@ -421,75 +421,8 @@
           </packing>
         </child>
         <child>
-          <object class="GtkEventBox" id="crop_corner1">
-            <property name="name">crop_corner1</property>
-            <property name="visible">True</property>
-            <property name="can-focus">False</property>
-            <property name="halign">center</property>
-            <property name="valign">center</property>
-            <property name="visible-window">False</property>
-            <child>
-              <object class="GtkImage" id="corner_icon">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="opacity">0.90</property>
-                <property name="pixbuf">../UserInterface/uiImages/button.png</property>
-              </object>
-            </child>
-          </object>
-          <packing>
-            <property name="x">51</property>
-            <property name="y">392</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkEventBox" id="crop_corner2">
-            <property name="name">crop_corner2</property>
-            <property name="visible">True</property>
-            <property name="can-focus">False</property>
-            <property name="halign">center</property>
-            <property name="valign">center</property>
-            <property name="visible-window">False</property>
-            <child>
-              <object class="GtkImage" id="corner_icon1">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="opacity">0.9019607843137255</property>
-                <property name="pixbuf">../UserInterface/uiImages/button.png</property>
-              </object>
-            </child>
-          </object>
-          <packing>
-            <property name="x">80</property>
-            <property name="y">392</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkEventBox" id="crop_corner3">
-            <property name="name">crop_corner3</property>
-            <property name="visible">True</property>
-            <property name="can-focus">False</property>
-            <property name="halign">center</property>
-            <property name="valign">center</property>
-            <property name="visible-window">False</property>
-            <child>
-              <object class="GtkImage" id="corner_icon2">
-                <property name="visible">True</property>
-                <property name="can-focus">False</property>
-                <property name="opacity">0.9019607843137255</property>
-                <property name="pixbuf">../UserInterface/uiImages/button.png</property>
-              </object>
-            </child>
-          </object>
-          <packing>
-            <property name="x">51</property>
-            <property name="y">420</property>
-          </packing>
-        </child>
-        <child>
           <object class="GtkEventBox" id="crop_corner4">
             <property name="name">crop_corner4</property>
-            <property name="visible">True</property>
             <property name="can-focus">False</property>
             <property name="halign">center</property>
             <property name="valign">center</property>
@@ -498,7 +431,6 @@
               <object class="GtkImage" id="corner_icon3">
                 <property name="visible">True</property>
                 <property name="can-focus">False</property>
-                <property name="opacity">0.9019607843137255</property>
                 <property name="pixbuf">../UserInterface/uiImages/button.png</property>
               </object>
             </child>
@@ -506,6 +438,67 @@
           <packing>
             <property name="x">80</property>
             <property name="y">420</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkEventBox" id="crop_corner3">
+            <property name="name">crop_corner3</property>
+            <property name="can-focus">False</property>
+            <property name="halign">center</property>
+            <property name="valign">center</property>
+            <property name="visible-window">False</property>
+            <child>
+              <object class="GtkImage" id="corner_icon2">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="pixbuf">../UserInterface/uiImages/button.png</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="x">51</property>
+            <property name="y">420</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkEventBox" id="crop_corner2">
+            <property name="name">crop_corner2</property>
+            <property name="can-focus">False</property>
+            <property name="halign">center</property>
+            <property name="valign">center</property>
+            <property name="visible-window">False</property>
+            <child>
+              <object class="GtkImage" id="corner_icon1">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="pixbuf">../UserInterface/uiImages/button.png</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="x">80</property>
+            <property name="y">392</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkEventBox" id="crop_corner1">
+            <property name="name">crop_corner1</property>
+            <property name="can-focus">False</property>
+            <property name="halign">center</property>
+            <property name="valign">center</property>
+            <property name="visible-window">False</property>
+            <property name="above-child">True</property>
+            <child>
+              <object class="GtkImage" id="corner_icon">
+                <property name="visible">True</property>
+                <property name="can-focus">False</property>
+                <property name="pixbuf">../UserInterface/uiImages/button.png</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="x">51</property>
+            <property name="y">392</property>
           </packing>
         </child>
       </object>

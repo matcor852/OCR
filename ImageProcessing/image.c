@@ -3,14 +3,21 @@
 #include <err.h>
 #include "image.h"
 #include "matrices.h"
+#include "param.h"
 
 // Contains basics functions for manipulating the Image struct
 
-uc *copyChannel(uc *channel, st len)
+uc *newChannel(st len)
 {
 	uc *new_channel = (uc *)malloc(sizeof(uc) * len);
 	if (new_channel == NULL)
 		errx(EXIT_FAILURE, "malloc failed");
+	return new_channel;
+}
+
+uc *copyChannel(uc *channel, st len)
+{
+	uc *new_channel = newChannel(len);
 	for (st i = 0; i < len; i++)
 		new_channel[i] = channel[i];
 	return new_channel;
@@ -27,13 +34,9 @@ Image *newImage(uc nb_channels, st width, st height)
 	uc **channels = (uc **)malloc(nb_channels * sizeof(uc *));
 	if (channels == NULL)
 		errx(EXIT_FAILURE, "malloc failed");
-	uc *channel;
 	for (uc i = 0; i < nb_channels; i++)
 	{
-		channel = (uc *)malloc(width * height * sizeof(uc));
-		if (channel == NULL)
-			errx(EXIT_FAILURE, "malloc failed");
-		channels[i] = channel;
+		channels[i] = newChannel(width * height);
 	}
 	image->channels = channels;
 	return image;
@@ -201,12 +204,13 @@ void placeRGBA(Image *bg, Image *digit, float mat[3][3], int i, int j)
 
 void placeDigit(Image *background, Image *digit, Quad *grid, int i, int j)
 {
+	int nb_cells = getNbCells();
 	uc nb_channels = background->nb_channels;
 	if (digit->nb_channels != nb_channels)
 		errx(EXIT_FAILURE, "background and digit must have the same number of "
 						   "channels");
 	float mat[3][3];
-	getTransformMatrix(grid, 9 * 384, 9 * 384, mat);
+	getTransformMatrix(grid, nb_cells * 384, nb_cells * 384, mat);
 	switch (nb_channels)
 	{
 		case 1:

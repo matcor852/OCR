@@ -17,13 +17,21 @@ typedef struct
     GtkBox *box;
     GtkWidget *back_to_menu;
     GtkWidget *file_select_grid;
+
     GtkWidget *sudoku_image;
+    Point *imageOrigin;
     
+    GtkButton *resetFilters_button;
     GtkButton *grayscale_button;
     GtkButton *gaussian_button;
     GtkButton *sobel_button;
 
     GtkButton *autoDetect_button;
+    GtkButton *manuDetect_button;
+    GtkButton *rotate_left_button;
+    GtkButton *rotate_right_button;
+    GtkEventBox **crop_corners;
+
     GtkButton *solve_button;
     GtkButton *save_button;
 

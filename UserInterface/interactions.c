@@ -1,5 +1,7 @@
 #include "interactions.h"
 #include <string.h>
+
+#define CC_PIXEL_SIZE 12;
 gint slider_handler_id;
 
 void on_upload_button_clicked(GtkWidget *widget, gpointer data)
@@ -106,10 +108,10 @@ void on_save_clicked(GtkWidget *widget, gpointer data)
 void on_autoDetect_clicked(GtkWidget *widget, gpointer data)
 {
 	Menu *menu = (Menu *)data;
-	toGrey(menu->originImage);
 	Image *betterForLines = copyImage(menu->originImage);
-	initTrig();
+	toGrey(betterForLines);
 	gaussianBlur(betterForLines);
+	//calibrateImage(betterForLines, 50, 0);
 	sobelFilter(betterForLines);
 	thresholdToUpper(betterForLines, 16);
 	Quad *quad = detectGrid(betterForLines);
@@ -146,11 +148,7 @@ void resetFilters(Menu *menu)
 void on_grayscale_toggled(GtkWidget *widget, gpointer data)
 {
 	Menu *menu = (Menu *)data;
-	if (menu->originImage == NULL)
-	{
-		displayWarning(menu->filters_warn_label, "No image loaded");
-		return;
-	}
+	gtk_widget_set_sensitive(widget, 0);
 	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(widget)))
 	{
 		toGrey(menu->originImage);
@@ -181,135 +179,144 @@ void on_solve_clicked(GtkWidget *widget, gpointer data)
 	printf("TODO solve %p\n", menu);
 }
 
-gboolean on_crop_corner_move(GtkWidget *widget, GdkEvent *event, gpointer data)
+gboolean on_crop_corners_move(GtkWidget *widget, GdkEvent *event, gpointer data)
 {
 	Menu *menu = (Menu *)data;
-
 	gint actualX, actualY;
 	gtk_widget_translate_coordinates(widget, gtk_widget_get_toplevel(widget), 0, 0, &actualX, &actualY);
-
-	gint mouseX = event->button.x, mouseY = event->button.y;
-
+	gint mouseX = event->button.x - CC_PIXEL_SIZE;
+	gint mouseY = event->button.y - CC_PIXEL_SIZE;
 	gint newX = actualX + mouseX, newY = actualY + mouseY;
-
-	gint imPosX, imPosY;
-	gtk_widget_translate_coordinates(GTK_WIDGET(menu->sudoku_image), gtk_widget_get_toplevel(GTK_WIDGET(menu->sudoku_image)), 0, 0, &imPosX, &imPosY);
-	gint imWidth = gtk_widget_get_allocated_width(menu->sudoku_image), imHeight = gtk_widget_get_allocated_height(menu->sudoku_image);
-
-
-	if (newX < imPosX + imWidth && newY > imPosY && newY < imPosY + imHeight)
+	gint imOrgX = menu->imageOrigin->x - CC_PIXEL_SIZE;
+	gint imOrgY = menu->imageOrigin->y - CC_PIXEL_SIZE;
+	gint imWidth = menu->originImage->width, imHeight = menu->originImage->height;
+	gint gapBtwnCorners = CC_PIXEL_SIZE;
+	char *p = strchr(gtk_widget_get_name(widget), '1');
+	if (p != NULL)
 	{
-		gtk_fixed_move(GTK_FIXED(menu->fixed1), widget, newX, newY);
+		newX = CLAMP(newX, imOrgX, imOrgX + imWidth/2 - gapBtwnCorners);
+		newY = CLAMP(newY, imOrgY, imOrgY + imHeight/2 - gapBtwnCorners);
 	}
-
-	//printf("x: %d, y: %d\n", actualX + mouseX, actualY + mouseY);
+	p = strchr(gtk_widget_get_name(widget), '2');
+	if (p != NULL)
+	{
+		newX = CLAMP(newX, imOrgX + imWidth/2 + gapBtwnCorners, imOrgX + imWidth);
+		newY = CLAMP(newY, imOrgY, imOrgY + imHeight/2 - gapBtwnCorners);
+	}
+	p = strchr(gtk_widget_get_name(widget), '3');
+	if (p != NULL)
+	{
+		newX = CLAMP(newX, imOrgX + imWidth/2 + gapBtwnCorners, imOrgX + imWidth);
+		newY = CLAMP(newY, imOrgY + imHeight/2 + gapBtwnCorners, imOrgY + imHeight);
+	}
+	p = strchr(gtk_widget_get_name(widget), '4');
+	if (p != NULL)
+	{
+		newX = CLAMP(newX, imOrgX, imOrgX + imWidth/2 - gapBtwnCorners);
+		newY = CLAMP(newY, imOrgY + imHeight/2 + gapBtwnCorners, imOrgY + imHeight);
+	}
+	gtk_fixed_move(GTK_FIXED(menu->fixed1), widget, newX, newY);
 	return TRUE;
 }
 
 void on_rotate_left_clicked(GtkWidget *widget, gpointer data)
 {
-	/*
 	Menu *menu = (Menu *)data;
 	Image *r = rotateImage(menu->originImage, -90, 0);
 	freeImage(menu->originImage);
 	menu->originImage = r;
-	autoResize(menu->originImage, WINDOW_WIDTH*0.6, WINDOW_HEIGHT*0.6);
-	refreshImage(widget, data);
-	*/
-	printf("TODO rotate left\n");
 	refreshImage(widget, data);
 }
 
 void on_rotate_right_clicked(GtkWidget *widget, gpointer data)
 {
-	/*
 	Menu *menu = (Menu *)data;
 	Image *r = rotateImage(menu->originImage, 90, 0);
 	freeImage(menu->originImage);
 	menu->originImage = r;
-	autoResize(menu->originImage, WINDOW_WIDTH*0.6, WINDOW_HEIGHT*0.6);
-	refreshImage(widget, data);
-	*/
-	printf("TODO rotate right \n");
 	refreshImage(widget, data);
 }
 
 void on_manuDetect_clicked(GtkWidget *widget, gpointer data)
 {
 	Menu *menu = (Menu *)data;
-	GtkEventBox *crop_corner1 = GTK_EVENT_BOX(gtk_builder_get_object(menu->builder, "crop_corner1"));
-	GtkEventBox *crop_corner2 = GTK_EVENT_BOX(gtk_builder_get_object(menu->builder, "crop_corner2"));
-	GtkEventBox *crop_corner3 = GTK_EVENT_BOX(gtk_builder_get_object(menu->builder, "crop_corner3"));
-	GtkEventBox *crop_corner4 = GTK_EVENT_BOX(gtk_builder_get_object(menu->builder, "crop_corner4"));
+	GtkEventBox *crop_corner1 = menu->crop_corners[1];
+	GtkEventBox *crop_corner2 = menu->crop_corners[2];
+	GtkEventBox *crop_corner3 = menu->crop_corners[3];
+	GtkEventBox *crop_corner4 = menu->crop_corners[4];
+	GtkWidget *toModifSens[] = {GTK_WIDGET(menu->grayscale_button), GTK_WIDGET(menu->gaussian_button), GTK_WIDGET(menu->sobel_button),
+							GTK_WIDGET(menu->back_to_menu), GTK_WIDGET(menu->sobel_button), GTK_WIDGET(menu->save_button),
+							GTK_WIDGET(menu->save_button), GTK_WIDGET(menu->rotate_left_button), GTK_WIDGET(menu->rotate_right_button),
+							GTK_WIDGET(menu->autoDetect_button), GTK_WIDGET(menu->resetFilters_button), GTK_WIDGET(menu->solve_button),
+							NULL};
 	if (strcmp(gtk_button_get_label(GTK_BUTTON(widget)), "Manual crop") == 0)
 	{
-		gtk_button_set_label(GTK_BUTTON(widget), "Apply crop");
+		changeSensivityWidgets(toModifSens, 0);
 
-		gint imPosX, imPosY;
-		gtk_widget_translate_coordinates(GTK_WIDGET(menu->sudoku_image), gtk_widget_get_toplevel(GTK_WIDGET(menu->sudoku_image)), 0, 0, &imPosX, &imPosY);
-		gint imWidth = gtk_widget_get_allocated_width(menu->sudoku_image), imHeight = gtk_widget_get_allocated_height(menu->sudoku_image);
+		gtk_button_set_label(GTK_BUTTON(widget), "APPLY");
+		gint imOrgX = menu->imageOrigin->x - CC_PIXEL_SIZE;
+		gint imOrgY = menu->imageOrigin->y - CC_PIXEL_SIZE;
+		gint imWidth = menu->originImage->width;
+		gint imHeight = menu->originImage->height;
 
 		gtk_container_remove(GTK_CONTAINER(menu->fixed1), GTK_WIDGET(crop_corner1));
 		gtk_container_add(GTK_CONTAINER(menu->fixed1), GTK_WIDGET(crop_corner1));
-		gtk_fixed_move(GTK_FIXED(menu->fixed1), GTK_WIDGET(crop_corner1), imPosX, imPosY);
+		gtk_fixed_move(GTK_FIXED(menu->fixed1), GTK_WIDGET(crop_corner1), imOrgX, imOrgY);
 		gtk_widget_show(GTK_WIDGET(crop_corner1));
 
 		gtk_container_remove(GTK_CONTAINER(menu->fixed1), GTK_WIDGET(crop_corner2));
 		gtk_container_add(GTK_CONTAINER(menu->fixed1), GTK_WIDGET(crop_corner2));
-		gtk_fixed_move(GTK_FIXED(menu->fixed1), GTK_WIDGET(crop_corner2), imPosX + imWidth, imPosY);
+		gtk_fixed_move(GTK_FIXED(menu->fixed1), GTK_WIDGET(crop_corner2), imOrgX + imWidth, imOrgY);
 		gtk_widget_show(GTK_WIDGET(crop_corner2));
 
 		gtk_container_remove(GTK_CONTAINER(menu->fixed1), GTK_WIDGET(crop_corner3));
 		gtk_container_add(GTK_CONTAINER(menu->fixed1), GTK_WIDGET(crop_corner3));
-		gtk_fixed_move(GTK_FIXED(menu->fixed1), GTK_WIDGET(crop_corner3), imPosX + imWidth, imPosY + imHeight);
+		gtk_fixed_move(GTK_FIXED(menu->fixed1), GTK_WIDGET(crop_corner3), imOrgX + imWidth, imOrgY + imHeight);
 		gtk_widget_show(GTK_WIDGET(crop_corner3));
 
 		gtk_container_remove(GTK_CONTAINER(menu->fixed1), GTK_WIDGET(crop_corner4));
 		gtk_container_add(GTK_CONTAINER(menu->fixed1), GTK_WIDGET(crop_corner4));
-		gtk_fixed_move(GTK_FIXED(menu->fixed1), GTK_WIDGET(crop_corner4), imPosX, imPosY + imHeight);
+		gtk_fixed_move(GTK_FIXED(menu->fixed1), GTK_WIDGET(crop_corner4), imOrgX, imOrgY + imHeight);
 		gtk_widget_show(GTK_WIDGET(crop_corner4));
 	}
 	else
 	{
+
+		changeSensivityWidgets(toModifSens, 1);
 		gtk_button_set_label(GTK_BUTTON(widget), "Manual crop");
 		Point *p1, *p2, *p3, *p4;
-		gint orgX, orgY;
-		gtk_widget_translate_coordinates(GTK_WIDGET(menu->sudoku_image), gtk_widget_get_toplevel(GTK_WIDGET(menu->sudoku_image)), 0, 0, &orgX, &orgY);
-		gint x, y;
-		gtk_widget_translate_coordinates(GTK_WIDGET(crop_corner1), gtk_widget_get_toplevel(GTK_WIDGET(crop_corner1)), 0, 0, &x, &y);
-		p1 = newPoint((st)(x - orgX), (st)(y - orgY));
-		gtk_widget_translate_coordinates(GTK_WIDGET(crop_corner2), gtk_widget_get_toplevel(GTK_WIDGET(crop_corner2)), 0, 0, &x, &y);
-		p2 = newPoint((st)(x - orgX), (st)(y - orgY));
-		gtk_widget_translate_coordinates(GTK_WIDGET(crop_corner3), gtk_widget_get_toplevel(GTK_WIDGET(crop_corner3)), 0, 0, &x, &y);
-		p3 = newPoint((st)(x - orgX), (st)(y - orgY));
-		gtk_widget_translate_coordinates(GTK_WIDGET(crop_corner4), gtk_widget_get_toplevel(GTK_WIDGET(crop_corner4)), 0, 0, &x, &y);
-		p4 = newPoint((st)(x - orgX), (st)(y - orgY));
-		printf("p1: %zu %zu\n", p1->x, p1->y);
-		printf("p2: %zu %zu\n", p2->x, p2->y);
-		printf("p3: %zu %zu\n", p3->x, p3->y);
-		printf("p4: %zu %zu\n", p4->x, p4->y);
-		Quad *quad = newQuad(p1, p2, p4, p3);
+		gint imOrgX = menu->imageOrigin->x - CC_PIXEL_SIZE;
+		gint imOrgY = menu->imageOrigin->y - CC_PIXEL_SIZE;
+		gint xCC, yCC;
+		gtk_widget_translate_coordinates(GTK_WIDGET(crop_corner1), gtk_widget_get_toplevel(GTK_WIDGET(crop_corner1)), 0, 0, &xCC, &yCC);
+		p1 = newPoint((st)(xCC - imOrgX), (st)(yCC - imOrgY));
+		gtk_widget_translate_coordinates(GTK_WIDGET(crop_corner2), gtk_widget_get_toplevel(GTK_WIDGET(crop_corner2)), 0, 0, &xCC, &yCC);
+		p2 = newPoint((st)(xCC - imOrgX), (st)(yCC - imOrgY));
+		gtk_widget_translate_coordinates(GTK_WIDGET(crop_corner3), gtk_widget_get_toplevel(GTK_WIDGET(crop_corner3)), 0, 0, &xCC, &yCC);
+		p3 = newPoint((st)(xCC - imOrgX), (st)(yCC - imOrgY));
+		gtk_widget_translate_coordinates(GTK_WIDGET(crop_corner4), gtk_widget_get_toplevel(GTK_WIDGET(crop_corner4)), 0, 0, &xCC, &yCC);
+		p4 = newPoint((st)(xCC - imOrgX), (st)(yCC - imOrgY));
+
+		Quad *quad = newQuad(p1, p2, p4, p3); //quad struct uses another order of points
 		Image *cropped = extractGrid(menu->originImage, quad, menu->originImage->width, menu->originImage->height);
 		freeImage(menu->originImage);
 		menu->originImage = cropped;
 		freeQuad(quad);
-		GtkWidget *to_hide[] = {GTK_WIDGET(crop_corner1), GTK_WIDGET(crop_corner2), GTK_WIDGET(crop_corner3), GTK_WIDGET(crop_corner4), NULL};
-		widgetHider(to_hide);
+		leave_manual_crop(menu);
 		refreshImage(widget, data);
 	}
 }
 
-void leave_manual_crop(GtkWidget *widget, gpointer data)
+void leave_manual_crop(Menu *menu)
 {
-	Menu *menu = (Menu *)data;
-	GtkEventBox *crop_corner1 = GTK_EVENT_BOX(gtk_builder_get_object(menu->builder, "crop_corner1"));
-	GtkEventBox *crop_corner2 = GTK_EVENT_BOX(gtk_builder_get_object(menu->builder, "crop_corner2"));
-	GtkEventBox *crop_corner3 = GTK_EVENT_BOX(gtk_builder_get_object(menu->builder, "crop_corner3"));
-	GtkEventBox *crop_corner4 = GTK_EVENT_BOX(gtk_builder_get_object(menu->builder, "crop_corner4"));
-	printf("leave_manual_crop\n");
+	GtkEventBox *crop_corner1 = menu->crop_corners[1];
+	GtkEventBox *crop_corner2 = menu->crop_corners[2];
+	GtkEventBox *crop_corner3 = menu->crop_corners[3];
+	GtkEventBox *crop_corner4 = menu->crop_corners[4];
 	GtkWidget *to_hide[] = {GTK_WIDGET(crop_corner1), GTK_WIDGET(crop_corner2), GTK_WIDGET(crop_corner3), GTK_WIDGET(crop_corner4), NULL};
 	widgetHider(to_hide);
 }
+
 /*
 void on_angle_slider_value_changed(GtkWidget *widget, gpointer data)
 {

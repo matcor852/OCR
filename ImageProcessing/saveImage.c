@@ -9,16 +9,23 @@
 #include "saveImage.h"
 #include "display.h"
 
+// unused
 void saveImage(Image *image, const char *filename)
 {
 	SDL_Surface *surface = imageToSurface(image);
-	if (IMG_SavePNG(surface, filename) != 0)
+	char path[40];
+	struct stat st_ = {0};
+	if (stat("saved_images/", &st_) == -1)
+		mkdir("saved_images/", 0700);
+	sprintf(path, "saved_images/%s", filename);
+	if (IMG_SavePNG(surface, path) != 0)
 		errx(1, "Error while saving image");
-	printf("Successfully saved %s\n", filename);
+	printf("Image saved in %s\n", path);
 	SDL_FreeSurface(surface);
 	return;
 }
 
+/*
 Image *getCell(Image *image, int i, int j)
 {
 	int cell_size = 38;
@@ -45,7 +52,6 @@ Image *getCell(Image *image, int i, int j)
 	return cell;
 }
 
-/*
 // in cellExtraction.c
 void saveCell(Image *image, const char *dirname, int i, int j)
 {

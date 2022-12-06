@@ -24,6 +24,8 @@ void SudokuImageFromImage(Menu *menu, Image *image)
 	gtk_widget_show(menu->sudoku_image);
 	gtk_container_add (GTK_CONTAINER (menu->fixed1), menu->sudoku_image);
 	gtk_fixed_move (GTK_FIXED(menu->fixed1), menu->sudoku_image, (WINDOW_WIDTH - 245 - image->width) / 2, (WINDOW_HEIGHT - 450) / 2);
+	menu->imageOrigin->x = (WINDOW_WIDTH - 245 - image->width) / 2;
+	menu->imageOrigin->y = (WINDOW_HEIGHT - 450) / 2;
 }
 
 void destroySudokuImage(Menu *menu)
