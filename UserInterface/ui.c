@@ -91,10 +91,8 @@ void initUserInterface()
 	gtk_main();
 	
 	//------------------ENDING-------------------//
+	freeImage(menu.originImage);
 	free(menu.imageOrigin);
-	if (menu.originImage != NULL)
-		freeImage(menu.originImage);
-	gtk_widget_destroy(GTK_WIDGET(window));
 	rmDir("tmp/");
 	
 	return;

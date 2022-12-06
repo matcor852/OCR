@@ -17,3 +17,7 @@ Image *actualImage(Menu *menu);
 void refreshImage(GtkWidget *widget, gpointer data);
 
 void tmpSaveImage(Image *image, char *destname);
+
+//char *getPathExtension(char *path);
+
+gboolean isLoadableImage(char *path);

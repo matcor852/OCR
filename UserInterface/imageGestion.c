@@ -30,11 +30,10 @@ void SudokuImageFromImage(Menu *menu, Image *image)
 
 void destroySudokuImage(Menu *menu)
 {
-	if (menu->sudoku_image != NULL)
+	if (menu->originImage != NULL)
 	{
 		gtk_widget_destroy(GTK_WIDGET(menu->sudoku_image));
 		menu->sudoku_image = NULL;
-		menu->originPath = "";
 		freeImage(menu->originImage);
 	}
 	return;
@@ -69,10 +68,33 @@ void tmpSaveImage(Image *image, char *destname)
 	SDL_Surface *surface = imageToSurface(image);
 	struct stat st_ = {0};
 	if (stat("tmp/", &st_) == -1)
-		mkdir("tmp/", 0700);
+		mkdir("tmp/", 448);
 	sprintf(destname, "tmp/%d.png", cpt++);
 	if (IMG_SavePNG(surface, destname) != 0)
 		errx(1, "Error while saving temp image");
 	SDL_FreeSurface(surface);
 	return;
+}
+
+/*
+char *getPathExtension(char *path)
+{
+	char *p = strchr(path, '/');
+	while (p != NULL)
+	{
+		path = p + 1;
+		p = strchr(path, '/');
+	}
+	p = strchr(path, '.');
+	return p;
+}
+*/
+
+gboolean isLoadableImage(char *path)
+{
+	SDL_Surface *test = IMG_Load(path);
+	if (test == NULL)
+		return FALSE;
+	SDL_FreeSurface(test);
+	return TRUE;
 }

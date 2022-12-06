@@ -25,13 +25,21 @@ void on_upload_button_clicked(GtkWidget *widget, gpointer data)
   	{
 		GtkFileChooser *chooser = GTK_FILE_CHOOSER (dialog);
 		char *filename = gtk_file_chooser_get_filename (chooser);
-		gtk_window_set_title(menu->window, filename);
 
-		newSudokuImage(menu, filename);
+		if (isLoadableImage(filename) == FALSE)
+		{
+			displayWarning(menu->upload_warn_label, "This format is not loadable");
+		}
+		else
+		{
+			gtk_window_set_title(menu->window, filename);
 
-		GtkWidget *to_hide[] = {menu->file_select_grid, NULL};
-		GtkWidget *to_show[] = {menu->filters_grid, menu->back_to_menu, NULL};
-		widgetCleanup(to_hide, to_show);
+			newSudokuImage(menu, filename);
+
+			GtkWidget *to_hide[] = {menu->file_select_grid, NULL};
+			GtkWidget *to_show[] = {menu->filters_grid, menu->back_to_menu, NULL};
+			widgetCleanup(to_hide, to_show);
+		}
   	}
 	gtk_widget_destroy(dialog);
 }
@@ -44,11 +52,18 @@ void on_upload_entry_activate(GtkWidget *widget, gpointer data)
 	char *filename = (char *)path;
 	if (access(filename,F_OK) == 0)
   	{
-		gtk_window_set_title(menu->window, filename);
-		newSudokuImage(menu, filename);
-		GtkWidget *to_hide[] = {menu->file_select_grid, NULL};
-		GtkWidget *to_show[] = {menu->filters_grid, menu->back_to_menu, NULL};
-		widgetCleanup(to_hide, to_show);
+		if (isLoadableImage(filename) == FALSE)
+		{
+			displayWarning(menu->upload_warn_label, "This format is not loadable");
+		}
+		else
+		{
+			gtk_window_set_title(menu->window, filename);
+			newSudokuImage(menu, filename);
+			GtkWidget *to_hide[] = {menu->file_select_grid, NULL};
+			GtkWidget *to_show[] = {menu->filters_grid, menu->back_to_menu, NULL};
+			widgetCleanup(to_hide, to_show);
+		}
   	}
 	else
 	{
@@ -66,7 +81,6 @@ void on_back_to_menu_button_clicked(GtkWidget *widget, gpointer data)
 	widgetCleanup(to_destroy, to_revive);
 	resetFilters(menu);
 	destroySudokuImage(menu);
-
 	return;
 }
 
@@ -179,7 +193,7 @@ void on_solve_clicked(GtkWidget *widget, gpointer data)
 	printf("TODO solve %p\n", menu);
 }
 
-gboolean on_crop_corners_move(GtkWidget *widget, GdkEvent *event, gpointer data)
+void on_crop_corners_move(GtkWidget *widget, GdkEvent *event, gpointer data)
 {
 	Menu *menu = (Menu *)data;
 	gint actualX, actualY;
@@ -216,7 +230,7 @@ gboolean on_crop_corners_move(GtkWidget *widget, GdkEvent *event, gpointer data)
 		newY = CLAMP(newY, imOrgY + imHeight/2 + gapBtwnCorners, imOrgY + imHeight);
 	}
 	gtk_fixed_move(GTK_FIXED(menu->fixed1), widget, newX, newY);
-	return TRUE;
+	return;
 }
 
 void on_rotate_left_clicked(GtkWidget *widget, gpointer data)
