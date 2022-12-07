@@ -1,6 +1,6 @@
 #include "widgetGestion.h"
 
-void widgetCleanup(GtkWidget ** to_hide, GtkWidget ** to_show)
+void widgetCleanup(GtkWidget **to_hide, GtkWidget **to_show)
 {
 	widgetHider(to_hide);
 	widgetDisplayer(to_show);
@@ -9,10 +9,10 @@ void widgetCleanup(GtkWidget ** to_hide, GtkWidget ** to_show)
 
 void widgetDisplayer(GtkWidget **widgets)
 {
-	for(size_t i = 0; widgets[i] != NULL; i++)
+	for (size_t i = 0; widgets[i] != NULL; i++)
 	{
 		gtk_widget_show(GTK_WIDGET(widgets[i]));
-		//printf("Widget %s displayed\n", gtk_widget_get_name(widgets[i]));
+		// printf("Widget %s displayed\n", gtk_widget_get_name(widgets[i]));
 	}
 	return;
 }
@@ -37,8 +37,8 @@ void changeSensivityWidgets(GtkWidget **widget, int true)
 
 void widgetHider(GtkWidget **widgets)
 {
-	for(size_t i = 0; widgets[i] != NULL; i++)
-			gtk_widget_hide(GTK_WIDGET(widgets[i]));
+	for (size_t i = 0; widgets[i] != NULL; i++)
+		gtk_widget_hide(GTK_WIDGET(widgets[i]));
 	return;
 }
 
@@ -49,7 +49,7 @@ gboolean waitForHideWarning(gpointer data)
 	return FALSE;
 }
 
-void displayWarning(GtkLabel *label, char * message)
+void displayWarning(GtkLabel *label, char *message)
 {
 	gtk_label_set_text(label, message);
 	gtk_widget_show(GTK_WIDGET(label));
@@ -62,6 +62,7 @@ void centerWidget(GtkFixed *fixed, GtkWidget *widget)
 	int widget_width = gtk_widget_get_allocated_width(widget);
 	int widget_height = gtk_widget_get_allocated_height(widget);
 	printf("Widget width: %d, height: %d\n", widget_width, widget_height);
-	gtk_fixed_move(fixed, widget, (WINDOW_WIDTH - widget_width) / 2, (WINDOW_HEIGHT - widget_height) / 2);
+	gtk_fixed_move(fixed, widget, (WINDOW_WIDTH - widget_width) / 2,
+		(WINDOW_HEIGHT - widget_height) / 2);
 	return;
 }

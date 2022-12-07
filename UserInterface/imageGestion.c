@@ -1,12 +1,10 @@
 #include "imageGestion.h"
 
-
 unsigned int cpt = 0;
-
 void newSudokuImage(Menu *menu, char *filename)
 {
 	Image *image = openImage(filename, 4);
-	autoResize(image, WINDOW_WIDTH*0.6, WINDOW_HEIGHT*0.6);
+	autoResize(image, WINDOW_WIDTH * IMAGE_RATIO, WINDOW_HEIGHT * IMAGE_RATIO);
 	SudokuImageFromImage(menu, image);
 	menu->originPath = filename;
 	menu->originImage = image;
@@ -16,14 +14,15 @@ void SudokuImageFromImage(Menu *menu, Image *image)
 {
 	if (menu->sudoku_image != NULL)
 		gtk_widget_destroy(menu->sudoku_image);
-	
+
 	char destname[100];
 	tmpSaveImage(image, destname);
 
 	menu->sudoku_image = gtk_image_new_from_file(destname);
 	gtk_widget_show(menu->sudoku_image);
-	gtk_container_add (GTK_CONTAINER (menu->fixed1), menu->sudoku_image);
-	gtk_fixed_move (GTK_FIXED(menu->fixed1), menu->sudoku_image, (WINDOW_WIDTH - 245 - image->width) / 2, (WINDOW_HEIGHT - 450) / 2);
+	gtk_container_add(GTK_CONTAINER(menu->fixed1), menu->sudoku_image);
+	gtk_fixed_move(GTK_FIXED(menu->fixed1), menu->sudoku_image,
+		(WINDOW_WIDTH - 245 - image->width) / 2, (WINDOW_HEIGHT - 450) / 2);
 	menu->imageOrigin->x = (WINDOW_WIDTH - 245 - image->width) / 2;
 	menu->imageOrigin->y = (WINDOW_HEIGHT - 450) / 2;
 }
@@ -106,8 +105,8 @@ char *getPathExtension(char *path)
 	char *p = strchr(path, '/');
 	while (p != NULL)
 	{
-		path = p + 1;
-		p = strchr(path, '/');
+			path = p + 1;
+			p = strchr(path, '/');
 	}
 	p = strchr(path, '.');
 	return p;

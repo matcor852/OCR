@@ -1,9 +1,8 @@
 #pragma once
 
+#include <gtk/gtk.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <gtk/gtk.h>
-
 #include "ImageProcessing.h"
 
 #define WINDOW_WIDTH 1000
@@ -11,39 +10,37 @@
 
 typedef struct
 {
-    GtkBuilder *builder;
-    GtkWindow *window;
-    GtkFixed *fixed1;
-    GtkBox *box;
-    GtkWidget *back_to_menu;
-    GtkWidget *file_select_grid;
+	GtkBuilder *builder;
+	GtkWindow *window;
+	GtkFixed *fixed1;
+	GtkBox *box;
+	GtkWidget *back_to_menu;
+	GtkWidget *file_select_grid;
 
-    GtkWidget *sudoku_image;
-    Point *imageOrigin;
-    
-    GtkButton *resetFilters_button;
-    GtkButton *grayscale_button;
-    GtkButton *gaussian_button;
-    GtkButton *sobel_button;
+	GtkWidget *sudoku_image;
+	Point *imageOrigin;
 
-    GtkButton *autoDetect_button;
-    GtkButton *manuDetect_button;
-    GtkButton *rotate_left_button;
-    GtkButton *rotate_right_button;
-    GtkEventBox **crop_corners;
+	GtkButton *resetFilters_button;
+	GtkButton *grayscale_button;
+	GtkButton *gaussian_button;
+	GtkButton *sobel_button;
 
-    GtkButton *solve_button;
-    GtkButton *save_button;
+	GtkButton *autoDetect_button;
+	GtkButton *manuDetect_button;
+	GtkButton *rotate_left_button;
+	GtkButton *rotate_right_button;
+	GtkEventBox **crop_corners;
 
-    GtkWidget *filters_grid;
+	GtkButton *solve_button;
+	GtkButton *save_button;
 
-    Image *originImage;
-    char *originPath;
+	GtkWidget *filters_grid;
 
-    GtkLabel *upload_warn_label;
-    GtkLabel *filters_warn_label;
+	Image *originImage;
+	char *originPath;
+
+	GtkLabel *upload_warn_label;
+	GtkLabel *filters_warn_label;
 } Menu;
 
 void uiLaunch();
-
-

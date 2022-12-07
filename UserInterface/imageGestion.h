@@ -2,9 +2,11 @@
 
 #include <sys/stat.h>
 #include <sys/types.h>
+#include "interactions.h"
 #include "ui.h"
 #include "widgetGestion.h"
-#include "interactions.h"
+
+#define IMAGE_RATIO 0.6
 
 void newSudokuImage(Menu *menu, char *filename);
 
@@ -19,7 +21,5 @@ void refreshImage(GtkWidget *widget, gpointer data);
 void tmpSaveImage(Image *image, char *destname);
 
 void loadImage(Menu *menu, char *filename);
-
-//char *getPathExtension(char *path);
 
 gboolean isLoadableImage(char *path);
