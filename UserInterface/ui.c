@@ -9,13 +9,13 @@ void uiLaunch()
 	GtkFixed *fixed1 = GTK_FIXED(gtk_builder_get_object(builder, "fixed1"));
 	GtkBox *box = GTK_BOX(gtk_builder_get_object(builder, "box"));
 	GtkWidget *file_select_grid = GTK_WIDGET(gtk_builder_get_object(builder, "file_select_grid"));
-	centerWidget(fixed1, file_select_grid);
+	//centerWidget(fixed1, file_select_grid);
 
 	GtkWidget *back_to_menu = GTK_WIDGET(gtk_builder_get_object(builder, "back_to_menu"));
 	GtkWidget *upload_button = GTK_WIDGET(gtk_builder_get_object(builder, "upload_button"));
 	GtkWidget *upload_entry = GTK_WIDGET(gtk_builder_get_object(builder, "upload_entry"));
 	GtkWidget *filters_grid = GTK_WIDGET(gtk_builder_get_object(builder, "filters_grid"));
-	centerWidget(fixed1, filters_grid);
+	//centerWidget(fixed1, filters_grid);
 
 	GtkButton *grayscale_button = GTK_BUTTON(gtk_builder_get_object(builder, "grayscale"));
 	GtkButton *gaussian_button = GTK_BUTTON(gtk_builder_get_object(builder, "gaussian"));
@@ -41,7 +41,7 @@ void uiLaunch()
 	//---------MENU STRUCT INITIALIZATION---------//
 	char orP[100];
 	Menu menu =
-    {
+    	{
 		.builder = builder, .window = window, .fixed1 = fixed1, .box = box,
         .back_to_menu = back_to_menu, .file_select_grid = file_select_grid,
         .sudoku_image = NULL, .imageOrigin = newPoint(0, 0),
@@ -56,20 +56,22 @@ void uiLaunch()
 	};
 
 	//-----------------SIGNALS CONNECTION-----------------//
-
 	//Corners
 	g_signal_connect(GTK_WIDGET(crop_corner1), "motion-notify-event", G_CALLBACK(on_crop_corners_move), &menu);
 	g_signal_connect(GTK_WIDGET(crop_corner2), "motion-notify-event", G_CALLBACK(on_crop_corners_move), &menu);
 	g_signal_connect(GTK_WIDGET(crop_corner3), "motion-notify-event", G_CALLBACK(on_crop_corners_move), &menu);
 	g_signal_connect(GTK_WIDGET(crop_corner4), "motion-notify-event", G_CALLBACK(on_crop_corners_move), &menu);
 	//------- Drag and drop -------//
-	g_signal_connect(upload_button, "clicked", G_CALLBACK(on_upload_button_clicked), &menu);
-	g_signal_connect(GTK_WIDGET(upload_button), "drag-data-received", G_CALLBACK(drag_data_received), &menu);
 	GtkTargetEntry *uri_targets = gtk_target_entry_new("text/uri-list", 0, 0);
-	gtk_drag_dest_set(GTK_WIDGET(upload_button), GTK_DEST_DEFAULT_ALL, uri_targets, 1, GDK_ACTION_COPY);
-	//--------------//
-	g_signal_connect(upload_entry, "activate", G_CALLBACK(on_upload_entry_activate), &menu);
 
+	g_signal_connect(upload_button, "clicked", G_CALLBACK(on_upload_button_clicked), &menu);
+	g_signal_connect(GTK_WIDGET(upload_button), "drag-data-received", G_CALLBACK(upload_drag_data_received), &menu);
+	gtk_drag_dest_set(GTK_WIDGET(upload_button), GTK_DEST_DEFAULT_ALL, uri_targets, 1, GDK_ACTION_COPY);
+	
+	g_signal_connect(upload_entry, "activate", G_CALLBACK(on_upload_entry_activate), &menu);
+	g_signal_connect(GTK_WIDGET(upload_entry), "drag-data-received", G_CALLBACK(entry_drag_data_received), &menu);
+	gtk_drag_dest_set(GTK_WIDGET(upload_entry), GTK_DEST_DEFAULT_ALL, uri_targets, 1, GDK_ACTION_COPY);
+	//--------------//
 	g_signal_connect(back_to_menu, "clicked", G_CALLBACK(on_back_to_menu_button_clicked), &menu);
 	g_signal_connect(resetFilters_button, "clicked", G_CALLBACK(on_resetFilters_clicked), &menu);
 	g_signal_connect(grayscale_button, "toggled", G_CALLBACK(on_grayscale_toggled), &menu);
@@ -85,17 +87,14 @@ void uiLaunch()
 	g_signal_connect(save_button, "clicked", G_CALLBACK(on_save_clicked), &menu);
 	g_signal_connect(solve_button, "clicked", G_CALLBACK(on_solve_clicked), &menu);
 	g_signal_connect(window, "destroy", G_CALLBACK(gtk_main_quit),NULL);
-
 	//---------WINDOW  INITIALIZATION---------//
 	gtk_widget_show(GTK_WIDGET (window));
 	gtk_window_set_title(window, "OCR Project");
 	gtk_window_set_position(window, GTK_WIN_POS_CENTER);
 	gtk_window_set_default_size(window, WINDOW_WIDTH, WINDOW_HEIGHT);
 	gtk_window_set_resizable(window, FALSE);
-
 	//-----------------MAIN LOOP-----------------//
 	gtk_main();
-	
 	//------------------ENDING-------------------//
 	gtk_target_entry_free(uri_targets);
 	if (menu.originImage != NULL)

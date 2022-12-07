@@ -6,7 +6,7 @@
 
 #define SENSI 1
 //come from a library but I was unable to import it
-void asprintf(char **strp, const char *fmt, ...);
+//void asprintf(char **strp, const char *fmt, ...);
 
 void on_upload_button_clicked(GtkWidget *widget, gpointer data);
 
@@ -36,7 +36,16 @@ void on_manuDetect_clicked(GtkWidget *widget, gpointer data);
 
 void leave_manual_crop(Menu *menu);
 
-void drag_data_received (GtkWidget          *widget,
+void upload_drag_data_received (GtkWidget          *widget,
+                    GdkDragContext     *context,
+                    gint                x,
+                    gint                y,
+                    GtkSelectionData   *data,
+                    guint               info,
+                    guint               time,
+					gpointer 			userdata);
+
+void entry_drag_data_received (GtkWidget          *widget,
                     GdkDragContext     *context,
                     gint                x,
                     gint                y,

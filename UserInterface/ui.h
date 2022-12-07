@@ -6,8 +6,8 @@
 
 #include "ImageProcessing.h"
 
-#define WINDOW_WIDTH 1500
-#define WINDOW_HEIGHT 1000
+#define WINDOW_WIDTH 1000
+#define WINDOW_HEIGHT 800
 
 typedef struct
 {

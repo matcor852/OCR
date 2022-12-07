@@ -306,7 +306,7 @@ void leave_manual_crop(Menu *menu)
 }
 
 void
-drag_data_received (GtkWidget          *widget,
+upload_drag_data_received (GtkWidget          *widget,
                     GdkDragContext     *context,
                     gint                x,
                     gint                y,
@@ -335,6 +335,37 @@ drag_data_received (GtkWidget          *widget,
 	}
 	gtk_drag_finish (context, TRUE, FALSE, time);
 }
+
+void
+entry_drag_data_received (GtkWidget          *widget,
+                    GdkDragContext     *context,
+                    gint                x,
+                    gint                y,
+                    GtkSelectionData   *data,
+                    guint               info,
+                    guint               time,
+					gpointer 			userdata)
+{
+	(void)x;
+	(void)y;
+	(void)info;
+	(void)userdata;
+	//avoid warning about unused parameters
+	if ((gtk_selection_data_get_length (data) >= 0) && (gtk_selection_data_get_format(data) == 8))
+	{
+		gchar **uris = g_uri_list_extract_uris ((const gchar *)gtk_selection_data_get_data (data));
+		if (uris)
+		{
+			gchar *filename = g_filename_from_uri (uris[0], NULL, NULL);
+			if (filename)
+			{
+				gtk_entry_set_text(GTK_ENTRY(widget), filename);
+			}
+		}
+	}
+	gtk_drag_finish (context, TRUE, FALSE, time);
+}
+
 
 void open_folder_selector(GtkWidget *widget, gpointer data)
 {

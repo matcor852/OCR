@@ -68,9 +68,9 @@ void tmpSaveImage(Image *image, char *destname)
 {
 	SDL_Surface *surface = imageToSurface(image);
 	struct stat st_ = {0};
-	if (stat("tmp/", &st_) == -1)
-		mkdir("tmp/", 448);
-	sprintf(destname, "tmp/%d.png", cpt++);
+	if (stat("tmpImg/", &st_) == -1)
+		mkdir("tmpImg/", 448);
+	sprintf(destname, "tmpImg/%d.png", cpt++);
 	if (IMG_SavePNG(surface, destname) != 0)
 		errx(1, "Error while saving temp image");
 	SDL_FreeSurface(surface);
