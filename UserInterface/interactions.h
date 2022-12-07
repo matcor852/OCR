@@ -35,3 +35,12 @@ void on_rotate_right_clicked(GtkWidget *widget, gpointer data);
 void on_manuDetect_clicked(GtkWidget *widget, gpointer data);
 
 void leave_manual_crop(Menu *menu);
+
+void drag_data_received (GtkWidget          *widget,
+                    GdkDragContext     *context,
+                    gint                x,
+                    gint                y,
+                    GtkSelectionData   *data,
+                    guint               info,
+                    guint               time,
+					gpointer 			userdata);

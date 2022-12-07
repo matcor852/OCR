@@ -35,6 +35,7 @@ void destroySudokuImage(Menu *menu)
 		gtk_widget_destroy(GTK_WIDGET(menu->sudoku_image));
 		menu->sudoku_image = NULL;
 		freeImage(menu->originImage);
+		menu->originImage = NULL;
 	}
 	return;
 }

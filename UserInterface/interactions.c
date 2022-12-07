@@ -4,6 +4,20 @@
 #define CC_PIXEL_SIZE 12;
 gint slider_handler_id;
 
+void load_image(Menu *menu, char *filename)
+{
+	if (isLoadableImage(filename) == FALSE)
+	{
+		displayWarning(menu->upload_warn_label, "This format is not loadable");
+		return;
+	}
+	gtk_window_set_title(menu->window, filename);
+	newSudokuImage(menu, filename);
+	GtkWidget *to_hide[] = {menu->file_select_grid, NULL};
+	GtkWidget *to_show[] = {menu->filters_grid, menu->back_to_menu, NULL};
+	widgetCleanup(to_hide, to_show);
+}
+
 void on_upload_button_clicked(GtkWidget *widget, gpointer data)
 {
 	gtk_widget_show(widget);
@@ -25,21 +39,7 @@ void on_upload_button_clicked(GtkWidget *widget, gpointer data)
   	{
 		GtkFileChooser *chooser = GTK_FILE_CHOOSER (dialog);
 		char *filename = gtk_file_chooser_get_filename (chooser);
-
-		if (isLoadableImage(filename) == FALSE)
-		{
-			displayWarning(menu->upload_warn_label, "This format is not loadable");
-		}
-		else
-		{
-			gtk_window_set_title(menu->window, filename);
-
-			newSudokuImage(menu, filename);
-
-			GtkWidget *to_hide[] = {menu->file_select_grid, NULL};
-			GtkWidget *to_show[] = {menu->filters_grid, menu->back_to_menu, NULL};
-			widgetCleanup(to_hide, to_show);
-		}
+		load_image(menu, filename);
   	}
 	gtk_widget_destroy(dialog);
 }
@@ -52,18 +52,7 @@ void on_upload_entry_activate(GtkWidget *widget, gpointer data)
 	char *filename = (char *)path;
 	if (access(filename,F_OK) == 0)
   	{
-		if (isLoadableImage(filename) == FALSE)
-		{
-			displayWarning(menu->upload_warn_label, "This format is not loadable");
-		}
-		else
-		{
-			gtk_window_set_title(menu->window, filename);
-			newSudokuImage(menu, filename);
-			GtkWidget *to_hide[] = {menu->file_select_grid, NULL};
-			GtkWidget *to_show[] = {menu->filters_grid, menu->back_to_menu, NULL};
-			widgetCleanup(to_hide, to_show);
-		}
+		load_image(menu, filename);
   	}
 	else
 	{
@@ -329,6 +318,32 @@ void leave_manual_crop(Menu *menu)
 	GtkEventBox *crop_corner4 = menu->crop_corners[4];
 	GtkWidget *to_hide[] = {GTK_WIDGET(crop_corner1), GTK_WIDGET(crop_corner2), GTK_WIDGET(crop_corner3), GTK_WIDGET(crop_corner4), NULL};
 	widgetHider(to_hide);
+}
+
+void
+drag_data_received (GtkWidget          *widget,
+                    GdkDragContext     *context,
+                    gint                x,
+                    gint                y,
+                    GtkSelectionData   *data,
+                    guint               info,
+                    guint               time,
+					gpointer 			userdata)
+{
+	Menu *menu = (Menu *)userdata;
+	if ((gtk_selection_data_get_length (data) >= 0) && (gtk_selection_data_get_format(data) == 8))
+	{
+		gchar **uris = g_uri_list_extract_uris ((const gchar *)gtk_selection_data_get_data (data));
+		if (uris)
+		{
+			gchar *filename = g_filename_from_uri (uris[0], NULL, NULL);
+			if (filename)
+			{
+				load_image(menu, filename);
+			}
+		}
+	}
+	gtk_drag_finish (context, TRUE, FALSE, time);
 }
 
 /*

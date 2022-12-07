@@ -60,8 +60,12 @@ void initUserInterface()
 	g_signal_connect(GTK_WIDGET(crop_corner2), "motion-notify-event", G_CALLBACK(on_crop_corners_move), &menu);
 	g_signal_connect(GTK_WIDGET(crop_corner3), "motion-notify-event", G_CALLBACK(on_crop_corners_move), &menu);
 	g_signal_connect(GTK_WIDGET(crop_corner4), "motion-notify-event", G_CALLBACK(on_crop_corners_move), &menu);
-	//-------
+	//------- Drag and drop -------//
 	g_signal_connect(upload_button, "clicked", G_CALLBACK(on_upload_button_clicked), &menu);
+	g_signal_connect(GTK_WIDGET(upload_button), "drag-data-received", G_CALLBACK(drag_data_received), &menu);
+	GtkTargetEntry *uri_targets = gtk_target_entry_new("text/uri-list", 0, 0);
+	gtk_drag_dest_set(GTK_WIDGET(upload_button), GTK_DEST_DEFAULT_ALL, uri_targets, 1, GDK_ACTION_COPY);
+	//--------------//
 	g_signal_connect(upload_entry, "activate", G_CALLBACK(on_upload_entry_activate), &menu);
 
 	g_signal_connect(back_to_menu, "clicked", G_CALLBACK(on_back_to_menu_button_clicked), &menu);
@@ -91,7 +95,9 @@ void initUserInterface()
 	gtk_main();
 	
 	//------------------ENDING-------------------//
-	freeImage(menu.originImage);
+	//gtk_target_entry_free();
+	if (menu.originImage != NULL)
+		freeImage(menu.originImage);
 	free(menu.imageOrigin);
 	rmDir("tmp/");
 	
