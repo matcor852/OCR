@@ -56,3 +56,12 @@ void displayWarning(GtkLabel *label, char * message)
 	g_timeout_add_seconds(1, waitForHideWarning, label);
 	return;
 }
+
+void centerWidget(GtkFixed *fixed, GtkWidget *widget)
+{
+	int widget_width = gtk_widget_get_allocated_width(widget);
+	int widget_height = gtk_widget_get_allocated_height(widget);
+	printf("Widget width: %d, height: %d\n", widget_width, widget_height);
+	gtk_fixed_move(fixed, widget, (WINDOW_WIDTH - widget_width) / 2, (WINDOW_HEIGHT - widget_height) / 2);
+	return;
+}

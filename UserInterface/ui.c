@@ -1,20 +1,22 @@
 #include "ui.h"
 #include "interactions.h"
-#include <fts.h>
 
-void initUserInterface()
+void uiLaunch()
 {
 	//---------GTK COMPONENTS INITIALIZATION WITH GLADE FILE---------//
 	GtkBuilder *builder = gtk_builder_new_from_file("main.glade");
 	GtkWindow *window = GTK_WINDOW(gtk_builder_get_object(builder,"window"));
-	GtkWidget *fixed1 = GTK_WIDGET(gtk_builder_get_object(builder, "fixed1"));
+	GtkFixed *fixed1 = GTK_FIXED(gtk_builder_get_object(builder, "fixed1"));
 	GtkBox *box = GTK_BOX(gtk_builder_get_object(builder, "box"));
 	GtkWidget *file_select_grid = GTK_WIDGET(gtk_builder_get_object(builder, "file_select_grid"));
+	centerWidget(fixed1, file_select_grid);
+
 	GtkWidget *back_to_menu = GTK_WIDGET(gtk_builder_get_object(builder, "back_to_menu"));
 	GtkWidget *upload_button = GTK_WIDGET(gtk_builder_get_object(builder, "upload_button"));
 	GtkWidget *upload_entry = GTK_WIDGET(gtk_builder_get_object(builder, "upload_entry"));
-	
 	GtkWidget *filters_grid = GTK_WIDGET(gtk_builder_get_object(builder, "filters_grid"));
+	centerWidget(fixed1, filters_grid);
+
 	GtkButton *grayscale_button = GTK_BUTTON(gtk_builder_get_object(builder, "grayscale"));
 	GtkButton *gaussian_button = GTK_BUTTON(gtk_builder_get_object(builder, "gaussian"));
 	GtkButton *sobel_button = GTK_BUTTON(gtk_builder_get_object(builder, "sobel"));
@@ -95,56 +97,9 @@ void initUserInterface()
 	gtk_main();
 	
 	//------------------ENDING-------------------//
-	//gtk_target_entry_free();
+	gtk_target_entry_free(uri_targets);
 	if (menu.originImage != NULL)
 		freeImage(menu.originImage);
 	free(menu.imageOrigin);
-	rmDir("tmp/");
-	
 	return;
-}
-
-int rmDir(const char *dir)
-{
-    int ret = 0;
-    FTS *ftsp = NULL;
-    FTSENT *curr;
-    char *files[] = { (char *) dir, NULL };
-    ftsp = fts_open(files, FTS_NOCHDIR | FTS_PHYSICAL | FTS_XDEV, NULL);
-    if (!ftsp) {
-        ret = -1;
-        goto finish;
-    }
-    while ((curr = fts_read(ftsp))) {
-        switch (curr->fts_info) {
-        case FTS_NS:
-        case FTS_DNR:
-        case FTS_ERR:
-			ret = -1;
-            break;
-        case FTS_DC:
-        case FTS_DOT:
-        case FTS_NSOK:
-            break;
-
-        case FTS_D:
-            break;
-
-        case FTS_DP:
-        case FTS_F:
-        case FTS_SL:
-        case FTS_SLNONE:
-        case FTS_DEFAULT:
-            if (remove(curr->fts_accpath) < 0) {
-                fprintf(stderr, "%s: Failed to remove: %s\n",
-                        curr->fts_path, strerror(curr->fts_errno));
-                ret = -1;
-            }
-            break;
-        }
-    }
-
-finish:
-    if (ftsp) { fts_close(ftsp); }
-    return ret;
 }

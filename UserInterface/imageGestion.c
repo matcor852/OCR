@@ -56,7 +56,7 @@ Image *actualImage(Menu *menu)
 
 void refreshImage(GtkWidget *widget, gpointer data)
 {
-	gtk_widget_show(widget);
+	(void)widget;
 	// avoid warning about unused parameter
 	Menu *menu = (Menu *)data;
 	Image *toPrint = actualImage(menu);
@@ -77,6 +77,29 @@ void tmpSaveImage(Image *image, char *destname)
 	return;
 }
 
+void loadImage(Menu *menu, char *filename)
+{
+	if (isLoadableImage(filename) == FALSE)
+	{
+		displayWarning(menu->upload_warn_label, "This format is not loadable");
+		return;
+	}
+	gtk_window_set_title(menu->window, filename);
+	newSudokuImage(menu, filename);
+	GtkWidget *to_hide[] = {menu->file_select_grid, NULL};
+	GtkWidget *to_show[] = {menu->filters_grid, menu->back_to_menu, NULL};
+	widgetCleanup(to_hide, to_show);
+}
+
+gboolean isLoadableImage(char *path)
+{
+	SDL_Surface *test = IMG_Load(path);
+	if (test == NULL)
+		return FALSE;
+	SDL_FreeSurface(test);
+	return TRUE;
+}
+
 /*
 char *getPathExtension(char *path)
 {
@@ -90,12 +113,3 @@ char *getPathExtension(char *path)
 	return p;
 }
 */
-
-gboolean isLoadableImage(char *path)
-{
-	SDL_Surface *test = IMG_Load(path);
-	if (test == NULL)
-		return FALSE;
-	SDL_FreeSurface(test);
-	return TRUE;
-}

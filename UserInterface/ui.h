@@ -6,14 +6,14 @@
 
 #include "ImageProcessing.h"
 
-#define WINDOW_WIDTH 1000
-#define WINDOW_HEIGHT 800
+#define WINDOW_WIDTH 1500
+#define WINDOW_HEIGHT 1000
 
 typedef struct
 {
     GtkBuilder *builder;
     GtkWindow *window;
-    GtkWidget *fixed1;
+    GtkFixed *fixed1;
     GtkBox *box;
     GtkWidget *back_to_menu;
     GtkWidget *file_select_grid;
@@ -44,8 +44,6 @@ typedef struct
     GtkLabel *filters_warn_label;
 } Menu;
 
-int rmDir(const char *dir);
-
-void initUserInterface();
+void uiLaunch();
 
 

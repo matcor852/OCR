@@ -2,27 +2,11 @@
 #include <string.h>
 
 #define CC_PIXEL_SIZE 12;
-gint slider_handler_id;
-
-void load_image(Menu *menu, char *filename)
-{
-	if (isLoadableImage(filename) == FALSE)
-	{
-		displayWarning(menu->upload_warn_label, "This format is not loadable");
-		return;
-	}
-	gtk_window_set_title(menu->window, filename);
-	newSudokuImage(menu, filename);
-	GtkWidget *to_hide[] = {menu->file_select_grid, NULL};
-	GtkWidget *to_show[] = {menu->filters_grid, menu->back_to_menu, NULL};
-	widgetCleanup(to_hide, to_show);
-}
 
 void on_upload_button_clicked(GtkWidget *widget, gpointer data)
 {
-	gtk_widget_show(widget);
-	//AVOID WARNING
-
+	(void)widget;
+	//avoid warning about unused parameter
 	Menu *menu = (Menu *)data;
 	GtkWidget *dialog;
 	gint res;
@@ -39,7 +23,7 @@ void on_upload_button_clicked(GtkWidget *widget, gpointer data)
   	{
 		GtkFileChooser *chooser = GTK_FILE_CHOOSER (dialog);
 		char *filename = gtk_file_chooser_get_filename (chooser);
-		load_image(menu, filename);
+		loadImage(menu, filename);
   	}
 	gtk_widget_destroy(dialog);
 }
@@ -52,7 +36,7 @@ void on_upload_entry_activate(GtkWidget *widget, gpointer data)
 	char *filename = (char *)path;
 	if (access(filename,F_OK) == 0)
   	{
-		load_image(menu, filename);
+		loadImage(menu, filename);
   	}
 	else
 	{
@@ -75,8 +59,8 @@ void on_back_to_menu_button_clicked(GtkWidget *widget, gpointer data)
 
 void on_save_clicked(GtkWidget *widget, gpointer data)
 {
-	gtk_widget_show(widget);
-	// avoid warning about unused parameter
+	(void)widget;
+	//avoid warning about unused parameter
 	Menu *menu = (Menu *)data;
 	GtkWidget *dialog;
 	GtkFileChooser *chooser;
@@ -177,7 +161,8 @@ void on_resetFilters_clicked(GtkWidget *widget, gpointer data)
 
 void on_solve_clicked(GtkWidget *widget, gpointer data)
 {
-	gtk_widget_show(widget);
+	(void)widget;
+	//avoid warning about unused parameters
 	Menu *menu = (Menu *)data;
 	printf("TODO solve %p\n", menu);
 }
@@ -330,6 +315,11 @@ drag_data_received (GtkWidget          *widget,
                     guint               time,
 					gpointer 			userdata)
 {
+	(void)widget;
+	(void)x;
+	(void)y;
+	(void)info;
+	//avoid warning about unused parameters
 	Menu *menu = (Menu *)userdata;
 	if ((gtk_selection_data_get_length (data) >= 0) && (gtk_selection_data_get_format(data) == 8))
 	{
@@ -339,13 +329,36 @@ drag_data_received (GtkWidget          *widget,
 			gchar *filename = g_filename_from_uri (uris[0], NULL, NULL);
 			if (filename)
 			{
-				load_image(menu, filename);
+				loadImage(menu, filename);
 			}
 		}
 	}
 	gtk_drag_finish (context, TRUE, FALSE, time);
 }
 
+void open_folder_selector(GtkWidget *widget, gpointer data)
+{
+	(void)widget;
+	//avoid warning about unused parameters
+	Menu *menu = (Menu *)data;
+	GtkWidget *dialog;
+	dialog = gtk_file_chooser_dialog_new ("Choose a folder",
+	                                      GTK_WINDOW(menu->window),
+	                                      GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER,
+	                                      "_Cancel",
+	                                      GTK_RESPONSE_CANCEL,
+	                                      "_Ok",
+	                                      GTK_RESPONSE_ACCEPT,
+	                                      NULL);
+	if (gtk_dialog_run (GTK_DIALOG (dialog)) == GTK_RESPONSE_ACCEPT)
+	{
+		char *filename;
+		GtkFileChooser *chooser = GTK_FILE_CHOOSER (dialog);
+		filename = gtk_file_chooser_get_filename (chooser);
+		printf("TODOopen%s\n", filename);
+	}
+	gtk_widget_destroy (dialog);
+}
 /*
 void on_angle_slider_value_changed(GtkWidget *widget, gpointer data)
 {

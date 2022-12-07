@@ -44,3 +44,5 @@ void drag_data_received (GtkWidget          *widget,
                     guint               info,
                     guint               time,
 					gpointer 			userdata);
+
+void open_folder_selector(GtkWidget *widget, gpointer data);
