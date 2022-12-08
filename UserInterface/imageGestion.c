@@ -35,6 +35,7 @@ void destroySudokuImage(Menu *menu)
 		menu->sudoku_image = NULL;
 		freeImage(menu->originImage);
 		menu->originImage = NULL;
+		g_free(menu->originPath);
 	}
 	return;
 }
@@ -43,13 +44,9 @@ Image *actualImage(Menu *menu)
 {
 	Image *toPrint = copyImage(menu->originImage);
 	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(menu->gaussian_button)))
-	{
 		gaussianBlur(toPrint);
-	}
 	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(menu->sobel_button)))
-	{
 		sobelFilter(toPrint);
-	}
 	return toPrint;
 }
 
@@ -98,17 +95,3 @@ gboolean isLoadableImage(char *path)
 	SDL_FreeSurface(test);
 	return TRUE;
 }
-
-/*
-char *getPathExtension(char *path)
-{
-	char *p = strchr(path, '/');
-	while (p != NULL)
-	{
-			path = p + 1;
-			p = strchr(path, '/');
-	}
-	p = strchr(path, '.');
-	return p;
-}
-*/

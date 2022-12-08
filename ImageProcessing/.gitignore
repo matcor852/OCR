@@ -13,6 +13,6 @@ COMMIT_MESSAGE
 
 # Images
 Images/*
-!./Images/images_[0-9]*.jpeg
+!Images/image_[0-9]*.jpeg
 board_*/
 saved_images/*

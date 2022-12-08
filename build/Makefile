@@ -4,7 +4,7 @@
 .SILENT: save
 .SILENT: format
 
-SRC = ../UserInterface/*.c ../ImageProcessing/*.c
+SRC = *.c ../ImageProcessing/*.c
 
 OBJ = ${SRC:.c=.o}
 DEP = ${SRC:.c=.d}

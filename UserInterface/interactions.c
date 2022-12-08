@@ -36,11 +36,11 @@ void on_upload_entry_activate(GtkWidget *widget, gpointer data)
 	if (access(filename, F_OK) == 0)
 	{
 		loadImage(menu, filename);
+		g_free(filename);
 	}
 	else
 	{
 		displayWarning(menu->upload_warn_label, "File not found");
-		g_free(filename);
 	}
 	return;
 }
@@ -154,14 +154,6 @@ void on_resetFilters_clicked(GtkWidget *widget, gpointer data)
 	refreshImage(widget, data);
 }
 
-void on_solve_clicked(GtkWidget *widget, gpointer data)
-{
-	(void)widget;
-	// avoid warning about unused parameters
-	Menu *menu = (Menu *)data;
-	printf("TODO solve %p\n", menu);
-}
-
 void on_crop_corners_move(GtkWidget *widget, GdkEvent *event, gpointer data)
 {
 	Menu *menu = (Menu *)data;
@@ -242,11 +234,11 @@ void on_manuDetect_clicked(GtkWidget *widget, gpointer data)
 		GTK_WIDGET(menu->autoDetect_button),
 		GTK_WIDGET(menu->resetFilters_button), GTK_WIDGET(menu->solve_button),
 		NULL};
-	if (strcmp(gtk_button_get_label(GTK_BUTTON(widget)), "Manual crop") == 0)
+	if (strcmp(gtk_label_get_text(GTK_LABEL(menu->manuDetect_label)), "Manual crop") == 0)
 	{
 		changeSensivityWidgets(toModifSens, 0);
 
-		gtk_button_set_label(GTK_BUTTON(widget), "APPLY");
+		gtk_label_set_text(GTK_LABEL(menu->manuDetect_label), "Apply");
 		gint imOrgX = menu->imageOrigin->x - CC_PIXEL_SIZE;
 		gint imOrgY = menu->imageOrigin->y - CC_PIXEL_SIZE;
 		gint imWidth = menu->originImage->width,
@@ -288,7 +280,7 @@ void on_manuDetect_clicked(GtkWidget *widget, gpointer data)
 	else
 	{
 		changeSensivityWidgets(toModifSens, 1);
-		gtk_button_set_label(GTK_BUTTON(widget), "Manual crop");
+		gtk_label_set_text(GTK_LABEL(menu->manuDetect_label), "Manual crop");
 		Point *p1, *p2, *p3, *p4;
 		gint imOrgX = menu->imageOrigin->x - CC_PIXEL_SIZE;
 		gint imOrgY = menu->imageOrigin->y - CC_PIXEL_SIZE;
@@ -405,6 +397,47 @@ void open_folder_selector(GtkWidget *widget, gpointer data)
 	}
 	gtk_widget_destroy(dialog);
 }
+
+void on_solve_clicked(GtkWidget *widget, gpointer data)
+{
+	(void)widget;
+	(void)data;
+	// avoid warning about unused parameters
+	/*
+	Menu *menu = (Menu *)data;
+	Image *toSolve = copyImage(menu->originImage);
+	toGrey(toSolve);
+	gaussianBlur(toSolve);
+	sobelFilter(toSolve);
+	thresholdToUpper(toSolve, 16);
+	Quad *quad = detectGrid(toSolve);
+	if (quad == NULL)
+	{
+		displayWarning(menu->filters_warn_label, "No sudoku found");
+		freeImage(toSolve);
+		return;
+	}
+	Image *extracted = extractGrid(toSolve, quad, toSolve->width,
+		toSolve->height);
+	*/
+	printf("SOLVING...\n");
+	
+}
+/*
+void on_window_resize(GtkWidget* widget, GdkEventConfigure event, gpointer user_data)
+{
+	(void)event;
+	// avoid warning about unused parameter
+	Menu *menu = (Menu *)user_data;
+	int widget_width = gtk_widget_get_allocated_width(widget);
+	int widget_height = gtk_widget_get_allocated_height(widget);
+	printf("Widget width: %d, height: %d\n", widget_width, widget_height);
+	printf("grid %p\n", menu->file_select_grid);
+	gtk_fixed_move(menu->fixed1, GTK_WIDGET(menu->file_select_grid), (WINDOW_WIDTH - widget_width) / 2,
+		(WINDOW_HEIGHT - widget_height) / 2);
+	return;
+}
+*/
 /*
 void on_angle_slider_value_changed(GtkWidget *widget, gpointer data)
 {

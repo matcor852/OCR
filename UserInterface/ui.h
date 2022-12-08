@@ -3,7 +3,13 @@
 #include <gtk/gtk.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "ImageProcessing.h"
+
+#include "../ImageProcessing/display.h"
+#include "../ImageProcessing/filters.h"
+#include "../ImageProcessing/hough.h"
+#include "../ImageProcessing/saveImage.h"
+#include "../ImageProcessing/tools.h"
+#include "../ImageProcessing/transformImage.h"
 
 #define WINDOW_WIDTH 1000
 #define WINDOW_HEIGHT 800
@@ -26,7 +32,7 @@ typedef struct
 	GtkButton *sobel_button;
 
 	GtkButton *autoDetect_button;
-	GtkButton *manuDetect_button;
+	GtkLabel *manuDetect_label;
 	GtkButton *rotate_left_button;
 	GtkButton *rotate_right_button;
 	GtkEventBox **crop_corners;
@@ -41,6 +47,15 @@ typedef struct
 
 	GtkLabel *upload_warn_label;
 	GtkLabel *filters_warn_label;
+
 } Menu;
+
+typedef enum
+{
+	FILTERS,
+	DETECTION,
+	NEURAL_NETWORK,
+	SOLVE
+} MenuStates;
 
 void uiLaunch();

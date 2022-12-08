@@ -41,3 +41,5 @@ void entry_drag_data_received(GtkWidget *widget, GdkDragContext *context,
 	gpointer userdata);
 
 void open_folder_selector(GtkWidget *widget, gpointer data);
+
+//void on_window_resize( GtkWidget* widget, GdkEventConfigure event, gpointer user_data);
