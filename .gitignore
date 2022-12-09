@@ -29,6 +29,7 @@
 *.dylib
 
 # Executables
+main
 *.exe
 *.out
 *.app
@@ -55,6 +56,28 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+# IDE files
+.vscode/
+
+# Format files
+.clang-format
+
+# Tests
+test*
+verbose*
+
+# Commit message
+COMMIT_MESSAGE
+
+# Images
+/ImageProcessing/Images/*
+!/ImageProcessing/Images/images_[0-9]*.jpeg
+/ImageProcessing/board_*/*
+/ImageProcessing/saved_images/*
+
+# Other branches
+/Solver/
 
 #saved Code::Blocks copies
 *.save
