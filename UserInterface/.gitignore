@@ -2,6 +2,8 @@
 *.jpg
 *.png
 !uiImages/*
-*.o
+\#main.glade*
+main.glade~
+*../UserInterface/.o
 *.d
 .clang-format
