@@ -50,3 +50,12 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+#saved Code::Blocks copies
+*.save
+*.txt
+*.save-failed
+*.csv
+*.png
+NeuralNetwork/DataSets/hcd_784_401235_training.bin
+NeuralNetwork/DataSets/hcd_784_67294_validation.bin
