@@ -6,7 +6,7 @@ import numpy as np
 x = [0]
 y = []
 
-with open("D:/Code/C/OCR/NeuralNetwork/stats.txt", "r") as f:
+with open("D:/Code/TP/C/OCR/NeuralNetwork/stats.txt", "r") as f:
     for line in f:
         try:
             x.append(x[-1]+1)

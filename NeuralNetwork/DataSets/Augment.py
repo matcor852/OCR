@@ -73,7 +73,7 @@ def GenNoise(root, nb):
 
 root = "D:/Code/TP/C/OCR/NeuralNetwork/DataSets/_/"
 
-GenNoise(root, 3000)
+GenNoise(root, 6903)
 
 
 

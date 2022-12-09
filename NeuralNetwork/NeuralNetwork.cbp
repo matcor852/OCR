@@ -59,7 +59,7 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="Tools.h" />
-		<Unit filename="main.c">
+		<Unit filename="mainTrain.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Extensions>

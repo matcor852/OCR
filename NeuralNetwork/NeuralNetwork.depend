@@ -69,19 +69,19 @@
 1668207558 source:d:\code\c\ocr\neuralnetwork\tools.c
 	"Tools.h"
 
-1668779510 source:d:\code\tp\c\ocr\neuralnetwork\activations.c
+1670582457 source:d:\code\tp\c\ocr\neuralnetwork\activations.c
 	"Activations.h"
 	"Tools.h"
 	<float.h>
 	<math.h>
 	<stdlib.h>
 
-1668779510 d:\code\tp\c\ocr\neuralnetwork\activations.h
+1670582358 d:\code\tp\c\ocr\neuralnetwork\activations.h
 	<math.h>
 	<float.h>
 	"Tools.h"
 
-1668779519 d:\code\tp\c\ocr\neuralnetwork\tools.h
+1670582358 d:\code\tp\c\ocr\neuralnetwork\tools.h
 	<stdio.h>
 	<stdlib.h>
 	<stdbool.h>
@@ -90,39 +90,39 @@
 	<math.h>
 	"Rand.h"
 
-1668779519 d:\code\tp\c\ocr\neuralnetwork\rand.h
+1670582373 d:\code\tp\c\ocr\neuralnetwork\rand.h
 	<math.h>
 	<stdlib.h>
 
-1668779510 source:d:\code\tp\c\ocr\neuralnetwork\cost.c
+1670582484 source:d:\code\tp\c\ocr\neuralnetwork\cost.c
 	"Cost.h"
 
-1668779510 d:\code\tp\c\ocr\neuralnetwork\cost.h
+1670582358 d:\code\tp\c\ocr\neuralnetwork\cost.h
 	<math.h>
 	<float.h>
 	"Tools.h"
 
-1669981418 source:d:\code\tp\c\ocr\neuralnetwork\layer.c
+1670582358 source:d:\code\tp\c\ocr\neuralnetwork\layer.c
 	"Layer.h"
 
-1669976051 d:\code\tp\c\ocr\neuralnetwork\layer.h
+1670582358 d:\code\tp\c\ocr\neuralnetwork\layer.h
 	<time.h>
 	"Activations.h"
 
-1669981060 source:d:\code\tp\c\ocr\neuralnetwork\network.c
+1670582358 source:d:\code\tp\c\ocr\neuralnetwork\network.c
 	"Network.h"
 
-1669976051 d:\code\tp\c\ocr\neuralnetwork\network.h
+1670582358 d:\code\tp\c\ocr\neuralnetwork\network.h
 	<errno.h>
 	<time.h>
 	"Layer.h"
 	"Cost.h"
 	<stdlib.h>
 
-1668779519 source:d:\code\tp\c\ocr\neuralnetwork\rand.c
+1670582358 source:d:\code\tp\c\ocr\neuralnetwork\rand.c
 	"Rand.h"
 
-1668779519 source:d:\code\tp\c\ocr\neuralnetwork\tools.c
+1670582358 source:d:\code\tp\c\ocr\neuralnetwork\tools.c
 	"Tools.h"
 
 1670140957 source:d:\code\tp\c\ocr\neuralnetwork\main.c
@@ -136,6 +136,12 @@
 	<stdlib.h>
 	"Network.h"
 
-1670020884 source:d:\code\tp\c\ocr\neuralnetwork\iohelper.c
+1670145917 source:d:\code\tp\c\ocr\neuralnetwork\iohelper.c
+	"IOHelper.h"
+
+1670582358 source:d:\code\tp\c\ocr\neuralnetwork\maintrain.c
+	<stdio.h>
+	<stdlib.h>
+	<time.h>
 	"IOHelper.h"
 
